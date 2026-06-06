@@ -4,21 +4,21 @@
    DYGPRO TRADING JOURNAL — Design System
    ============================================================ */
 :root {
-  --bg:        #080c14;
-  --bg2:       #0d1220;
+  --bg:        #070b12;
+  --bg2:       #0c1322;
   --bg3:       #111827;
-  --surface:   #141c2e;
-  --surface2:  #1a2440;
-  --border:    rgba(255,255,255,0.07);
-  --border2:   rgba(255,255,255,0.13);
-  --accent:    #00d4ff;
-  --accent2:   #0099cc;
-  --gold:      #f0b429;
-  --green:     #10d48e;
-  --red:       #ff4d6d;
-  --text:      #e8edf5;
-  --text2:     #8896b0;
-  --text3:     #4a5568;
+  --surface:   #101826;
+  --surface2:  #172035;
+  --border:    rgba(96,165,250,0.12);
+  --border2:   rgba(96,165,250,0.22);
+  --accent:    #38bdf8;
+  --accent2:   #0ea5e9;
+  --gold:      #fbbf24;
+  --green:     #22c55e;
+  --red:       #f43f5e;
+  --text:      #f0f4fc;
+  --text2:     #94a3b8;
+  --text3:     #475569;
   --sidebar-w: 220px;
   --header-h:  60px;
 }
@@ -283,10 +283,11 @@ body {
 /* Panel */
 .panel {
   background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 24px;
-  margin-bottom: 20px;
+  border: 1px solid var(--border2);
+  border-radius: 18px;
+  padding: 26px;
+  margin-bottom: 22px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.3);
 }
 .panel h2 {
   font-family: 'Bebas Neue', sans-serif;
@@ -310,13 +311,13 @@ body {
 }
 
 .card {
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: linear-gradient(135deg, var(--surface), var(--surface2));
+  border: 1px solid var(--border2);
   border-radius: 14px;
   padding: 18px 16px;
-  transition: border-color .2s;
+  transition: all .2s;
 }
-.card:hover { border-color: var(--border2); }
+.card:hover { border-color: var(--accent); box-shadow: 0 0 18px rgba(56,189,248,0.08); }
 
 .card span {
   display: block;
@@ -784,11 +785,12 @@ button[type="submit"]:hover { opacity: .88; }
 .top-bar {
   display: flex; align-items: center;
   justify-content: space-between;
-  padding: 0 36px;
+  padding: 0 48px;
   height: 64px;
   background: var(--bg2);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border2);
   position: sticky; top: 0; z-index: 200;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.4);
 }
 
 .top-logo {
@@ -908,7 +910,7 @@ button[type="submit"]:hover { opacity: .88; }
 .nav-item i { font-size: 15px; width: 18px; }
 
 /* ── Main scroll area ── */
-#main-scroll { padding: 28px 36px; }
+#main-scroll { padding: 28px 48px; max-width: 1360px; margin: 0 auto; }
 
 /* App in sidebar mode shifts right */
 .app.sidebar-mode #main-scroll {

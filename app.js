@@ -4,12 +4,23 @@
    ============================================================ */
 let currentView = localStorage.getItem('dygpro_view') || 'scroll';
 
+// All section IDs for sidebar mode
+const ALL_SECTIONS = [
+  'section-dashboard','section-equity','section-calendar',
+  'section-setup','section-drift','section-recovery',
+  'section-account','section-scorecard','section-entry',
+  'section-history','section-sessions','section-notes',
+  'section-data','section-gallery'
+];
+
+let activeSidebarSection = localStorage.getItem('dygpro_active_section') || 'section-dashboard';
+
 function setView(mode) {
   currentView = mode;
   localStorage.setItem('dygpro_view', mode);
 
-  const sidebar   = document.getElementById('sidebar');
-  const overlay   = document.getElementById('sidebar-overlay');
+  const sidebar    = document.getElementById('sidebar');
+  const overlay    = document.getElementById('sidebar-overlay');
   const btnScroll  = document.getElementById('btn-scroll');
   const btnSidebar = document.getElementById('btn-sidebar');
   const mainScroll = document.getElementById('main-scroll');
@@ -20,13 +31,42 @@ function setView(mode) {
     if (mainScroll) mainScroll.style.marginLeft = '220px';
     btnScroll?.classList.remove('active');
     btnSidebar?.classList.add('active');
+    // Hide all sections, show only active one
+    ALL_SECTIONS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+    showSidebarSection(activeSidebarSection);
   } else {
+    // Show all sections
     sidebar?.classList.add('hidden');
     overlay?.classList.add('hidden');
     if (mainScroll) mainScroll.style.marginLeft = '0';
     btnScroll?.classList.add('active');
     btnSidebar?.classList.remove('active');
+    ALL_SECTIONS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = '';
+    });
   }
+}
+
+function showSidebarSection(sectionId) {
+  activeSidebarSection = sectionId;
+  localStorage.setItem('dygpro_active_section', sectionId);
+  ALL_SECTIONS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = id === sectionId ? '' : 'none';
+  });
+  // Update active nav item
+  document.querySelectorAll('#sidebar .nav-item').forEach(item => {
+    const href = item.getAttribute('href') || '';
+    item.classList.toggle('active', href === '#' + sectionId);
+  });
+  // Scroll to top of main
+  const ms = document.getElementById('main-scroll');
+  if (ms) ms.scrollTop = 0;
+  window.scrollTo(0, 0);
 }
 
 // Restore saved view on load
@@ -1810,6 +1850,11 @@ renderChart = function() {
 
   if (equityChart) equityChart.destroy();
 
+  // Fix high-DPI / retina quality
+  const dpr = window.devicePixelRatio || 1;
+  ctx.width  = ctx.offsetWidth  * dpr;
+  ctx.height = ctx.offsetHeight * dpr;
+
   equityChart = new Chart(ctx, {
     type: "line",
     data: {
@@ -1818,73 +1863,81 @@ renderChart = function() {
         {
           label: "Equity Real",
           data: real,
-          borderWidth: 3,
-          tension: 0.35,
-          pointRadius: 4,
-          pointHoverRadius: 7,
-          pointHitRadius: 12
+          borderColor: "#38bdf8",
+          backgroundColor: "rgba(56,189,248,0.08)",
+          borderWidth: 2.5,
+          tension: 0.4,
+          pointRadius: 3,
+          pointHoverRadius: 6,
+          pointHitRadius: 12,
+          pointBackgroundColor: "#38bdf8",
+          fill: true
         },
         {
-          label: "Equity Dentro del Plan",
+          label: "Dentro del Plan",
           data: plan,
-          borderWidth: 3,
-          tension: 0.35,
-          pointRadius: 4,
-          pointHoverRadius: 7,
-          pointHitRadius: 12
+          borderColor: "#22c55e",
+          backgroundColor: "rgba(34,197,94,0.06)",
+          borderWidth: 2,
+          tension: 0.4,
+          pointRadius: 2,
+          pointHoverRadius: 5,
+          pointHitRadius: 10,
+          pointBackgroundColor: "#22c55e",
+          fill: true
         },
         {
-          label: "Equity Fuera del Plan",
+          label: "Fuera del Plan",
           data: bad,
-          borderWidth: 3,
-          tension: 0.35,
-          pointRadius: 4,
-          pointHoverRadius: 7,
-          pointHitRadius: 12
+          borderColor: "#f43f5e",
+          backgroundColor: "rgba(244,63,94,0.06)",
+          borderWidth: 2,
+          tension: 0.4,
+          pointRadius: 2,
+          pointHoverRadius: 5,
+          pointHitRadius: 10,
+          pointBackgroundColor: "#f43f5e",
+          fill: true
         }
       ]
     },
     options: {
       responsive: true,
-      interaction: {
-        mode: "index",
-        intersect: false
-      },
+      devicePixelRatio: dpr,
+      interaction: { mode: "index", intersect: false },
       plugins: {
         legend: {
           labels: {
-            color: "white"
+            color: "#94a3b8",
+            font: { size: 12 },
+            boxWidth: 14, boxHeight: 2, padding: 16
           }
         },
         tooltip: {
           enabled: true,
-          backgroundColor: "#020617",
+          backgroundColor: "#0c1322",
           titleColor: "#38bdf8",
-          bodyColor: "white",
-          borderColor: "#38bdf8",
+          bodyColor: "#f0f4fc",
+          borderColor: "rgba(56,189,248,0.3)",
           borderWidth: 1,
-          padding: 12,
+          padding: 14,
           callbacks: {
             title: function(context) {
               const index = context[0].dataIndex;
               const t = filteredTrades[index];
-              return `Trade #${index + 1} · ${t.date} ${t.time || ""}`;
+              return `Trade #${index + 1} · ${t ? t.date : ""} ${t ? (t.time || "") : ""}`;
             },
             label: function(context) {
-              return `${context.dataset.label}: ${money(context.raw)}`;
+              return ` ${context.dataset.label}: ${money(context.raw)}`;
             },
             afterBody: function(context) {
               const index = context[0].dataIndex;
               const t = filteredTrades[index];
-
+              if (!t) return [];
               return [
                 "",
-                `Símbolo: ${t.symbol}`,
-                `Dirección: ${t.direction}`,
-                `P/L Trade: ${money(t.pl)}`,
-                `Puntos: ${Number(t.points || 0).toFixed(2)}`,
-                `Setup: ${t.setup || "-"}`,
-                `Plan: ${t.insidePlan ? "Dentro" : "Rompió"}`
+                ` ${t.symbol} ${t.direction}  |  P/L: ${money(t.pl)}`,
+                ` Puntos: ${Number(t.points || 0).toFixed(2)}  |  ${t.insidePlan ? "✅ Dentro del plan" : "❌ Fuera del plan"}`
               ];
             }
           }
@@ -1892,12 +1945,15 @@ renderChart = function() {
       },
       scales: {
         x: {
-          ticks: { color: "#cbd5e1" },
-          grid: { color: "rgba(255,255,255,.08)" }
+          ticks: { color: "#64748b", font: { size: 11 }, maxTicksLimit: 12 },
+          grid: { color: "rgba(255,255,255,0.04)" }
         },
         y: {
-          ticks: { color: "#cbd5e1" },
-          grid: { color: "rgba(255,255,255,.08)" }
+          ticks: {
+            color: "#64748b", font: { size: 11 },
+            callback: val => "$" + Number(val).toLocaleString()
+          },
+          grid: { color: "rgba(255,255,255,0.04)" }
         }
       }
     }
