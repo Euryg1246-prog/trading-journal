@@ -511,17 +511,25 @@
 
       <label>
         Símbolo
-        <select id="symbol" required>
+        <select id="symbol" required onchange="handleSymbolChange(this)">
           <option value="">Seleccionar símbolo</option>
-        <option value="MNQ">MNQ</option>
-        <option value="NQ">NQ</option>
-        <option value="MES">MES</option>
-        <option value="ES">ES</option>
-        <option value="MYM">MYM</option>
-        <option value="YM">YM</option>
-        <option value="MGC">MGC</option>
-        <option value="GC">GC</option>
+          <option value="MNQ">MNQ — Micro Nasdaq ($2/pt)</option>
+          <option value="NQ">NQ — Nasdaq ($20/pt)</option>
+          <option value="MES">MES — Micro S&amp;P ($5/pt)</option>
+          <option value="ES">ES — S&amp;P 500 ($50/pt)</option>
+          <option value="MYM">MYM — Micro Dow ($0.50/pt)</option>
+          <option value="YM">YM — Dow Jones ($5/pt)</option>
+          <option value="MGC">MGC — Micro Gold ($10/pt)</option>
+          <option value="GC">GC — Gold ($100/pt)</option>
+          <option value="CL">CL — Crude Oil ($1000/pt)</option>
+          <option value="MCL">MCL — Micro Crude ($100/pt)</option>
+          <option value="custom">✏️ Otro símbolo...</option>
         </select>
+        <div id="customSymbolBox" style="display:none;margin-top:8px;display:none">
+          <input type="text" id="customSymbolName" placeholder="Símbolo (ej: BTC)" style="margin-bottom:6px">
+          <input type="number" id="customSymbolPoint" placeholder="Valor por punto (ej: 1)" step="0.01">
+          <small style="color:var(--text2);font-size:11px">Ingresa el símbolo y cuánto vale cada punto en USD</small>
+        </div>
         <small>Instrumento operado.</small>
       </label>
 
@@ -787,6 +795,19 @@
     </div>
 
     <div id="cfgPreview" style="margin-top:16px;padding:14px;background:var(--bg2);border-radius:12px;border:1px solid var(--border2);font-size:13px;color:var(--text2);display:none"></div>
+
+    <div style="margin-top:24px;border-top:1px solid var(--border);padding-top:20px">
+      <h3 style="font-size:16px;color:var(--accent);margin-bottom:6px">📊 Mis Mercados</h3>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:14px">Agrega mercados personalizados que no estén en la lista predefinida.</p>
+
+      <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+        <input type="text" id="newSymbolName" placeholder="Símbolo (ej: BTC)" style="max-width:140px">
+        <input type="number" id="newSymbolPoint" placeholder="Valor punto USD" step="0.01" style="max-width:160px">
+        <button class="tool-btn" onclick="addCustomMarket()">+ Agregar mercado</button>
+      </div>
+
+      <div id="customMarketsList" style="display:flex;flex-direction:column;gap:8px"></div>
+    </div>
   </section>
 
 

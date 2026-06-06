@@ -1,5 +1,129 @@
 
 /* ============================================================
+   MERCADOS PERSONALIZADOS
+   ============================================================ */
+function addCustomMarket() {
+  const name = document.getElementById("newSymbolName")?.value.trim().toUpperCase();
+  const pv   = parseFloat(document.getElementById("newSymbolPoint")?.value || "0");
+
+  if (!name) { showToast("⚠️ Error", "Escribe el nombre del símbolo."); return; }
+  if (!pv || pv <= 0) { showToast("⚠️ Error", "El valor por punto debe ser mayor a 0."); return; }
+
+  const customs = JSON.parse(localStorage.getItem("dygpro_custom_symbols") || "{}");
+  customs[name] = pv;
+  localStorage.setItem("dygpro_custom_symbols", JSON.stringify(customs));
+
+  // Add to symbol selector
+  const sel = document.getElementById("symbol");
+  if (sel && !sel.querySelector(`option[value="${name}"]`)) {
+    const opt = document.createElement("option");
+    opt.value = name;
+    opt.textContent = `${name} ($${pv}/pt)`;
+    sel.insertBefore(opt, sel.querySelector('option[value="custom"]'));
+  }
+
+  // Clear inputs
+  if (document.getElementById("newSymbolName")) document.getElementById("newSymbolName").value = "";
+  if (document.getElementById("newSymbolPoint")) document.getElementById("newSymbolPoint").value = "";
+
+  renderCustomMarkets();
+  showToast("✅ Mercado agregado", `${name} añadido con valor $${pv} por punto.`);
+}
+
+function removeCustomMarket(name) {
+  const customs = JSON.parse(localStorage.getItem("dygpro_custom_symbols") || "{}");
+  delete customs[name];
+  localStorage.setItem("dygpro_custom_symbols", JSON.stringify(customs));
+
+  // Remove from selector
+  const sel = document.getElementById("symbol");
+  const opt = sel?.querySelector(`option[value="${name}"]`);
+  if (opt) opt.remove();
+
+  renderCustomMarkets();
+}
+
+function renderCustomMarkets() {
+  const list = document.getElementById("customMarketsList");
+  if (!list) return;
+
+  const customs = JSON.parse(localStorage.getItem("dygpro_custom_symbols") || "{}");
+  const keys = Object.keys(customs);
+
+  if (!keys.length) {
+    list.innerHTML = '<p style="font-size:13px;color:var(--text2)">No hay mercados personalizados aún.</p>';
+    return;
+  }
+
+  list.innerHTML = keys.map(name => `
+    <div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 14px">
+      <span style="font-size:14px;color:var(--text);font-family:DM Mono,monospace">${name}</span>
+      <span style="font-size:13px;color:var(--text2)">$${customs[name]} por punto</span>
+      <button onclick="removeCustomMarket('${name}')" class="danger-btn" style="padding:4px 10px;font-size:12px;border-radius:6px;cursor:pointer;border:1px solid rgba(244,63,94,0.3);background:rgba(244,63,94,0.1);color:var(--red);font-family:DM Sans,sans-serif">Eliminar</button>
+    </div>
+  `).join("");
+}
+
+// Load custom markets into symbol selector on startup
+function loadCustomMarketsIntoSelector() {
+  const customs = JSON.parse(localStorage.getItem("dygpro_custom_symbols") || "{}");
+  const sel = document.getElementById("symbol");
+  if (!sel) return;
+  Object.entries(customs).forEach(([name, pv]) => {
+    if (!sel.querySelector(`option[value="${name}"]`)) {
+      const opt = document.createElement("option");
+      opt.value = name;
+      opt.textContent = `${name} ($${pv}/pt)`;
+      sel.insertBefore(opt, sel.querySelector('option[value="custom"]'));
+    }
+  });
+  renderCustomMarkets();
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  loadCustomMarketsIntoSelector();
+});
+
+
+/* ============================================================
+   SÍMBOLO PERSONALIZADO
+   ============================================================ */
+function handleSymbolChange(sel) {
+  const box = document.getElementById("customSymbolBox");
+  if (!box) return;
+  if (sel.value === "custom") {
+    box.style.display = "block";
+  } else {
+    box.style.display = "none";
+  }
+}
+
+function getSelectedSymbol() {
+  const sel = document.getElementById("symbol");
+  if (!sel) return "";
+  if (sel.value === "custom") {
+    const name = document.getElementById("customSymbolName")?.value.trim().toUpperCase();
+    const pv   = parseFloat(document.getElementById("customSymbolPoint")?.value || "1");
+    if (name) {
+      // Save custom symbol for future use
+      const customs = JSON.parse(localStorage.getItem("dygpro_custom_symbols") || "{}");
+      customs[name] = pv;
+      localStorage.setItem("dygpro_custom_symbols", JSON.stringify(customs));
+      // Add to selector for next time
+      if (!sel.querySelector(`option[value="${name}"]`)) {
+        const opt = document.createElement("option");
+        opt.value = name;
+        opt.textContent = `${name} ($${pv}/pt)`;
+        sel.insertBefore(opt, sel.querySelector('option[value="custom"]'));
+      }
+    }
+    return name || "CUSTOM";
+  }
+  return sel.value;
+}
+
+
+/* ============================================================
    CONFIG UI — Guardar y mostrar configuración del sistema
    ============================================================ */
 const DAY_NAMES_FULL = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
@@ -641,7 +765,22 @@ let trades = [];
 let personalNotes = {};
 let equityChart;
 
-const pointValue = { MNQ: 2, NQ: 20, ES: 50, MES: 5 };
+// Valor por punto de cada instrumento en USD
+const pointValue = {
+  MNQ: 2, NQ: 20, ES: 50, MES: 5,
+  MYM: 0.5, YM: 5,
+  MGC: 10, GC: 100,
+  CL: 1000, MCL: 100,
+  BTC: 1, ETH: 1,
+};
+
+function getPointValue(symbol) {
+  if (pointValue[symbol]) return pointValue[symbol];
+  // Check custom symbols saved by user
+  const customs = JSON.parse(localStorage.getItem("dygpro_custom_symbols") || "{}");
+  if (customs[symbol]) return customs[symbol];
+  return 1; // default 1:1
+}
 const dayNames = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 
 form.addEventListener("submit", async function(e) {
@@ -650,7 +789,7 @@ form.addEventListener("submit", async function(e) {
 
   const date      = val("date");
   const time      = val("time");
-  const symbol    = val("symbol");
+  const symbol    = getSelectedSymbol() || val("symbol");
   const direction = val("direction");
   const entry     = num("entry");
   const exit      = num("exit");
@@ -668,7 +807,7 @@ form.addEventListener("submit", async function(e) {
   const peakTime    = val("peakTime");
 
   const points = direction === "Long" ? exit - entry : entry - exit;
-  const pl     = points * pointValue[symbol] * contracts;
+  const pl     = points * getPointValue(symbol) * contracts;
 
   const insideWindow = isInsidePlanWindow(date, time);
   const insidePlan   = insideWindow && ruleFollowed === "yes";
