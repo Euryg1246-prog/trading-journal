@@ -1,172 +1,3 @@
-
-/* ============================================================
-   SISTEMA DE TEMAS
-   ============================================================ */
-function setTheme(theme) {
-  document.documentElement.setAttribute('data-theme', theme === 'navy' ? '' : theme);
-  localStorage.setItem('dygpro_theme', theme);
-  // Update active swatch
-  document.querySelectorAll('.swatch-circle').forEach(s => s.classList.remove('active'));
-  const swatch = document.getElementById('swatch-' + theme);
-  if (swatch) swatch.classList.add('active');
-}
-
-function setAccent(color, color2) {
-  document.documentElement.style.setProperty('--accent', color);
-  document.documentElement.style.setProperty('--accent2', color2);
-  localStorage.setItem('dygpro_accent', color);
-  localStorage.setItem('dygpro_accent2', color2);
-  // Update active dot
-  document.querySelectorAll('.accent-dot').forEach(d => d.classList.remove('active'));
-  document.querySelectorAll('.accent-dot').forEach(d => {
-    if (d.style.background === color) d.classList.add('active');
-  });
-}
-
-function toggleThemePanel() {
-  const panel = document.getElementById('themePanel');
-  if (panel) panel.classList.toggle('hidden');
-}
-
-// Close theme panel when clicking outside
-document.addEventListener('click', e => {
-  const panel = document.getElementById('themePanel');
-  if (!panel) return;
-  if (!panel.contains(e.target) && !e.target.closest('.settings-btn')) {
-    panel.classList.add('hidden');
-  }
-});
-
-// Restore saved theme on load
-(function restoreTheme() {
-  const saved = localStorage.getItem('dygpro_theme') || 'navy';
-  setTheme(saved);
-  const accent  = localStorage.getItem('dygpro_accent');
-  const accent2 = localStorage.getItem('dygpro_accent2');
-  if (accent) {
-    document.documentElement.style.setProperty('--accent', accent);
-    document.documentElement.style.setProperty('--accent2', accent2 || accent);
-  }
-})();
-
-
-/* ============================================================
-   VISTA COMPLETA vs VISTA POR SECCIONES
-   ============================================================ */
-let currentView = localStorage.getItem('dygpro_view') || 'scroll';
-
-// Section map: sidebar ID → array of element IDs/classes to show
-const SECTION_MAP = {
-  'section-dashboard':  ['dash-cards-1','dash-cards-2','dash-cards-3','dash-cards-4'],
-  'section-equity':     ['section-equity'],
-  'section-calendar':   ['section-calendar'],
-  'section-setup':      ['section-setup'],
-  'section-drift':      ['section-drift'],
-  'section-recovery':   ['section-recovery'],
-  'section-account':    ['section-account'],
-  'section-scorecard':  ['section-scorecard'],
-  'section-entry':      ['section-entry'],
-  'section-history':    ['section-history'],
-  'section-sessions':   ['section-sessions'],
-  'section-notes':      ['section-notes'],
-  'section-data':       ['section-data'],
-  'section-gallery':    ['section-gallery'],
-};
-
-const ALL_SECTIONS = Object.keys(SECTION_MAP);
-let activeSidebarSection = localStorage.getItem('dygpro_active_section') || 'section-dashboard';
-
-function setView(mode) {
-  currentView = mode;
-  localStorage.setItem('dygpro_view', mode);
-
-  const sidebar    = document.getElementById('sidebar');
-  const btnScroll  = document.getElementById('btn-scroll');
-  const btnSidebar = document.getElementById('btn-sidebar');
-  const mainScroll = document.getElementById('main-scroll');
-
-  if (mode === 'sidebar') {
-    if (sidebar) sidebar.style.display = 'flex';
-    if (mainScroll) mainScroll.style.paddingLeft = '236px';
-    btnScroll?.classList.remove('active');
-    btnSidebar?.classList.add('active');
-    // Hide all, show only active section
-    ALL_SECTIONS.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.style.display = 'none';
-    });
-    showSidebarSection(activeSidebarSection);
-  } else {
-    if (sidebar) sidebar.style.display = 'none';
-    if (mainScroll) mainScroll.style.paddingLeft = '40px';
-    btnScroll?.classList.add('active');
-    btnSidebar?.classList.remove('active');
-    // Show ALL sections
-    ALL_SECTIONS.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.style.display = '';
-    });
-    // Also make sure grid-main and other non-id elements are visible
-    document.querySelectorAll('#main-scroll .grid-main, #main-scroll .dashboard').forEach(el => {
-      el.style.display = '';
-    });
-  }
-}
-
-function showSidebarSection(sectionId) {
-  activeSidebarSection = sectionId;
-  localStorage.setItem('dygpro_active_section', sectionId);
-
-  // Hide all sections
-  ALL_SECTIONS.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.style.display = 'none';
-  });
-
-  // Show only the selected section
-  const target = document.getElementById(sectionId);
-  if (target) target.style.display = '';
-
-  // Dashboard special: also show the card rows and grid
-  if (sectionId === 'section-dashboard') {
-    document.querySelectorAll('#main-scroll .grid-main').forEach(el => el.style.display = '');
-    ['dash-cards-1','dash-cards-2','dash-cards-3','dash-cards-4'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.style.display = '';
-    });
-  }
-
-  // Mark active nav item
-  document.querySelectorAll('#sidebar .nav-item').forEach(item => {
-    const oc = item.getAttribute('onclick') || '';
-    item.classList.toggle('active', oc.includes("'" + sectionId + "'"));
-  });
-
-  window.scrollTo(0, 0);
-}
-
-// Restore saved view on load
-document.addEventListener('DOMContentLoaded', () => {
-  const saved = localStorage.getItem('dygpro_view') || 'scroll';
-  setView(saved);
-});
-
-
-/* ============================================================
-   NAVEGACIÓN — Sidebar páginas
-   ============================================================ */
-function showPage(pageId) {
-  // Ocultar todas las secciones
-  document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
-  // Mostrar la sección seleccionada
-  const section = document.getElementById('page-' + pageId);
-  if (section) section.classList.add('active');
-  // Actualizar nav items
-  document.querySelectorAll('.nav-item').forEach(item => {
-    item.classList.toggle('active', item.getAttribute('onclick')?.includes("'" + pageId + "'"));
-  });
-}
-
 /* ============================================================
    SUPABASE CONFIG
    Reemplaza estos valores con los de tu proyecto en:
@@ -207,12 +38,9 @@ async function initAuth() {
 
 function showApp() {
   document.getElementById("auth-overlay").classList.add("hidden");
+  const bar = document.getElementById("user-bar");
+  bar.classList.add("visible");
   document.getElementById("user-email-label").textContent = currentUser.email;
-  const initials = currentUser.email.slice(0,2).toUpperCase();
-  const av = document.getElementById("user-avatar-initials");
-  if (av) av.textContent = initials;
-  const saved = localStorage.getItem('dygpro_view') || 'scroll';
-  setView(saved);
   loadTradesFromSupabase();
   loadNotesFromSupabase();
 }
@@ -245,22 +73,12 @@ async function submitAuth() {
   btn.textContent = "...";
   btn.disabled = true;
 
-  let error, data;
+  let error;
   if (authMode === "login") {
-    ({ data, error } = await _supabase.auth.signInWithPassword({ email, password }));
-    if (!error && data?.user) {
-      currentUser = data.user;
-      showApp();
-    }
+    ({ error } = await _supabase.auth.signInWithPassword({ email, password }));
   } else {
-    ({ data, error } = await _supabase.auth.signUp({ email, password }));
-    if (!error && data?.user) {
-      currentUser = data.user;
-      showApp();
-    } else if (!error) {
-      errEl.style.color = "#22c55e";
-      errEl.textContent = "Revisa tu email para confirmar la cuenta.";
-    }
+    ({ error } = await _supabase.auth.signUp({ email, password }));
+    if (!error) { errEl.style.color = "#22c55e"; errEl.textContent = "Revisa tu email para confirmar la cuenta."; }
   }
 
   btn.disabled = false;
@@ -1934,78 +1752,73 @@ renderChart = function() {
         {
           label: "Equity Real",
           data: real,
-          borderColor: "#38bdf8",
-          backgroundColor: "rgba(56,189,248,0.12)",
           borderWidth: 3,
           tension: 0.35,
           pointRadius: 0,
-          pointHoverRadius: 5,
-          pointHitRadius: 12,
-          fill: true
+          pointHoverRadius: 6,
+          pointHitRadius: 14
         },
         {
-          label: "Dentro del Plan",
+          label: "Equity Dentro del Plan",
           data: plan,
-          borderColor: "#22c55e",
-          backgroundColor: "rgba(34,197,94,0.08)",
-          borderWidth: 2,
+          borderWidth: 2.5,
           tension: 0.35,
           pointRadius: 0,
-          pointHoverRadius: 5,
-          pointHitRadius: 10,
-          fill: true
+          pointHoverRadius: 6,
+          pointHitRadius: 14
         },
         {
-          label: "Fuera del Plan",
+          label: "Equity Fuera del Plan",
           data: bad,
-          borderColor: "#f43f5e",
-          backgroundColor: "rgba(244,63,94,0.08)",
-          borderWidth: 2,
+          borderWidth: 2.5,
           tension: 0.35,
           pointRadius: 0,
-          pointHoverRadius: 5,
-          pointHitRadius: 10,
-          fill: true
+          pointHoverRadius: 6,
+          pointHitRadius: 14
         }
       ]
     },
     options: {
       responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: "index", intersect: false },
+      interaction: {
+        mode: "index",
+        intersect: false
+      },
       plugins: {
         legend: {
           labels: {
-            color: "#94a3b8",
-            font: { size: 12 },
-            boxWidth: 14, boxHeight: 2, padding: 16
+            color: "white"
           }
         },
         tooltip: {
           enabled: true,
-          backgroundColor: "#0c1322",
+          backgroundColor: "#020617",
           titleColor: "#38bdf8",
-          bodyColor: "#f0f4fc",
-          borderColor: "rgba(56,189,248,0.3)",
+          bodyColor: "white",
+          borderColor: "#38bdf8",
           borderWidth: 1,
-          padding: 14,
+          padding: 12,
           callbacks: {
             title: function(context) {
               const index = context[0].dataIndex;
               const t = filteredTrades[index];
-              return `Trade #${index + 1} · ${t ? t.date : ""} ${t ? (t.time || "") : ""}`;
+              return `Trade #${index + 1} · ${t.date} ${t.time || ""}`;
             },
             label: function(context) {
-              return ` ${context.dataset.label}: ${money(context.raw)}`;
+              return `${context.dataset.label}: ${money(context.raw)}`;
             },
             afterBody: function(context) {
               const index = context[0].dataIndex;
               const t = filteredTrades[index];
-              if (!t) return [];
+
               return [
                 "",
-                ` ${t.symbol} ${t.direction}  |  P/L: ${money(t.pl)}`,
-                ` Puntos: ${Number(t.points || 0).toFixed(2)}  |  ${t.insidePlan ? "✅ Dentro del plan" : "❌ Fuera del plan"}`
+                `Símbolo: ${t.symbol}`,
+                `Dirección: ${t.direction}`,
+                `P/L Trade: ${money(t.pl)}`,
+                `Puntos: ${Number(t.points || 0).toFixed(2)}`,
+                `Setup: ${t.setup || "-"}`,
+                `Plan: ${t.insidePlan ? "Dentro" : "Rompió"}`
               ];
             }
           }
@@ -2013,15 +1826,12 @@ renderChart = function() {
       },
       scales: {
         x: {
-          ticks: { color: "#64748b", font: { size: 11 }, maxTicksLimit: 12 },
-          grid: { color: "rgba(255,255,255,0.04)" }
+          ticks: { color: "#cbd5e1" },
+          grid: { color: "rgba(255,255,255,.08)" }
         },
         y: {
-          ticks: {
-            color: "#64748b", font: { size: 11 },
-            callback: val => "$" + Number(val).toLocaleString()
-          },
-          grid: { color: "rgba(255,255,255,0.04)" }
+          ticks: { color: "#cbd5e1" },
+          grid: { color: "rgba(255,255,255,.08)" }
         }
       }
     }
@@ -2561,310 +2371,3 @@ initPersonalNotesProRestore();
     setup();
   }
 })();
-
-/* ============================================================
-   RELOJ ANALÓGICO
-   ============================================================ */
-function drawClock() {
-  const canvas = document.getElementById('analogClock');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const cx = 80, cy = 80, r = 72;
-  const now = new Date();
-  const h = now.getHours() % 12, m = now.getMinutes(), s = now.getSeconds();
-
-  ctx.clearRect(0, 0, 160, 160);
-
-  // Face
-  ctx.beginPath();
-  ctx.arc(cx, cy, r, 0, Math.PI * 2);
-  ctx.fillStyle = '#0d1220';
-  ctx.fill();
-  ctx.strokeStyle = 'rgba(0,212,255,0.4)';
-  ctx.lineWidth = 2;
-  ctx.stroke();
-
-  // Hour marks
-  for (let i = 0; i < 12; i++) {
-    const a = (i * Math.PI) / 6;
-    const x1 = cx + Math.sin(a) * 62, y1 = cy - Math.cos(a) * 62;
-    const x2 = cx + Math.sin(a) * (i % 3 === 0 ? 52 : 57);
-    const y2 = cy - Math.cos(a) * (i % 3 === 0 ? 52 : 57);
-    ctx.beginPath();
-    ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
-    ctx.strokeStyle = i % 3 === 0 ? 'rgba(0,212,255,0.8)' : 'rgba(255,255,255,0.25)';
-    ctx.lineWidth = i % 3 === 0 ? 2 : 1;
-    ctx.stroke();
-  }
-
-  // Hour hand
-  const ha = ((h + m / 60) * Math.PI) / 6;
-  ctx.beginPath();
-  ctx.moveTo(cx, cy);
-  ctx.lineTo(cx + Math.sin(ha) * 42, cy - Math.cos(ha) * 42);
-  ctx.strokeStyle = '#e8edf5'; ctx.lineWidth = 3.5;
-  ctx.lineCap = 'round'; ctx.stroke();
-
-  // Minute hand
-  const ma = ((m + s / 60) * Math.PI) / 30;
-  ctx.beginPath();
-  ctx.moveTo(cx, cy);
-  ctx.lineTo(cx + Math.sin(ma) * 58, cy - Math.cos(ma) * 58);
-  ctx.strokeStyle = '#00d4ff'; ctx.lineWidth = 2.5;
-  ctx.stroke();
-
-  // Second hand
-  const sa = (s * Math.PI) / 30;
-  ctx.beginPath();
-  ctx.moveTo(cx, cy);
-  ctx.lineTo(cx + Math.sin(sa) * 62, cy - Math.cos(sa) * 62);
-  ctx.strokeStyle = '#f0b429'; ctx.lineWidth = 1.5;
-  ctx.stroke();
-
-  // Center dot
-  ctx.beginPath();
-  ctx.arc(cx, cy, 4, 0, Math.PI * 2);
-  ctx.fillStyle = '#00d4ff'; ctx.fill();
-
-  // Digital time
-  const dig = document.getElementById('clockDigital');
-  if (dig) {
-    dig.textContent = now.toLocaleTimeString('es', { hour12: false });
-  }
-}
-
-setInterval(drawClock, 1000);
-drawClock();
-
-/* ============================================================
-   ALARMAS DE DISCIPLINA
-   ============================================================ */
-const disciplinePhrases = [
-  "La disciplina siempre gana 🏆",
-  "¿Estás dentro del plan? Verifica ahora.",
-  "Cabeza fría. Ejecuta el sistema.",
-  "Una buena operación puede perder. Sigue el plan.",
-  "No operes por emoción. Opera por sistema.",
-  "¿Cumpliste las reglas de entrada?",
-  "El trabajo no es ganar hoy. Es ejecutar el plan.",
-  "Paciencia y disciplina — tu ventaja real.",
-  "¿Esta operación cumple tu setup?",
-  "Controla el riesgo. El dinero se cuida solo."
-];
-
-let intervalAlarmTimer = null;
-let fixedAlarms = JSON.parse(localStorage.getItem('dygpro_alarms') || '[]');
-let alarmCheckTimer = null;
-
-function updateAlarmInterval() {
-  const val = parseInt(document.getElementById('alarmInterval').value);
-  clearInterval(intervalAlarmTimer);
-  if (val > 0) {
-    intervalAlarmTimer = setInterval(() => triggerDisciplineAlert(), val * 60 * 1000);
-    showToast("✅ Intervalo activado", `Recibirás un recordatorio cada ${val} minutos.`);
-  }
-}
-
-function triggerDisciplineAlert() {
-  const phrase = disciplinePhrases[Math.floor(Math.random() * disciplinePhrases.length)];
-  showToast("⚡ DYGPRO Recordatorio", phrase);
-  // Browser notification
-  if (Notification.permission === 'granted') {
-    new Notification('DYGPRO Trading Journal', { body: phrase, icon: '' });
-  }
-}
-
-function showToast(title, msg) {
-  // Remove existing toast
-  document.querySelectorAll('.discipline-toast').forEach(t => t.remove());
-
-  const toast = document.createElement('div');
-  toast.className = 'discipline-toast';
-  toast.innerHTML = `
-    <button class="toast-close" onclick="this.parentElement.remove()">✕</button>
-    <div class="toast-title">${title}</div>
-    <div class="toast-msg">${msg}</div>
-  `;
-  document.body.appendChild(toast);
-
-  // Update discipline msg on clock
-  const dm = document.getElementById('disciplineMsg');
-  if (dm) dm.textContent = msg;
-
-  // Auto remove after 8 seconds
-  setTimeout(() => toast.remove(), 8000);
-}
-
-function addFixedAlarm() {
-  const timeInput = document.getElementById('alarmFixedTime');
-  const time = timeInput.value;
-  if (!time) return;
-
-  fixedAlarms.push({ time, label: `Alarma ${time}` });
-  localStorage.setItem('dygpro_alarms', JSON.stringify(fixedAlarms));
-  timeInput.value = '';
-  renderFixedAlarms();
-}
-
-function removeFixedAlarm(index) {
-  fixedAlarms.splice(index, 1);
-  localStorage.setItem('dygpro_alarms', JSON.stringify(fixedAlarms));
-  renderFixedAlarms();
-}
-
-function renderFixedAlarms() {
-  const list = document.getElementById('fixedAlarmsList');
-  if (!list) return;
-  if (!fixedAlarms.length) { list.innerHTML = ''; return; }
-  list.innerHTML = fixedAlarms.map((a, i) => `
-    <div class="fixed-alarm-item">
-      <span>⏰ ${a.time} — ${a.label}</span>
-      <button onclick="removeFixedAlarm(${i})">✕</button>
-    </div>
-  `).join('');
-}
-
-// Check fixed alarms every 30 seconds
-function checkFixedAlarms() {
-  const now = new Date();
-  const currentTime = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-  fixedAlarms.forEach(a => {
-    if (a.time === currentTime && !a._firedToday) {
-      a._firedToday = true;
-      const msgs = {
-        '18:00': '🟢 Ventana de trading ABIERTA — Dom 6PM. El sistema está activo.',
-        '16:00': '🔴 Ventana de trading CERRANDO — Mié 4PM. Cierra posiciones.',
-      };
-      showToast('⏰ Alarma', msgs[a.time] || `Alarma programada: ${a.time}`);
-    }
-    // Reset at midnight
-    if (now.getHours() === 0 && now.getMinutes() === 0) a._firedToday = false;
-  });
-}
-
-alarmCheckTimer = setInterval(checkFixedAlarms, 30000);
-
-// Request notification permission
-if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
-  Notification.requestPermission();
-}
-
-renderFixedAlarms();
-
-/* ============================================================
-   GALERÍA DE CAPTURAS DE TRADES
-   ============================================================ */
-let tradeImages = JSON.parse(localStorage.getItem('dygpro_images') || '[]');
-let currentImageIndex = null;
-
-function handleImageUpload(event) {
-  const files = Array.from(event.target.files);
-  files.forEach(file => {
-    if (file.size > 5 * 1024 * 1024) {
-      showToast('⚠️ Imagen muy grande', 'Máximo 5MB por imagen.'); return;
-    }
-    const reader = new FileReader();
-    reader.onload = e => {
-      tradeImages.unshift({
-        id: Date.now() + Math.random(),
-        data: e.target.result,
-        note: '',
-        date: new Date().toLocaleDateString('es'),
-        uploaded: new Date().toISOString()
-      });
-      saveImages();
-      renderGallery();
-    };
-    reader.readAsDataURL(file);
-  });
-  event.target.value = '';
-}
-
-function saveImages() {
-  try {
-    localStorage.setItem('dygpro_images', JSON.stringify(tradeImages));
-  } catch(e) {
-    showToast('⚠️ Almacenamiento lleno', 'Elimina algunas imágenes para liberar espacio.');
-  }
-}
-
-function renderGallery() {
-  const grid = document.getElementById('tradeGallery');
-  if (!grid) return;
-
-  const search = document.getElementById('gallerySearch')?.value.toLowerCase() || '';
-  const filtered = tradeImages.filter(img =>
-    !search || img.note.toLowerCase().includes(search) || img.date.includes(search)
-  );
-
-  if (!filtered.length) {
-    grid.innerHTML = `<div class="gallery-empty">
-      <i class="ti ti-photo-off" style="font-size:40px;display:block;margin-bottom:10px"></i>
-      ${search ? 'No se encontraron capturas.' : 'Aún no hay capturas. Sube tu primer screenshot de trade.'}
-    </div>`;
-    return;
-  }
-
-  grid.innerHTML = filtered.map((img, i) => `
-    <div class="gallery-item" onclick="openImageModal(${tradeImages.indexOf(img)})">
-      <img src="${img.data}" alt="Trade capture" loading="lazy">
-      <div class="gallery-item-meta">
-        <div class="gallery-item-date">${img.date}</div>
-        <div class="gallery-item-note">${img.note || 'Sin nota — haz clic para añadir'}</div>
-      </div>
-    </div>
-  `).join('');
-}
-
-function openImageModal(index) {
-  currentImageIndex = index;
-  const img = tradeImages[index];
-  document.getElementById('modalImg').src = img.data;
-  document.getElementById('modalNote').value = img.note || '';
-  document.getElementById('imageModal').classList.remove('hidden');
-}
-
-function closeImageModal() {
-  document.getElementById('imageModal').classList.add('hidden');
-  currentImageIndex = null;
-}
-
-function saveImageNote() {
-  if (currentImageIndex === null) return;
-  tradeImages[currentImageIndex].note = document.getElementById('modalNote').value;
-  saveImages();
-  renderGallery();
-  showToast('✅ Nota guardada', 'La nota de la captura fue actualizada.');
-}
-
-function deleteImage() {
-  if (currentImageIndex === null) return;
-  const ok = confirm('¿Eliminar esta captura?');
-  if (!ok) return;
-  tradeImages.splice(currentImageIndex, 1);
-  saveImages();
-  closeImageModal();
-  renderGallery();
-}
-
-// Drag and drop support
-document.addEventListener('DOMContentLoaded', () => {
-  const uploadArea = document.querySelector('.gallery-upload-area');
-  if (!uploadArea) return;
-
-  uploadArea.addEventListener('dragover', e => {
-    e.preventDefault();
-    uploadArea.style.borderColor = 'var(--gold)';
-  });
-  uploadArea.addEventListener('dragleave', () => {
-    uploadArea.style.borderColor = '';
-  });
-  uploadArea.addEventListener('drop', e => {
-    e.preventDefault();
-    uploadArea.style.borderColor = '';
-    const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
-    if (files.length) handleImageUpload({ target: { files }, stopPropagation: ()=>{} });
-  });
-
-  renderGallery();
-});
