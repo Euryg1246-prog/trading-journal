@@ -20,30 +20,31 @@ function setView(mode) {
   localStorage.setItem('dygpro_view', mode);
 
   const sidebar    = document.getElementById('sidebar');
-  const overlay    = document.getElementById('sidebar-overlay');
   const btnScroll  = document.getElementById('btn-scroll');
   const btnSidebar = document.getElementById('btn-sidebar');
   const mainScroll = document.getElementById('main-scroll');
 
   if (mode === 'sidebar') {
-    sidebar?.classList.remove('hidden');
-    overlay?.classList.remove('hidden');
-    if (mainScroll) mainScroll.style.marginLeft = '220px';
+    // Mostrar sidebar
+    if (sidebar) { sidebar.style.display = 'flex'; sidebar.classList.remove('hidden'); }
+    // Empujar contenido a la derecha del sidebar
+    if (mainScroll) { mainScroll.style.marginLeft = '220px'; mainScroll.style.width = 'calc(100% - 220px)'; }
     btnScroll?.classList.remove('active');
     btnSidebar?.classList.add('active');
-    // Hide all sections, show only active one
+    // Ocultar todo, mostrar solo sección activa
     ALL_SECTIONS.forEach(id => {
       const el = document.getElementById(id);
       if (el) el.style.display = 'none';
     });
     showSidebarSection(activeSidebarSection);
   } else {
-    // Show all sections
-    sidebar?.classList.add('hidden');
-    overlay?.classList.add('hidden');
-    if (mainScroll) mainScroll.style.marginLeft = '0';
+    // Ocultar sidebar
+    if (sidebar) { sidebar.style.display = 'none'; sidebar.classList.add('hidden'); }
+    // Contenido a ancho completo
+    if (mainScroll) { mainScroll.style.marginLeft = '0'; mainScroll.style.width = '100%'; }
     btnScroll?.classList.add('active');
     btnSidebar?.classList.remove('active');
+    // Mostrar todas las secciones
     ALL_SECTIONS.forEach(id => {
       const el = document.getElementById(id);
       if (el) el.style.display = '';
@@ -54,18 +55,19 @@ function setView(mode) {
 function showSidebarSection(sectionId) {
   activeSidebarSection = sectionId;
   localStorage.setItem('dygpro_active_section', sectionId);
+  // Ocultar todo
   ALL_SECTIONS.forEach(id => {
     const el = document.getElementById(id);
-    if (el) el.style.display = id === sectionId ? '' : 'none';
+    if (el) el.style.display = 'none';
   });
-  // Update active nav item
+  // Mostrar solo la sección pedida
+  const target = document.getElementById(sectionId);
+  if (target) target.style.display = '';
+  // Marcar nav activo por onclick
   document.querySelectorAll('#sidebar .nav-item').forEach(item => {
-    const href = item.getAttribute('href') || '';
-    item.classList.toggle('active', href === '#' + sectionId);
+    const oc = item.getAttribute('onclick') || '';
+    item.classList.toggle('active', oc.includes("'" + sectionId + "'"));
   });
-  // Scroll to top of main
-  const ms = document.getElementById('main-scroll');
-  if (ms) ms.scrollTop = 0;
   window.scrollTo(0, 0);
 }
 

@@ -133,7 +133,7 @@
   <div id="main-scroll">
 
     <section class="grid-main" id="section-dashboard">
-    <div class="panel chart-panel">
+    <div class="panel chart-panel" id="section-equity">
       <h2>Equity Curve Pro</h2>
 
       <div class="equity-controls">
@@ -706,6 +706,35 @@
   </section>
 
 </div>
+
+  <!-- GALERÍA DE CAPTURAS -->
+  <section class="panel" id="section-gallery">
+    <h2>📸 Galería de Trades</h2>
+    <p>Sube capturas de tus operaciones. Añade notas y aprende viendo tus trades.</p>
+    <div class="gallery-upload-area" onclick="document.getElementById('tradeImageInput').click()" style="border:2px dashed var(--border2);border-radius:14px;padding:32px;text-align:center;cursor:pointer;margin-bottom:18px;">
+      <div style="font-size:40px;color:var(--text2);margin-bottom:8px">📷</div>
+      <div style="color:var(--text2);font-size:14px">Haz clic aquí o arrastra una imagen</div>
+      <div style="color:var(--text3);font-size:12px;margin-top:4px">PNG, JPG — máx 5MB</div>
+      <input type="file" id="tradeImageInput" accept="image/*" multiple style="display:none" onchange="handleImageUpload(event)">
+    </div>
+    <input type="text" id="gallerySearch" placeholder="Buscar por nota o fecha..." oninput="renderGallery()" style="max-width:300px;margin-bottom:14px">
+    <div id="tradeGallery" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px"></div>
+  </section>
+
+  <!-- Modal imagen -->
+  <div id="imageModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.85);align-items:center;justify-content:center;">
+    <div style="background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:24px;max-width:700px;width:95%;position:relative;">
+      <button onclick="closeImageModal()" style="position:absolute;top:14px;right:16px;background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;width:auto;grid-column:auto;">✕</button>
+      <img id="modalImg" src="" alt="" style="width:100%;border-radius:12px;max-height:400px;object-fit:contain;background:var(--bg)">
+      <div style="margin-top:14px">
+        <textarea id="modalNote" placeholder="Nota de esta captura..." rows="3" style="width:100%;margin-bottom:10px"></textarea>
+        <div style="display:flex;gap:10px">
+          <button class="tool-btn" onclick="saveImageNote()">Guardar nota</button>
+          <button class="tool-btn danger-btn" onclick="deleteImage()">Eliminar</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

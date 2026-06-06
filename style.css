@@ -141,19 +141,21 @@ body {
    LAYOUT — Sidebar + Main
    ============================================================ */
 #app-layout {
-  display: flex;
+  display: block;
   min-height: 100vh;
+  width: 100%;
 }
 
 /* SIDEBAR */
 #sidebar {
   width: var(--sidebar-w);
   background: var(--bg2);
-  border-right: 1px solid var(--border);
-  position: fixed; top: 0; left: 0;
-  height: 100vh;
+  border-right: 1px solid var(--border2);
+  position: fixed; top: 64px; left: 0;
+  height: calc(100vh - 64px);
   display: flex; flex-direction: column;
   z-index: 100;
+  overflow-y: auto;
   transition: transform .3s;
 }
 
@@ -243,8 +245,7 @@ body {
 
 /* MAIN CONTENT */
 #main-content {
-  margin-left: var(--sidebar-w);
-  flex: 1;
+  width: 100%;
   min-height: 100vh;
 }
 
@@ -287,7 +288,7 @@ body {
   border-radius: 18px;
   padding: 26px;
   margin-bottom: 22px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 32px rgba(0,0,0,0.4);
 }
 .panel h2 {
   font-family: 'Bebas Neue', sans-serif;
@@ -311,13 +312,13 @@ body {
 }
 
 .card {
-  background: linear-gradient(135deg, var(--surface), var(--surface2));
+  background: var(--surface2);
   border: 1px solid var(--border2);
   border-radius: 14px;
   padding: 18px 16px;
   transition: all .2s;
 }
-.card:hover { border-color: var(--accent); box-shadow: 0 0 18px rgba(56,189,248,0.08); }
+.card:hover { border-color: var(--accent); box-shadow: 0 0 18px rgba(56,189,248,0.12); }
 
 .card span {
   display: block;
@@ -759,9 +760,8 @@ button[type="submit"]:hover { opacity: .88; }
 
 /* Responsive */
 @media (max-width: 900px) {
-  #sidebar { transform: translateX(-100%); }
-  #sidebar.open { transform: translateX(0); }
-  #main-content { margin-left: 0; }
+  #sidebar { display: none; }
+  #sidebar.open { display: flex; }
   .dashboard { grid-template-columns: repeat(3, 1fr); }
   .grid-main { grid-template-columns: 1fr; }
   .scorecard-grid, .account-grid { grid-template-columns: 1fr; }
@@ -858,23 +858,7 @@ button[type="submit"]:hover { opacity: .88; }
 #logout-btn:hover { background: rgba(255,77,109,0.1); }
 
 /* ── Sidebar (vista por secciones) ── */
-#sidebar-overlay {
-  position: fixed; inset: 0; z-index: 300;
-  background: rgba(0,0,0,0.5);
-}
-#sidebar-overlay.hidden { display: none; }
 
-#sidebar {
-  position: fixed; top: 0; left: 0;
-  height: 100vh; width: var(--sidebar-w);
-  background: var(--bg2);
-  border-right: 1px solid var(--border);
-  z-index: 400;
-  display: flex; flex-direction: column;
-  overflow-y: auto;
-  transition: transform .3s;
-}
-#sidebar.hidden { transform: translateX(-100%); }
 
 .sidebar-logo {
   padding: 22px 20px 18px;
@@ -910,7 +894,7 @@ button[type="submit"]:hover { opacity: .88; }
 .nav-item i { font-size: 15px; width: 18px; }
 
 /* ── Main scroll area ── */
-#main-scroll { padding: 28px 48px; max-width: 1360px; margin: 0 auto; }
+#main-scroll { padding: 28px 40px; width: 100%; }
 
 /* App in sidebar mode shifts right */
 .app.sidebar-mode #main-scroll {
@@ -1114,3 +1098,5 @@ header { display: none; }
   width: 100%; margin-bottom: 10px;
 }
 .modal-actions { display: flex; gap: 10px; }
+
+#sidebar-overlay { display: none !important; }
