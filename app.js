@@ -73,12 +73,22 @@ async function submitAuth() {
   btn.textContent = "...";
   btn.disabled = true;
 
-  let error;
+  let error, data;
   if (authMode === "login") {
-    ({ error } = await _supabase.auth.signInWithPassword({ email, password }));
+    ({ data, error } = await _supabase.auth.signInWithPassword({ email, password }));
+    if (!error && data?.user) {
+      currentUser = data.user;
+      showApp();
+    }
   } else {
-    ({ error } = await _supabase.auth.signUp({ email, password }));
-    if (!error) { errEl.style.color = "#22c55e"; errEl.textContent = "Revisa tu email para confirmar la cuenta."; }
+    ({ data, error } = await _supabase.auth.signUp({ email, password }));
+    if (!error && data?.user) {
+      currentUser = data.user;
+      showApp();
+    } else if (!error) {
+      errEl.style.color = "#22c55e";
+      errEl.textContent = "Revisa tu email para confirmar la cuenta.";
+    }
   }
 
   btn.disabled = false;
