@@ -131,6 +131,7 @@
       <a class="nav-item" href="#" onclick="showSidebarSection('section-sessions');return false;"><i class="ti ti-database"></i> Sesiones</a>
       <a class="nav-item" href="#" onclick="showSidebarSection('section-notes');return false;"><i class="ti ti-notes"></i> Notas</a>
       <a class="nav-item" href="#" onclick="showSidebarSection('section-data');return false;"><i class="ti ti-upload"></i> Importar CSV</a>
+      <a class="nav-item" href="#" onclick="showSidebarSection('section-config');return false;"><i class="ti ti-settings"></i> Mi Sistema</a>
       <a class="nav-item" href="#" onclick="showSidebarSection('section-gallery');return false;"><i class="ti ti-photo"></i> Galería</a>
     </div>
   </nav>
@@ -201,12 +202,12 @@
     <div class="panel system-panel">
       <h2>Estado del Sistema</h2>
       <div class="system-box good">
-        <span>Ventana válida</span>
-        <strong>Dom 6PM → Mié 4PM</strong>
+        <span>Ventana de trading</span>
+        <strong id="systemWindowDisplay">—</strong>
       </div>
       <div class="system-box">
-        <span>Días núcleo</span>
-        <strong>Dom · Lun · Mar</strong>
+        <span>Días activos</span>
+        <strong id="systemDaysDisplay">—</strong>
       </div>
       <div class="system-box danger">
         <span>Fuera del plan</span>
@@ -534,11 +535,11 @@
         <small>Long = compra. Short = venta.</small>
       </label>
 
-      <div class="form-section-title">Datos de la Sesión 6PM</div>
+      <div class="form-section-title">Datos de la Sesión</div>
 
       <label>
-        Precio de Apertura 6PM
-        <input type="number" step="0.25" id="sessionOpen" placeholder="Open 6PM">
+        Precio de Apertura de Sesión
+        <input type="number" step="0.25" id="sessionOpen" placeholder="Precio apertura">
         <small>Precio donde abrió la sesión principal del sistema.</small>
       </label>
 
@@ -566,7 +567,7 @@
         Setup
         <select id="setup" required>
           <option value="">Seleccionar setup</option>
-          <option value="6PM Pullback">6PM Pullback</option>
+          <option value="Mi Setup">Mi Setup</option>
           <option value="Trend Continuation">Trend Continuation</option>
           <option value="Breakout">Breakout</option>
           <option value="Manual">Manual</option>
@@ -655,14 +656,14 @@
   
   <section class="panel" id="section-sessions">
     <h2>Session Database</h2>
-    <p>Base de datos de sesiones del sistema 6PM Pullback.</p>
+    <p>Base de datos de sesiones registradas.</p>
 
     <table>
       <thead>
         <tr>
           <th>Fecha</th>
           <th>Día</th>
-          <th>Open 6PM</th>
+          <th>Open Sesión</th>
           <th>Pullback</th>
           <th>Max Alta</th>
           <th>Hora Pico</th>
@@ -714,6 +715,80 @@
   </section>
 
 </div>
+
+  <!-- CONFIGURACIÓN DEL SISTEMA -->
+  <section class="panel" id="section-config">
+    <h2>⚙️ Configuración de Mi Sistema</h2>
+    <p>Define tu ventana de trading. El journal validará tus operaciones según estas reglas.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px">
+
+      <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">
+        Nombre de tu sistema
+        <input type="text" id="cfgSystemName" placeholder="Ej: Mi Sistema de Trading" style="font-size:14px">
+      </label>
+
+      <div></div>
+
+      <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">
+        Día de inicio
+        <select id="cfgStartDay">
+          <option value="0">Domingo</option>
+          <option value="1">Lunes</option>
+          <option value="2">Martes</option>
+          <option value="3">Miércoles</option>
+          <option value="4">Jueves</option>
+          <option value="5">Viernes</option>
+          <option value="6">Sábado</option>
+        </select>
+      </label>
+
+      <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">
+        Hora de inicio
+        <input type="time" id="cfgStartHour" value="18:00">
+      </label>
+
+      <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">
+        Día de fin
+        <select id="cfgEndDay">
+          <option value="0">Domingo</option>
+          <option value="1">Lunes</option>
+          <option value="2">Martes</option>
+          <option value="3" selected>Miércoles</option>
+          <option value="4">Jueves</option>
+          <option value="5">Viernes</option>
+          <option value="6">Sábado</option>
+        </select>
+      </label>
+
+      <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">
+        Hora de fin
+        <input type="time" id="cfgEndHour" value="16:00">
+      </label>
+
+    </div>
+
+    <div style="margin-top:16px">
+      <p style="font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px">Días válidos todo el día</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap" id="cfgDayCheckboxes">
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);cursor:pointer"><input type="checkbox" value="0"> Dom</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);cursor:pointer"><input type="checkbox" value="1" checked> Lun</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);cursor:pointer"><input type="checkbox" value="2" checked> Mar</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);cursor:pointer"><input type="checkbox" value="3"> Mié</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);cursor:pointer"><input type="checkbox" value="4"> Jue</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);cursor:pointer"><input type="checkbox" value="5"> Vie</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);cursor:pointer"><input type="checkbox" value="6"> Sáb</label>
+      </div>
+    </div>
+
+    <div style="margin-top:20px;display:flex;gap:12px;align-items:center">
+      <button class="tool-btn" onclick="saveSystemConfigUI()" style="font-size:14px;padding:12px 24px">Guardar configuración</button>
+      <button class="tool-btn danger-btn" onclick="resetSystemConfig()">Restablecer por defecto</button>
+    </div>
+
+    <div id="cfgPreview" style="margin-top:16px;padding:14px;background:var(--bg2);border-radius:12px;border:1px solid var(--border2);font-size:13px;color:var(--text2);display:none"></div>
+  </section>
+
 
   <!-- GALERÍA DE CAPTURAS -->
   <section class="panel" id="section-gallery">

@@ -1,5 +1,122 @@
 
 /* ============================================================
+   CONFIG UI — Guardar y mostrar configuración del sistema
+   ============================================================ */
+const DAY_NAMES_FULL = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
+const DAY_NAMES_SHORT = ["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];
+
+function initSystemConfigUI() {
+  const cfg = systemConfig;
+
+  const nameEl = document.getElementById("cfgSystemName");
+  if (nameEl) nameEl.value = cfg.systemName || "Mi Sistema";
+
+  const startDayEl = document.getElementById("cfgStartDay");
+  if (startDayEl) startDayEl.value = cfg.startDay;
+
+  const endDayEl = document.getElementById("cfgEndDay");
+  if (endDayEl) endDayEl.value = cfg.endDay;
+
+  const startHourEl = document.getElementById("cfgStartHour");
+  if (startHourEl) startHourEl.value = `${String(cfg.startHour).padStart(2,"0")}:00`;
+
+  const endHourEl = document.getElementById("cfgEndHour");
+  if (endHourEl) endHourEl.value = `${String(cfg.endHour).padStart(2,"0")}:00`;
+
+  const checkboxes = document.querySelectorAll("#cfgDayCheckboxes input[type=checkbox]");
+  checkboxes.forEach(cb => {
+    cb.checked = cfg.allDayDays.includes(Number(cb.value));
+  });
+
+  updateSystemDisplay();
+}
+
+function saveSystemConfigUI() {
+  const name     = document.getElementById("cfgSystemName")?.value || "Mi Sistema";
+  const startDay = Number(document.getElementById("cfgStartDay")?.value ?? 0);
+  const endDay   = Number(document.getElementById("cfgEndDay")?.value ?? 3);
+  const startTime = document.getElementById("cfgStartHour")?.value || "18:00";
+  const endTime   = document.getElementById("cfgEndHour")?.value || "16:00";
+  const startHour = Number(startTime.split(":")[0]);
+  const endHour   = Number(endTime.split(":")[0]);
+
+  const allDayDays = [];
+  document.querySelectorAll("#cfgDayCheckboxes input[type=checkbox]:checked").forEach(cb => {
+    allDayDays.push(Number(cb.value));
+  });
+
+  const tradingDays = [...new Set([startDay, ...allDayDays, endDay])];
+
+  systemConfig = { systemName: name, tradingDays, startDay, startHour, endDay, endHour, allDayDays };
+  saveSystemConfig(systemConfig);
+  updateSystemDisplay();
+
+  const preview = document.getElementById("cfgPreview");
+  if (preview) {
+    preview.style.display = "block";
+    preview.innerHTML = `✅ <strong>Configuración guardada.</strong> Tu ventana: ${DAY_NAMES_SHORT[startDay]} ${startHour}:00 → ${DAY_NAMES_SHORT[endDay]} ${endHour}:00`;
+  }
+
+  showToast("✅ Sistema configurado", `Ventana: ${DAY_NAMES_SHORT[startDay]} ${startHour}:00 → ${DAY_NAMES_SHORT[endDay]} ${endHour}:00`);
+}
+
+function resetSystemConfig() {
+  systemConfig = { ...DEFAULT_CONFIG };
+  saveSystemConfig(systemConfig);
+  initSystemConfigUI();
+  showToast("↩️ Configuración restablecida", "Se usarán los valores por defecto.");
+}
+
+function updateSystemDisplay() {
+  const cfg = systemConfig;
+  const windowEl = document.getElementById("systemWindowDisplay");
+  const daysEl   = document.getElementById("systemDaysDisplay");
+
+  if (windowEl) {
+    windowEl.textContent = `${DAY_NAMES_SHORT[cfg.startDay]} ${cfg.startHour}:00 → ${DAY_NAMES_SHORT[cfg.endDay]} ${cfg.endHour}:00`;
+  }
+  if (daysEl) {
+    daysEl.textContent = cfg.allDayDays.map(d => DAY_NAMES_SHORT[d]).join(" · ") || "—";
+  }
+}
+
+// Init on load
+document.addEventListener("DOMContentLoaded", () => {
+  initSystemConfigUI();
+});
+
+
+/* ============================================================
+   CONFIGURACIÓN DEL SISTEMA — Cada trader define sus reglas
+   ============================================================ */
+
+const DEFAULT_CONFIG = {
+  systemName:   "Mi Sistema",
+  tradingDays:  [0, 1, 2, 3],     // 0=Dom, 1=Lun, 2=Mar, 3=Mié, 4=Jue, 5=Vie, 6=Sáb
+  startDay:     0,                 // Día de inicio (0=Dom)
+  startHour:    18,                // Hora de inicio
+  endDay:       3,                 // Día de fin (3=Mié)
+  endHour:      16,                // Hora de fin
+  allDayDays:   [1, 2],           // Días que son válidos todo el día
+};
+
+function loadSystemConfig() {
+  try {
+    const saved = localStorage.getItem("dygpro_system_config");
+    return saved ? { ...DEFAULT_CONFIG, ...JSON.parse(saved) } : { ...DEFAULT_CONFIG };
+  } catch(e) {
+    return { ...DEFAULT_CONFIG };
+  }
+}
+
+function saveSystemConfig(cfg) {
+  localStorage.setItem("dygpro_system_config", JSON.stringify(cfg));
+}
+
+let systemConfig = loadSystemConfig();
+
+
+/* ============================================================
    STRIPE — Suscripciones
    ============================================================ */
 const STRIPE_PK       = "pk_live_51Ni9tREkiXgRr3dMRaXKZxdFgX2NfaS6xLpgglnPZMLi6MCQmNbRDa44X1XDQ1U9uS58rS0rIvxCXHV2nJbPKQNd00vjdaWBij";
@@ -179,7 +296,7 @@ const ALL_SECTIONS = [
   'section-setup','section-drift','section-recovery',
   'section-account','section-scorecard-wrapper','section-entry',
   'section-history','section-sessions','section-notes',
-  'section-data','section-gallery'
+  'section-data','section-config','section-gallery'
 ];
 
 let activeSidebarSection = localStorage.getItem('dygpro_active_section') || 'section-dashboard';
@@ -595,13 +712,23 @@ function optionalNum(id) {
 function save() { /* No-op: guardado en Supabase */ }
 
 function isInsidePlanWindow(date, time) {
+  const cfg = systemConfig;
   const d = new Date(`${date}T${time}`);
   const day = d.getDay();
   const minutes = d.getHours() * 60 + d.getMinutes();
 
-  if (day === 0 && minutes >= 18 * 60) return true;
-  if (day === 1 || day === 2) return true;
-  if (day === 3 && minutes <= 16 * 60) return true;
+  // Si el trader no configuró nada, todo es válido (neutral)
+  if (!cfg || cfg.tradingDays.length === 0) return true;
+
+  // Día de inicio con hora de inicio
+  if (day === cfg.startDay && minutes >= cfg.startHour * 60) return true;
+
+  // Días que son válidos todo el día
+  if (cfg.allDayDays.includes(day)) return true;
+
+  // Día de fin con hora de fin
+  if (day === cfg.endDay && minutes <= cfg.endHour * 60) return true;
+
   return false;
 }
 
