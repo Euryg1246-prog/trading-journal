@@ -1,5 +1,56 @@
 
 /* ============================================================
+   SISTEMA DE TEMAS
+   ============================================================ */
+function setTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme === 'navy' ? '' : theme);
+  localStorage.setItem('dygpro_theme', theme);
+  // Update active swatch
+  document.querySelectorAll('.swatch-circle').forEach(s => s.classList.remove('active'));
+  const swatch = document.getElementById('swatch-' + theme);
+  if (swatch) swatch.classList.add('active');
+}
+
+function setAccent(color, color2) {
+  document.documentElement.style.setProperty('--accent', color);
+  document.documentElement.style.setProperty('--accent2', color2);
+  localStorage.setItem('dygpro_accent', color);
+  localStorage.setItem('dygpro_accent2', color2);
+  // Update active dot
+  document.querySelectorAll('.accent-dot').forEach(d => d.classList.remove('active'));
+  document.querySelectorAll('.accent-dot').forEach(d => {
+    if (d.style.background === color) d.classList.add('active');
+  });
+}
+
+function toggleThemePanel() {
+  const panel = document.getElementById('themePanel');
+  if (panel) panel.classList.toggle('hidden');
+}
+
+// Close theme panel when clicking outside
+document.addEventListener('click', e => {
+  const panel = document.getElementById('themePanel');
+  if (!panel) return;
+  if (!panel.contains(e.target) && !e.target.closest('.settings-btn')) {
+    panel.classList.add('hidden');
+  }
+});
+
+// Restore saved theme on load
+(function restoreTheme() {
+  const saved = localStorage.getItem('dygpro_theme') || 'navy';
+  setTheme(saved);
+  const accent  = localStorage.getItem('dygpro_accent');
+  const accent2 = localStorage.getItem('dygpro_accent2');
+  if (accent) {
+    document.documentElement.style.setProperty('--accent', accent);
+    document.documentElement.style.setProperty('--accent2', accent2 || accent);
+  }
+})();
+
+
+/* ============================================================
    VISTA COMPLETA vs VISTA POR SECCIONES
    ============================================================ */
 let currentView = localStorage.getItem('dygpro_view') || 'scroll';

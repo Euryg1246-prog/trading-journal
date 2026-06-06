@@ -94,10 +94,49 @@
           <i class="ti ti-layout-sidebar"></i> Vista por Secciones
         </button>
       </div>
+      <button class="settings-btn" onclick="toggleThemePanel()">
+        <i class="ti ti-palette"></i> Tema
+      </button>
       <div class="user-chip">
         <div class="user-avatar-sm" id="user-avatar-initials">U</div>
         <span id="user-email-label"></span>
         <button id="logout-btn" onclick="signOut()">Salir</button>
+      </div>
+
+      <!-- Theme Panel -->
+      <div id="themePanel" class="theme-panel hidden">
+        <h3>🎨 Tema de color</h3>
+        <div class="theme-swatches">
+          <div class="theme-swatch" onclick="setTheme('navy')">
+            <div class="swatch-circle active" id="swatch-navy" style="background: linear-gradient(135deg,#0a1628,#38bdf8)"></div>
+            <span>Navy</span>
+          </div>
+          <div class="theme-swatch" onclick="setTheme('dark')">
+            <div class="swatch-circle" id="swatch-dark" style="background: linear-gradient(135deg,#080c10,#58a6ff)"></div>
+            <span>Dark</span>
+          </div>
+          <div class="theme-swatch" onclick="setTheme('midnight')">
+            <div class="swatch-circle" id="swatch-midnight" style="background: linear-gradient(135deg,#05080f,#a78bfa)"></div>
+            <span>Midnight</span>
+          </div>
+          <div class="theme-swatch" onclick="setTheme('slate')">
+            <div class="swatch-circle" id="swatch-slate" style="background: linear-gradient(135deg,#0f172a,#38bdf8)"></div>
+            <span>Slate</span>
+          </div>
+          <div class="theme-swatch" onclick="setTheme('light')">
+            <div class="swatch-circle" id="swatch-light" style="background: linear-gradient(135deg,#f0f4f8,#0ea5e9)"></div>
+            <span>Light</span>
+          </div>
+        </div>
+        <div class="theme-divider"></div>
+        <div class="accent-row">
+          <label>Acento</label>
+          <div class="accent-dot active" style="background:#38bdf8" onclick="setAccent('#38bdf8','#0ea5e9')" id="accent-blue"></div>
+          <div class="accent-dot" style="background:#22c55e" onclick="setAccent('#22c55e','#16a34a')" id="accent-green"></div>
+          <div class="accent-dot" style="background:#a78bfa" onclick="setAccent('#a78bfa','#7c3aed')" id="accent-purple"></div>
+          <div class="accent-dot" style="background:#fbbf24" onclick="setAccent('#fbbf24','#d97706')" id="accent-gold"></div>
+          <div class="accent-dot" style="background:#fb923c" onclick="setAccent('#fb923c','#ea580c')" id="accent-orange"></div>
+        </div>
       </div>
     </div>
   </div>
