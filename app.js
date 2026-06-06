@@ -1098,7 +1098,37 @@ function importGenericRows(rows) {
 
 document.getElementById("csvFile")?.addEventListener("change", importCSV);
 document.getElementById("exportCSV")?.addEventListener("click", function() {
-  alert("Exportar CSV lo reactivamos en el próximo paso. Primero estabilizamos.");
+  if (!trades.length) {
+    alert("No hay trades para exportar.");
+    return;
+  }
+
+  const headers = [
+    "Fecha","Hora","Dia","Simbolo","Direccion","Entrada","Salida","Contratos",
+    "Puntos","PL","Setup","Regla","DentroPlan","Error","Notas",
+    "SessionOpen","SessionLow","SessionHigh","PeakTime","Pullback","HighMove","RecoveryPct"
+  ];
+
+  const rows = trades.map(t => [
+    t.date, t.time, t.day, t.symbol, t.direction,
+    t.entry, t.exit, t.contracts, t.points, t.pl,
+    t.setup, t.ruleFollowed, t.insidePlan ? "Dentro" : "Fuera",
+    t.mistake || "", (t.notes || "").replace(/,/g, ";"),
+    t.sessionOpen ?? "", t.sessionLow ?? "", t.sessionHigh ?? "",
+    t.peakTime || "", t.pullback ?? "", t.highMove ?? "", t.recoveryPct ?? ""
+  ]);
+
+  const csv = [headers, ...rows]
+    .map(row => row.map(v => `"${v}"`).join(","))
+    .join("\n");
+
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement("a");
+  a.href     = url;
+  a.download = `DYGPRO_trades_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
 });
 document.getElementById("clearData")?.addEventListener("click", function() {
   const ok = confirm("¿Seguro que quieres borrar todos los datos?");
