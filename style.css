@@ -219,8 +219,9 @@ body {
    LAYOUT — Sidebar + Main
    ============================================================ */
 #app-layout {
-  display: flex;
+  display: block;
   min-height: 100vh;
+  width: 100%;
 }
 
 /* SIDEBAR */
@@ -321,8 +322,7 @@ body {
 
 /* MAIN CONTENT */
 #main-content {
-  margin-left: var(--sidebar-w);
-  flex: 1;
+  width: 100%;
   min-height: 100vh;
 }
 
@@ -386,6 +386,7 @@ body {
   grid-template-columns: repeat(6, 1fr);
   gap: 12px;
   margin-bottom: 20px;
+  width: 100%;
 }
 
 .card {
@@ -937,22 +938,22 @@ button[type="submit"]:hover { opacity: .88; }
 
 /* ── Sidebar (vista por secciones) ── */
 #sidebar-overlay {
-  position: fixed; inset: 0; z-index: 300;
-  background: rgba(0,0,0,0.5);
+  display: none;
 }
 #sidebar-overlay.hidden { display: none; }
 
 #sidebar {
-  position: fixed; top: 0; left: 0;
-  height: 100vh; width: var(--sidebar-w);
+  position: fixed; top: 64px; left: 0;
+  height: calc(100vh - 64px);
+  width: var(--sidebar-w);
   background: var(--bg2);
-  border-right: 1px solid var(--border);
-  z-index: 400;
+  border-right: 1px solid var(--border2);
+  z-index: 100;
   display: flex; flex-direction: column;
   overflow-y: auto;
   transition: transform .3s;
 }
-#sidebar.hidden { transform: translateX(-100%); }
+#sidebar.hidden { transform: translateX(-220px); display: none; }
 
 .sidebar-logo {
   padding: 22px 20px 18px;
@@ -988,11 +989,13 @@ button[type="submit"]:hover { opacity: .88; }
 .nav-item i { font-size: 15px; width: 18px; }
 
 /* ── Main scroll area ── */
-#main-scroll { padding: 28px 48px; max-width: 1360px; margin: 0 auto; }
+#main-scroll { padding: 28px 40px; }
 
-/* App in sidebar mode shifts right */
-.app.sidebar-mode #main-scroll {
-  margin-left: var(--sidebar-w);
+/* Sidebar mode content area */
+#main-scroll {
+  width: 100%;
+  min-height: 100vh;
+  background: var(--bg);
 }
 
 /* Remove old header styles */

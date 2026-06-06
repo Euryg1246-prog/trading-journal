@@ -71,15 +71,20 @@ function setView(mode) {
   localStorage.setItem('dygpro_view', mode);
 
   const sidebar    = document.getElementById('sidebar');
-  const overlay    = document.getElementById('sidebar-overlay');
   const btnScroll  = document.getElementById('btn-scroll');
   const btnSidebar = document.getElementById('btn-sidebar');
   const mainScroll = document.getElementById('main-scroll');
 
   if (mode === 'sidebar') {
+    // Show sidebar
     sidebar?.classList.remove('hidden');
-    overlay?.classList.remove('hidden');
-    if (mainScroll) mainScroll.style.marginLeft = '220px';
+    if (sidebar) sidebar.style.display = 'flex';
+    // Push content right
+    if (mainScroll) {
+      mainScroll.style.marginLeft = '220px';
+      mainScroll.style.width = 'calc(100% - 220px)';
+      mainScroll.style.background = 'var(--bg)';
+    }
     btnScroll?.classList.remove('active');
     btnSidebar?.classList.add('active');
     // Hide all sections, show only active one
@@ -89,12 +94,18 @@ function setView(mode) {
     });
     showSidebarSection(activeSidebarSection);
   } else {
-    // Show all sections
+    // Hide sidebar
+    if (sidebar) sidebar.style.display = 'none';
     sidebar?.classList.add('hidden');
-    overlay?.classList.add('hidden');
-    if (mainScroll) mainScroll.style.marginLeft = '0';
+    // Full width content
+    if (mainScroll) {
+      mainScroll.style.marginLeft = '0';
+      mainScroll.style.width = '100%';
+      mainScroll.style.background = '';
+    }
     btnScroll?.classList.add('active');
     btnSidebar?.classList.remove('active');
+    // Show all sections
     ALL_SECTIONS.forEach(id => {
       const el = document.getElementById(id);
       if (el) el.style.display = '';
