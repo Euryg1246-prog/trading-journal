@@ -106,8 +106,13 @@
   <div id="sidebar-overlay" class="hidden" onclick="setView('scroll')"></div>
   <nav id="sidebar" class="hidden">
     <div class="sidebar-logo">
-      <h1>DYGPRO</h1>
-      <span>Trading Journal</span>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <h1>DYGPRO</h1>
+          <span>Trading Journal</span>
+        </div>
+        <button onclick="collapseSidebar()" title="Ocultar menú" style="background:none;border:none;color:var(--text2);cursor:pointer;font-size:20px;padding:4px;width:auto;grid-column:auto;line-height:1;">✕</button>
+      </div>
     </div>
     <div class="sidebar-nav">
       <div class="nav-section">Principal</div>
@@ -130,6 +135,17 @@
     </div>
   </nav>
 
+      <!-- Botón para mostrar sidebar cuando está oculto -->
+      <button id="btn-show-sidebar" onclick="expandSidebar()" title="Mostrar menú"
+        style="display:none;position:fixed;top:70px;left:0;z-index:200;
+               background:var(--surface2);border:1px solid var(--border2);
+               border-left:none;border-radius:0 8px 8px 0;
+               padding:10px 10px 10px 8px;cursor:pointer;
+               align-items:center;gap:6px;color:var(--accent);
+               font-size:13px;font-family:DM Sans,sans-serif;
+               box-shadow:2px 0 12px rgba(0,0,0,0.3);">
+        ☰
+      </button>
   <div id="main-scroll">
 
     <div id="section-dashboard">

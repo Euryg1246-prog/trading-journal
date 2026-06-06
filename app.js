@@ -1,5 +1,35 @@
 
 /* ============================================================
+   SIDEBAR COLLAPSE / EXPAND
+   ============================================================ */
+function collapseSidebar() {
+  const sidebar    = document.getElementById('sidebar');
+  const mainScroll = document.getElementById('main-scroll');
+  const showBtn    = document.getElementById('btn-show-sidebar');
+
+  if (sidebar) sidebar.style.display = 'none';
+  if (mainScroll) {
+    mainScroll.style.marginLeft = '0';
+    mainScroll.style.width = '100%';
+  }
+  if (showBtn) showBtn.style.display = 'flex';
+}
+
+function expandSidebar() {
+  const sidebar    = document.getElementById('sidebar');
+  const mainScroll = document.getElementById('main-scroll');
+  const showBtn    = document.getElementById('btn-show-sidebar');
+
+  if (sidebar) sidebar.style.display = 'flex';
+  if (mainScroll) {
+    mainScroll.style.marginLeft = '220px';
+    mainScroll.style.width = 'calc(100vw - 220px)';
+  }
+  if (showBtn) showBtn.style.display = 'none';
+}
+
+
+/* ============================================================
    VISTA COMPLETA vs VISTA POR SECCIONES
    ============================================================ */
 let currentView = localStorage.getItem('dygpro_view') || 'scroll';
