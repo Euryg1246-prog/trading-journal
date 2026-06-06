@@ -1,3 +1,19 @@
+
+/* ============================================================
+   NAVEGACIÓN — Sidebar páginas
+   ============================================================ */
+function showPage(pageId) {
+  // Ocultar todas las secciones
+  document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+  // Mostrar la sección seleccionada
+  const section = document.getElementById('page-' + pageId);
+  if (section) section.classList.add('active');
+  // Actualizar nav items
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.classList.toggle('active', item.getAttribute('onclick')?.includes("'" + pageId + "'"));
+  });
+}
+
 /* ============================================================
    SUPABASE CONFIG
    Reemplaza estos valores con los de tu proyecto en:
@@ -38,9 +54,11 @@ async function initAuth() {
 
 function showApp() {
   document.getElementById("auth-overlay").classList.add("hidden");
-  const bar = document.getElementById("user-bar");
-  bar.classList.add("visible");
   document.getElementById("user-email-label").textContent = currentUser.email;
+  const initials = currentUser.email.slice(0,2).toUpperCase();
+  const av = document.getElementById("user-avatar-initials");
+  if (av) av.textContent = initials;
+  showPage("dashboard");
   loadTradesFromSupabase();
   loadNotesFromSupabase();
 }
