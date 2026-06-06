@@ -86,67 +86,57 @@ function setView(mode) {
   const mainScroll = document.getElementById('main-scroll');
 
   if (mode === 'sidebar') {
-    // Show sidebar
-    sidebar?.classList.remove('hidden');
     if (sidebar) sidebar.style.display = 'flex';
-    // Push content right
-    if (mainScroll) {
-      mainScroll.style.marginLeft = '220px';
-      mainScroll.style.width = 'calc(100% - 220px)';
-      mainScroll.style.background = 'var(--bg)';
-    }
+    if (mainScroll) mainScroll.style.paddingLeft = '236px';
     btnScroll?.classList.remove('active');
     btnSidebar?.classList.add('active');
-    // Hide all sections, show only active one
+    // Hide all, show only active section
     ALL_SECTIONS.forEach(id => {
       const el = document.getElementById(id);
       if (el) el.style.display = 'none';
     });
     showSidebarSection(activeSidebarSection);
   } else {
-    // Hide sidebar
     if (sidebar) sidebar.style.display = 'none';
-    sidebar?.classList.add('hidden');
-    // Full width content
-    if (mainScroll) {
-      mainScroll.style.marginLeft = '0';
-      mainScroll.style.width = '100%';
-      mainScroll.style.background = '';
-    }
+    if (mainScroll) mainScroll.style.paddingLeft = '40px';
     btnScroll?.classList.add('active');
     btnSidebar?.classList.remove('active');
-    // Show all sections
+    // Show ALL sections
     ALL_SECTIONS.forEach(id => {
       const el = document.getElementById(id);
       if (el) el.style.display = '';
+    });
+    // Also make sure grid-main and other non-id elements are visible
+    document.querySelectorAll('#main-scroll .grid-main, #main-scroll .dashboard').forEach(el => {
+      el.style.display = '';
     });
   }
 }
 
 function showSidebarSection(sectionId) {
-  if (currentView !== 'sidebar') return;
   activeSidebarSection = sectionId;
   localStorage.setItem('dygpro_active_section', sectionId);
 
-  // Hide all sidebar-controlled sections
+  // Hide all sections
   ALL_SECTIONS.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = 'none';
   });
 
-  // Show target section
+  // Show only the selected section
   const target = document.getElementById(sectionId);
   if (target) target.style.display = '';
 
-  // Dashboard is special — show all its sub-elements
+  // Dashboard special: also show the card rows and grid
   if (sectionId === 'section-dashboard') {
+    document.querySelectorAll('#main-scroll .grid-main').forEach(el => el.style.display = '');
     ['dash-cards-1','dash-cards-2','dash-cards-3','dash-cards-4'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.style.display = '';
     });
   }
 
-  // Update active nav
+  // Mark active nav item
   document.querySelectorAll('#sidebar .nav-item').forEach(item => {
     const oc = item.getAttribute('onclick') || '';
     item.classList.toggle('active', oc.includes("'" + sectionId + "'"));

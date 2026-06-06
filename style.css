@@ -415,16 +415,11 @@ body {
 }
 
 /* Chart Panel */
-.chart-panel { min-height: 420px; }
+.chart-panel { min-height: 480px; }
 
 canvas {
   width: 100% !important;
-  height: 320px !important;
-}
-
-.chart-panel canvas {
-  width: 100% !important;
-  height: 320px !important;
+  height: 380px !important;
 }
 
 /* Equity controls */
