@@ -27,8 +27,13 @@ function setView(mode) {
   if (mode === 'sidebar') {
     // Mostrar sidebar
     if (sidebar) { sidebar.style.display = 'flex'; sidebar.classList.remove('hidden'); }
-    // Empujar contenido a la derecha del sidebar
-    if (mainScroll) { mainScroll.style.marginLeft = '220px'; mainScroll.style.width = 'calc(100% - 220px)'; }
+    // Empujar contenido a la derecha del sidebar — usar padding no margin
+    if (mainScroll) {
+      mainScroll.style.marginLeft = '220px';
+      mainScroll.style.width = 'calc(100vw - 220px)';
+      mainScroll.style.minWidth = '0';
+      mainScroll.style.overflowX = 'hidden';
+    }
     btnScroll?.classList.remove('active');
     btnSidebar?.classList.add('active');
     // Ocultar todo, mostrar solo sección activa
@@ -41,7 +46,11 @@ function setView(mode) {
     // Ocultar sidebar
     if (sidebar) { sidebar.style.display = 'none'; sidebar.classList.add('hidden'); }
     // Contenido a ancho completo
-    if (mainScroll) { mainScroll.style.marginLeft = '0'; mainScroll.style.width = '100%'; }
+    if (mainScroll) {
+      mainScroll.style.marginLeft = '0';
+      mainScroll.style.width = '100%';
+      mainScroll.style.overflowX = '';
+    }
     btnScroll?.classList.add('active');
     btnSidebar?.classList.remove('active');
     // Mostrar todas las secciones

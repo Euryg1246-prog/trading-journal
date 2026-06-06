@@ -894,7 +894,7 @@ button[type="submit"]:hover { opacity: .88; }
 .nav-item i { font-size: 15px; width: 18px; }
 
 /* ── Main scroll area ── */
-#main-scroll { padding: 28px 40px; width: 100%; }
+#main-scroll { padding: 28px 40px; width: 100%; box-sizing: border-box; }
 
 /* App in sidebar mode shifts right */
 .app.sidebar-mode #main-scroll {
@@ -1106,6 +1106,8 @@ header { display: none; }
 #section-gallery {
   min-height: 600px;
   padding-bottom: 60px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .trade-gallery-grid {
