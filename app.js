@@ -1,5 +1,42 @@
 
 /* ============================================================
+   VISTA COMPLETA vs VISTA POR SECCIONES
+   ============================================================ */
+let currentView = localStorage.getItem('dygpro_view') || 'scroll';
+
+function setView(mode) {
+  currentView = mode;
+  localStorage.setItem('dygpro_view', mode);
+
+  const sidebar   = document.getElementById('sidebar');
+  const overlay   = document.getElementById('sidebar-overlay');
+  const btnScroll  = document.getElementById('btn-scroll');
+  const btnSidebar = document.getElementById('btn-sidebar');
+  const mainScroll = document.getElementById('main-scroll');
+
+  if (mode === 'sidebar') {
+    sidebar?.classList.remove('hidden');
+    overlay?.classList.remove('hidden');
+    if (mainScroll) mainScroll.style.marginLeft = '220px';
+    btnScroll?.classList.remove('active');
+    btnSidebar?.classList.add('active');
+  } else {
+    sidebar?.classList.add('hidden');
+    overlay?.classList.add('hidden');
+    if (mainScroll) mainScroll.style.marginLeft = '0';
+    btnScroll?.classList.add('active');
+    btnSidebar?.classList.remove('active');
+  }
+}
+
+// Restore saved view on load
+document.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem('dygpro_view') || 'scroll';
+  setView(saved);
+});
+
+
+/* ============================================================
    NAVEGACIÓN — Sidebar páginas
    ============================================================ */
 function showPage(pageId) {
@@ -58,7 +95,8 @@ function showApp() {
   const initials = currentUser.email.slice(0,2).toUpperCase();
   const av = document.getElementById("user-avatar-initials");
   if (av) av.textContent = initials;
-  showPage("dashboard");
+  const saved = localStorage.getItem('dygpro_view') || 'scroll';
+  setView(saved);
   loadTradesFromSupabase();
   loadNotesFromSupabase();
 }

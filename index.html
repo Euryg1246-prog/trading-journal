@@ -77,82 +77,61 @@
 </div>
 
 <div id="app-layout">
+  <div class="app">
 
-  <!-- SIDEBAR -->
-  <nav id="sidebar">
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="top-logo">
+      <span class="logo-main">DYGPRO</span>
+      <span class="logo-sub">Trading Journal</span>
+    </div>
+    <div class="top-actions">
+      <div class="view-toggle">
+        <button class="view-btn active" id="btn-scroll" onclick="setView('scroll')">
+          <i class="ti ti-layout-list"></i> Vista Completa
+        </button>
+        <button class="view-btn" id="btn-sidebar" onclick="setView('sidebar')">
+          <i class="ti ti-layout-sidebar"></i> Vista por Secciones
+        </button>
+      </div>
+      <div class="user-chip">
+        <div class="user-avatar-sm" id="user-avatar-initials">U</div>
+        <span id="user-email-label"></span>
+        <button id="logout-btn" onclick="signOut()">Salir</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar (hidden by default) -->
+  <div id="sidebar-overlay" class="hidden" onclick="setView('scroll')"></div>
+  <nav id="sidebar" class="hidden">
     <div class="sidebar-logo">
       <h1>DYGPRO</h1>
       <span>Trading Journal</span>
     </div>
-
     <div class="sidebar-nav">
       <div class="nav-section">Principal</div>
-      <button class="nav-item active" onclick="showPage('dashboard')">
-        <i class="ti ti-layout-dashboard"></i> Dashboard
-      </button>
-      <button class="nav-item" onclick="showPage('equity')">
-        <i class="ti ti-chart-line"></i> Equity Curve
-      </button>
-      <button class="nav-item" onclick="showPage('calendar')">
-        <i class="ti ti-calendar-stats"></i> Calendario P/L
-      </button>
-
+      <a class="nav-item" href="#section-dashboard"><i class="ti ti-layout-dashboard"></i> Dashboard</a>
+      <a class="nav-item" href="#section-equity"><i class="ti ti-chart-line"></i> Equity Curve</a>
+      <a class="nav-item" href="#section-calendar"><i class="ti ti-calendar-stats"></i> Calendario P/L</a>
       <div class="nav-section">Análisis</div>
-      <button class="nav-item" onclick="showPage('setup')">
-        <i class="ti ti-star"></i> Setup Score
-      </button>
-      <button class="nav-item" onclick="showPage('drift')">
-        <i class="ti ti-activity"></i> Drift Monitor
-      </button>
-      <button class="nav-item" onclick="showPage('recovery')">
-        <i class="ti ti-refresh-alert"></i> Recovery
-      </button>
-      <button class="nav-item" onclick="showPage('account')">
-        <i class="ti ti-wallet"></i> Account Size
-      </button>
-      <button class="nav-item" onclick="showPage('scorecard')">
-        <i class="ti ti-award"></i> Scorecard
-      </button>
-
+      <a class="nav-item" href="#section-setup"><i class="ti ti-star"></i> Setup Score</a>
+      <a class="nav-item" href="#section-drift"><i class="ti ti-activity"></i> Drift Monitor</a>
+      <a class="nav-item" href="#section-recovery"><i class="ti ti-refresh-alert"></i> Recovery</a>
+      <a class="nav-item" href="#section-account"><i class="ti ti-wallet"></i> Account Size</a>
+      <a class="nav-item" href="#section-scorecard"><i class="ti ti-award"></i> Scorecard</a>
       <div class="nav-section">Registro</div>
-      <button class="nav-item" onclick="showPage('trade-entry')">
-        <i class="ti ti-plus-circle"></i> Nuevo Trade
-      </button>
-      <button class="nav-item" onclick="showPage('history')">
-        <i class="ti ti-list"></i> Historial
-      </button>
-      <button class="nav-item" onclick="showPage('sessions')">
-        <i class="ti ti-database"></i> Sesiones
-      </button>
-      <button class="nav-item" onclick="showPage('notes')">
-        <i class="ti ti-notes"></i> Notas
-      </button>
-      <button class="nav-item" onclick="showPage('data')">
-        <i class="ti ti-upload"></i> Importar CSV
-      </button>
-    </div>
-
-    <div class="sidebar-footer">
-      <div class="user-info">
-        <div class="user-avatar" id="user-avatar-initials">U</div>
-        <span class="user-email" id="user-email-label"></span>
-      </div>
-      <button id="logout-btn" onclick="signOut()">Cerrar sesión</button>
+      <a class="nav-item" href="#section-entry"><i class="ti ti-plus-circle"></i> Nuevo Trade</a>
+      <a class="nav-item" href="#section-history"><i class="ti ti-list"></i> Historial</a>
+      <a class="nav-item" href="#section-sessions"><i class="ti ti-database"></i> Sesiones</a>
+      <a class="nav-item" href="#section-notes"><i class="ti ti-notes"></i> Notas</a>
+      <a class="nav-item" href="#section-data"><i class="ti ti-upload"></i> Importar CSV</a>
     </div>
   </nav>
 
-  <!-- MAIN CONTENT -->
-  <main id="main-content">
-    <div class="app">
+  <div id="main-scroll">
 
-  <header>
-    <h1>System Journal Pro</h1>
-    <p>6PM Pullback System · TradingView + Tradovate</p>
-  </header>
-
-  <div id="page-dashboard" class="page-section active">
-  <div class="page-header"><h2>Dashboard</h2><p>Resumen general de tu sistema</p></div>
-  <section class="grid-main">
+    <section class="grid-main" id="section-dashboard">
     <div class="panel chart-panel">
       <h2>Equity Curve Pro</h2>
 
@@ -231,11 +210,8 @@
 
 
   
-</div>
 
-<div id="page-setup" class="page-section">
-  <div class="page-header"><h2>Setup Quality Score</h2><p>Ranking de setups según rendimiento real</p></div>
-  <section class="panel setup-panel">
+  <section class="panel setup-panel" id="section-setup">
   <h2>Setup Quality Score</h2>
   <p>Ranking estadístico de setups según rendimiento real.</p>
 
@@ -243,11 +219,8 @@
 </section>
 
 
-</div>
 
-<div id="page-drift" class="page-section">
-  <div class="page-header"><h2>System Drift Monitor</h2><p>Últimos 20 trades vs comportamiento histórico</p></div>
-  <section class="panel drift-panel">
+  <section class="panel drift-panel" id="section-drift">
   <h2>System Drift Monitor</h2>
   <p>Compara los últimos 20 trades contra el comportamiento histórico del sistema.</p>
 
@@ -279,11 +252,8 @@
 </section>
 
 
-</div>
 
-<div id="page-notes" class="page-section">
-  <div class="page-header"><h2>Notas Personales</h2><p>Ideas, emociones y observaciones por fecha</p></div>
-  <section class="panel notes-panel">
+  <section class="panel notes-panel" id="section-notes">
   <h2>Personal Notes Calendar Pro</h2>
   <p>Notas personales por fecha. Guarda ideas, emociones, observaciones o bugs del sistema.</p>
 
@@ -323,11 +293,8 @@
 </section>
 
 
-  </div>
-
-<div id="page-recovery" class="page-section">
-  <div class="page-header"><h2>Recovery Analytics</h2><p>Resistencia del sistema tras drawdowns</p></div>
-  <section class="panel recovery-panel">
+  
+  <section class="panel recovery-panel" id="section-recovery">
     <h2>Recovery Analytics</h2>
     <p>Mide qué tan resistente es el sistema después de drawdowns y rachas negativas.</p>
 
@@ -352,11 +319,8 @@
     </div>
   </section>
 
-  </div>
-
-<div id="page-account" class="page-section">
-  <div class="page-header"><h2>Account Size Engine</h2><p>Capital necesario según el comportamiento real</p></div>
-  <section class="panel account-panel">
+  
+  <section class="panel account-panel" id="section-account">
     <h2>Account Size Engine</h2>
     <p>Estimación de capital necesario según drawdown, riesgo y comportamiento real del sistema.</p>
 
@@ -387,11 +351,8 @@
     </div>
   </section>
 
-  </div>
-
-<div id="page-scorecard" class="page-section">
-  <div class="page-header"><h2>System Scorecard</h2><p>Valoración integral de tu sistema</p></div>
-  <section class="panel scorecard-panel">
+  
+  <section class="panel scorecard-panel" id="section-scorecard">
     <h2>System Scorecard</h2>
 
     <div class="scorecard-grid">
@@ -446,11 +407,8 @@
     <div class="card"><span>Peor Día</span><strong id="worstDay">-</strong></div>
   </section>
 
-  </div>
-
-<div id="page-data" class="page-section">
-  <div class="page-header"><h2>Importar / Exportar</h2><p>Importa desde CSV o exporta tu historial</p></div>
-  <section class="panel">
+  
+  <section class="panel" id="section-data">
     <h2>Importar / Exportar Datos</h2>
     <p>Importa operaciones desde CSV o descarga un backup del journal.</p>
 
@@ -465,11 +423,8 @@
     </div>
   </section>
 
-  </div>
-
-<div id="page-trade-entry" class="page-section">
-  <div class="page-header"><h2>Registrar Trade</h2><p>Añade una nueva operación al journal</p></div>
-  <section class="panel trade-entry-panel">
+  
+  <section class="panel trade-entry-panel" id="section-entry">
     <h2>Registrar Trade / Sesión</h2>
     <p class="panel-subtitle">
       Formulario claro para registrar operaciones sin confusión. Cada campo explica exactamente qué dato debes ingresar.
@@ -631,10 +586,7 @@
     </form>
   </section>
 
-  </div>
-
-<div id="page-equity" class="page-section">
-  <div class="page-header"><h2>Equity Curve</h2><p>Curva de capital y análisis de sesiones</p></div>
+  
   <section class="grid-main">
     <div class="panel">
       <h2>Research Center</h2>
@@ -649,21 +601,15 @@
 
 
 
-  </div>
-
-<div id="page-calendar" class="page-section">
-  <div class="page-header"><h2>Calendario P/L</h2><p>Resultado diario por color</p></div>
-  <section class="panel">
+  
+  <section class="panel" id="section-calendar">
     <h2>Calendario P/L Diario</h2>
     <p>Cada día se colorea según el resultado acumulado.</p>
     <div id="plCalendar" class="calendar"></div>
   </section>
 
-  </div>
-
-<div id="page-sessions" class="page-section">
-  <div class="page-header"><h2>Session Database</h2><p>Base de datos de sesiones del sistema</p></div>
-  <section class="panel">
+  
+  <section class="panel" id="section-sessions">
     <h2>Session Database</h2>
     <p>Base de datos de sesiones del sistema 6PM Pullback.</p>
 
@@ -686,11 +632,8 @@
     </table>
   </section>
 
-  </div>
-
-<div id="page-history" class="page-section">
-  <div class="page-header"><h2>Historial</h2><p>Todas tus operaciones registradas</p></div>
-  <section class="panel">
+  
+  <section class="panel" id="section-history">
     <h2>Historial</h2>
 
     <div style="margin-bottom:15px;">
@@ -733,7 +676,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="app.js"></script>
     </div>
-  </div><!-- close last page-section -->
+  
   </main>
 </div>
 </body>

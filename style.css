@@ -777,3 +777,151 @@ button[type="submit"]:hover { opacity: .88; }
   .trade-form-v2 label:has(#notes),
   .trade-form-v2 label:has(#lessonLearned) { grid-column: 1 / -1 !important; }
 }
+
+/* ============================================================
+   TOP BAR + VIEW TOGGLE
+   ============================================================ */
+.top-bar {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 0 36px;
+  height: 64px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 200;
+}
+
+.top-logo {
+  display: flex; align-items: baseline; gap: 10px;
+}
+.logo-main {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px; letter-spacing: 3px;
+  color: var(--accent); line-height: 1;
+}
+.logo-sub {
+  font-size: 11px; color: var(--text2);
+  letter-spacing: 2px; text-transform: uppercase;
+}
+
+.top-actions {
+  display: flex; align-items: center; gap: 16px;
+}
+
+.view-toggle {
+  display: flex; gap: 4px;
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  border-radius: 10px; padding: 4px;
+}
+.view-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border-radius: 7px;
+  border: none; background: transparent;
+  color: var(--text2); font-size: 13px;
+  cursor: pointer; font-family: 'DM Sans', sans-serif;
+  transition: all .2s; white-space: nowrap;
+}
+.view-btn i { font-size: 15px; }
+.view-btn.active {
+  background: var(--surface2);
+  color: var(--accent);
+  font-weight: 600;
+}
+.view-btn:hover:not(.active) { color: var(--text); }
+
+.user-chip {
+  display: flex; align-items: center; gap: 8px;
+}
+.user-avatar-sm {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--accent2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: #000;
+  flex-shrink: 0;
+}
+#user-email-label {
+  font-size: 12px; color: var(--text2);
+  max-width: 160px; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap;
+}
+#logout-btn {
+  padding: 6px 12px; border-radius: 8px;
+  border: 1px solid rgba(255,77,109,0.3);
+  background: transparent; color: var(--red);
+  cursor: pointer; font-size: 12px;
+  font-family: 'DM Sans', sans-serif;
+  transition: all .2s;
+}
+#logout-btn:hover { background: rgba(255,77,109,0.1); }
+
+/* ── Sidebar (vista por secciones) ── */
+#sidebar-overlay {
+  position: fixed; inset: 0; z-index: 300;
+  background: rgba(0,0,0,0.5);
+}
+#sidebar-overlay.hidden { display: none; }
+
+#sidebar {
+  position: fixed; top: 0; left: 0;
+  height: 100vh; width: var(--sidebar-w);
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  z-index: 400;
+  display: flex; flex-direction: column;
+  overflow-y: auto;
+  transition: transform .3s;
+}
+#sidebar.hidden { transform: translateX(-100%); }
+
+.sidebar-logo {
+  padding: 22px 20px 18px;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-logo h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 26px; letter-spacing: 2px;
+  color: var(--accent); line-height: 1;
+}
+.sidebar-logo span {
+  font-size: 10px; color: var(--text2);
+  letter-spacing: 1.5px; text-transform: uppercase;
+}
+
+.sidebar-nav {
+  flex: 1; padding: 14px 10px; overflow-y: auto;
+}
+.nav-section {
+  font-size: 10px; color: var(--text3);
+  letter-spacing: 1.5px; text-transform: uppercase;
+  padding: 12px 8px 5px; font-weight: 600;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 9px 12px; border-radius: 8px;
+  color: var(--text2); font-size: 13px;
+  text-decoration: none; cursor: pointer;
+  transition: all .15s; margin-bottom: 2px;
+  font-family: 'DM Sans', sans-serif;
+}
+.nav-item:hover { background: var(--surface); color: var(--text); }
+.nav-item i { font-size: 15px; width: 18px; }
+
+/* ── Main scroll area ── */
+#main-scroll { padding: 28px 36px; }
+
+/* App in sidebar mode shifts right */
+.app.sidebar-mode #main-scroll {
+  margin-left: var(--sidebar-w);
+}
+
+/* Remove old header styles */
+header { display: none; }
+
+@media (max-width: 700px) {
+  .top-bar { padding: 0 16px; }
+  .logo-sub { display: none; }
+  #user-email-label { display: none; }
+  #main-scroll { padding: 16px; }
+  .view-btn span { display: none; }
+}
