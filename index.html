@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>System Journal Pro</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* ── Auth overlay ── */
+    #auth-overlay {
+      position: fixed; inset: 0; z-index: 9999;
+      background: radial-gradient(circle at top, #123b8a, #020617 55%);
+      display: flex; align-items: center; justify-content: center;
+    }
+    #auth-overlay.hidden { display: none; }
+    .auth-box {
+      background: rgba(15,23,42,.95);
+      border: 1px solid rgba(96,165,250,.3);
+      border-radius: 24px; padding: 40px; width: 100%; max-width: 400px;
+      box-shadow: 0 0 60px rgba(0,0,0,.5);
+    }
+    .auth-box h2 { color: #38bdf8; margin: 0 0 6px; font-size: 26px; text-align: center; }
+    .auth-box p  { color: #94a3b8; text-align: center; margin: 0 0 28px; font-size: 14px; }
+    .auth-box input {
+      width: 100%; padding: 13px; border-radius: 12px;
+      border: 1px solid #334155; background: #020617;
+      color: white; outline: none; margin-bottom: 14px; font-size: 14px;
+    }
+    .auth-box input:focus { border-color: #38bdf8; }
+    .auth-box .btn-primary {
+      width: 100%; padding: 14px; border-radius: 12px; border: none;
+      background: linear-gradient(90deg, #2563eb, #06b6d4);
+      color: white; font-weight: bold; cursor: pointer; font-size: 15px; margin-bottom: 10px;
+    }
+    .auth-box .btn-secondary {
+      width: 100%; padding: 12px; border-radius: 12px;
+      border: 1px solid #334155; background: transparent;
+      color: #94a3b8; cursor: pointer; font-size: 14px;
+    }
+    .auth-box .btn-secondary:hover { border-color: #38bdf8; color: #38bdf8; }
+    .auth-box .auth-error { color: #ef4444; font-size: 13px; margin-bottom: 12px; text-align: center; min-height: 18px; }
+    .auth-tab { display: flex; gap: 0; margin-bottom: 24px; border-radius: 12px; overflow: hidden; border: 1px solid #334155; }
+    .auth-tab button { flex: 1; padding: 10px; background: transparent; border: none; color: #94a3b8; cursor: pointer; font-size: 14px; }
+    .auth-tab button.active { background: #1e3a8a; color: white; font-weight: bold; }
+    /* ── User bar ── */
+    #user-bar {
+      display: none; align-items: center; justify-content: flex-end;
+      gap: 14px; padding: 10px 0 0; margin-bottom: 10px;
+    }
+    #user-bar.visible { display: flex; }
+    #user-bar span { color: #94a3b8; font-size: 13px; }
+    #logout-btn {
+      padding: 8px 16px; border-radius: 10px; border: 1px solid #334155;
+      background: transparent; color: #ef4444; cursor: pointer; font-size: 13px;
+    }
+    #logout-btn:hover { border-color: #ef4444; }
+  </style>
+</head>
+<body>
+
+<!-- Auth overlay -->
+<div id="auth-overlay">
+  <div class="auth-box">
+    <h2>System Journal Pro</h2>
+    <p>6PM Pullback System · Tu diario de trading</p>
+    <div class="auth-tab">
+      <button class="active" onclick="showTab('login')">Iniciar sesión</button>
+      <button onclick="showTab('register')">Registrarse</button>
+    </div>
+    <div id="auth-error" class="auth-error"></div>
+    <input type="email"    id="auth-email"    placeholder="Email" autocomplete="email">
+    <input type="password" id="auth-password" placeholder="Contraseña" autocomplete="current-password">
+    <button class="btn-primary"   id="auth-submit"  onclick="submitAuth()">Entrar</button>
+    <button class="btn-secondary" id="auth-reset"   onclick="resetPassword()">¿Olvidaste tu contraseña?</button>
+  </div>
+</div>
+
+<div class="app">
+  <!-- User bar -->
+  <div id="user-bar">
+    <span id="user-email-label"></span>
+    <button id="logout-btn" onclick="signOut()">Cerrar sesión</button>
+  </div>
+
+  <header>
+    <h1>System Journal Pro</h1>
+    <p>6PM Pullback System · TradingView + Tradovate</p>
+  </header>
+
+  <section class="grid-main">
+    <div class="panel chart-panel">
+      <h2>Equity Curve Pro</h2>
+
+      <div class="equity-controls">
+        <label>
+          Desde
+          <input type="date" id="equityStartDate">
+        </label>
+
+        <label>
+          Hasta
+          <input type="date" id="equityEndDate">
+        </label>
+
+        <button type="button" class="tool-btn" id="applyEquityFilter">Aplicar</button>
+        <button type="button" class="tool-btn danger-btn" id="resetEquityFilter">Reset</button>
+      </div>
+
+      
+<canvas id="equityChart"></canvas>
+
+<div class="trader-manifesto">
+  <p>
+    Mi trabajo no es ganar hoy.<br>
+    Mi trabajo es ejecutar el plan.
+  </p>
+
+  <p>
+    Una buena operación puede perder.<br>
+    Una mala operación puede ganar.<br>
+    La disciplina siempre gana.
+  </p>
+</div>
+
+    </div>
+
+    <div class="panel system-panel">
+      <h2>Estado del Sistema</h2>
+      <div class="system-box good">
+        <span>Ventana válida</span>
+        <strong>Dom 6PM → Mié 4PM</strong>
+      </div>
+      <div class="system-box">
+        <span>Días núcleo</span>
+        <strong>Dom · Lun · Mar</strong>
+      </div>
+      <div class="system-box danger">
+        <span>Fuera del plan</span>
+        <strong id="outPlanTrades">0 trades</strong>
+      </div>
+    </div>
+  </section>
+
+  <section class="dashboard">
+    <div class="card"><span>P/L Total</span><strong id="totalPL">$0.00</strong></div>
+    <div class="card"><span>P/L Dentro Plan</span><strong id="planPL">$0.00</strong></div>
+    <div class="card"><span>P/L Fuera Plan</span><strong id="badPL">$0.00</strong></div>
+    <div class="card"><span>Disciplina</span><strong id="disciplineRate">0%</strong></div>
+    <div class="card"><span>Win Rate</span><strong id="winRate">0%</strong></div>
+    <div class="card"><span>Max Drawdown</span><strong id="maxDD">$0.00</strong></div>
+  </section>
+
+
+
+  <section class="dashboard">
+    <div class="card"><span>Profit Factor</span><strong id="profitFactor">0.00</strong></div>
+    <div class="card"><span>Payoff Ratio</span><strong id="payoffRatio">0.00</strong></div>
+    <div class="card"><span>Avg Win</span><strong id="avgWin">$0.00</strong></div>
+    <div class="card"><span>Avg Loss</span><strong id="avgLoss">$0.00</strong></div>
+    <div class="card"><span>Expectancy</span><strong id="expectancy">$0.00</strong></div>
+    <div class="card"><span>RR Real</span><strong id="realRR">0.00R</strong></div>
+  </section>
+
+
+
+
+
+  
+<section class="panel setup-panel">
+  <h2>Setup Quality Score</h2>
+  <p>Ranking estadístico de setups según rendimiento real.</p>
+
+  <div id="setupRanking"></div>
+</section>
+
+
+<section class="panel drift-panel">
+  <h2>System Drift Monitor</h2>
+  <p>Compara los últimos 20 trades contra el comportamiento histórico del sistema.</p>
+
+  <div class="drift-grid">
+    <div class="drift-box main-drift">
+      <span>Drift Score</span>
+      <strong id="driftScore">100/100</strong>
+      <p id="driftStatus">🟢 Sistema alineado</p>
+    </div>
+
+    <div class="drift-box">
+      <span>Expectancy Histórica</span>
+      <strong id="driftHistExpectancy">$0.00</strong>
+      <p>Promedio por trade total.</p>
+    </div>
+
+    <div class="drift-box">
+      <span>Expectancy Reciente</span>
+      <strong id="driftRecentExpectancy">$0.00</strong>
+      <p>Últimos 20 trades.</p>
+    </div>
+
+    <div class="drift-box">
+      <span>Win Rate Reciente</span>
+      <strong id="driftRecentWinRate">0%</strong>
+      <p id="driftComment">Esperando datos...</p>
+    </div>
+  </div>
+</section>
+
+
+<section class="panel notes-panel">
+  <h2>Personal Notes Calendar Pro</h2>
+  <p>Notas personales por fecha. Guarda ideas, emociones, observaciones o bugs del sistema.</p>
+
+  <div class="notes-pro-grid">
+    <div class="notes-editor">
+      <label>Fecha de la nota</label>
+      <input type="date" id="noteDate">
+
+      <textarea id="personalNoteText" placeholder="Escribe tu nota personal aquí..."></textarea>
+
+      <div class="tools">
+        <button type="button" class="tool-btn" id="savePersonalNote">Guardar Nota</button>
+        <button type="button" class="tool-btn danger-btn" id="deletePersonalNote">Borrar Nota</button>
+      </div>
+    </div>
+
+    <div class="notes-calendar-box">
+      <div class="notes-calendar-header">
+        <button type="button" class="tool-btn" id="prevNotesMonth">◀</button>
+        <input type="month" id="notesMonth">
+        <button type="button" class="tool-btn" id="nextNotesMonth">▶</button>
+      </div>
+
+      <div class="notes-weekdays">
+        <span>Dom</span>
+        <span>Lun</span>
+        <span>Mar</span>
+        <span>Mié</span>
+        <span>Jue</span>
+        <span>Vie</span>
+        <span>Sáb</span>
+      </div>
+
+      <div id="notesCalendar" class="notes-calendar-pro"></div>
+    </div>
+  </div>
+</section>
+
+
+  <section class="panel recovery-panel">
+    <h2>Recovery Analytics</h2>
+    <p>Mide qué tan resistente es el sistema después de drawdowns y rachas negativas.</p>
+
+    <div class="recovery-grid">
+      <div class="recovery-box">
+        <span>Recovery Factor</span>
+        <strong id="recoveryFactor">0.00</strong>
+        <p id="recoveryFactorStatus">Sin datos</p>
+      </div>
+
+      <div class="recovery-box">
+        <span>Recovery Time</span>
+        <strong id="recoveryTime">0 trades</strong>
+        <p>Trades necesarios para recuperar el peor drawdown.</p>
+      </div>
+
+      <div class="recovery-box">
+        <span>Worst Losing Streak</span>
+        <strong id="worstLosingStreak">0</strong>
+        <p id="worstLosingStreakLoss">$0.00</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel account-panel">
+    <h2>Account Size Engine</h2>
+    <p>Estimación de capital necesario según drawdown, riesgo y comportamiento real del sistema.</p>
+
+    <div class="account-grid">
+      <div class="account-box aggressive">
+        <span>Cuenta Agresiva</span>
+        <strong id="accountAggressive">$0.00</strong>
+        <p>DD x 2</p>
+      </div>
+
+      <div class="account-box balanced">
+        <span>Cuenta Balanceada</span>
+        <strong id="accountBalanced">$0.00</strong>
+        <p>DD x 4</p>
+      </div>
+
+      <div class="account-box conservative">
+        <span>Cuenta Conservadora</span>
+        <strong id="accountConservative">$0.00</strong>
+        <p>DD x 6</p>
+      </div>
+
+      <div class="account-box">
+        <span>Estado Capital</span>
+        <strong id="accountStatus">Sin datos</strong>
+        <p id="accountAdvice">Importa operaciones para estimar capital.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel scorecard-panel">
+    <h2>System Scorecard</h2>
+
+    <div class="scorecard-grid">
+      <div class="system-rating-box">
+        <span>Valoración del Sistema</span>
+        <strong id="systemRating">0.0 / 10</strong>
+        <p id="systemRatingStatus">Sin datos suficientes</p>
+      </div>
+
+      <div class="system-diagnosis">
+        <h3>Diagnóstico</h3>
+        <p id="systemDiagnosis">Importa o registra operaciones para evaluar el sistema.</p>
+      </div>
+
+      <div class="system-improvement">
+        <h3>Puede mejorar</h3>
+        <ul id="systemImprovements">
+          <li>Esperando datos...</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="dashboard">
+    <div class="card">
+      <span>System Discipline Score</span>
+      <strong id="disciplineScore">100/100</strong>
+    </div>
+
+    <div class="card">
+      <span>Estado</span>
+      <strong id="disciplineStatus">🟢 Excelente</strong>
+    </div>
+
+    <div class="card">
+      <span>Regla más rota</span>
+      <strong id="mostBrokenRule">-</strong>
+    </div>
+
+    <div class="card">
+      <span>Costo errores</span>
+      <strong id="mistakeCost">$0.00</strong>
+    </div>
+  </section>
+
+  <section class="dashboard">
+    <div class="card"><span>Avg Pullback</span><strong id="avgPullback">0 pts</strong></div>
+    <div class="card"><span>Avg Max Alta</span><strong id="avgHighMove">0 pts</strong></div>
+    <div class="card"><span>Avg Recovery %</span><strong id="avgRecovery">0%</strong></div>
+    <div class="card"><span>Hora Pico #1</span><strong id="bestPeakBlock">-</strong></div>
+    <div class="card"><span>Mejor Día</span><strong id="bestDay">-</strong></div>
+    <div class="card"><span>Peor Día</span><strong id="worstDay">-</strong></div>
+  </section>
+
+  <section class="panel">
+    <h2>Importar / Exportar Datos</h2>
+    <p>Importa operaciones desde CSV o descarga un backup del journal.</p>
+
+    <div class="tools">
+      <label class="file-label">
+        Importar CSV
+        <input type="file" id="csvFile" accept=".csv">
+      </label>
+
+      <button type="button" class="tool-btn" id="exportCSV">Exportar CSV</button>
+      <button type="button" class="tool-btn danger-btn" id="clearData">Borrar Todo</button>
+    </div>
+  </section>
+
+  <section class="panel trade-entry-panel">
+    <h2>Registrar Trade / Sesión</h2>
+    <p class="panel-subtitle">
+      Formulario claro para registrar operaciones sin confusión. Cada campo explica exactamente qué dato debes ingresar.
+    </p>
+
+    <form id="tradeForm" class="trade-form-v2">
+
+      <div class="form-section-title">Información Principal</div>
+
+      <label>
+        Precio de Entrada
+        <input type="number" step="0.25" id="entry" placeholder="Ej: 19025.50" required>
+        <small>Precio exacto donde abriste la operación.</small>
+      </label>
+
+      <label>
+        Precio de Salida
+        <input type="number" step="0.25" id="exit" placeholder="Ej: 19150.25" required>
+        <small>Precio exacto donde cerraste la operación.</small>
+      </label>
+
+      <label>
+        Contratos
+        <input type="number" id="contracts" placeholder="Ej: 1" value="1" required>
+        <small>Cantidad de contratos usados.</small>
+      </label>
+
+      <label>
+        Fecha del Trade
+        <input type="date" id="date" required>
+        <small>Día en que se abrió la operación.</small>
+      </label>
+
+      <label>
+        Hora de Entrada
+        <input type="time" id="time" required>
+        <small>Hora exacta donde entraste al trade.</small>
+      </label>
+
+      <label>
+        Símbolo
+        <select id="symbol" required>
+          <option value="">Seleccionar símbolo</option>
+        <option value="MNQ">MNQ</option>
+        <option value="NQ">NQ</option>
+        <option value="MES">MES</option>
+        <option value="ES">ES</option>
+        <option value="MYM">MYM</option>
+        <option value="YM">YM</option>
+        <option value="MGC">MGC</option>
+        <option value="GC">GC</option>
+        </select>
+        <small>Instrumento operado.</small>
+      </label>
+
+      <label>
+        Dirección
+        <select id="direction" required>
+          <option value="">Seleccionar dirección</option>
+          <option value="Long">Long</option>
+          <option value="Short">Short</option>
+        </select>
+        <small>Long = compra. Short = venta.</small>
+      </label>
+
+      <div class="form-section-title">Datos de la Sesión 6PM</div>
+
+      <label>
+        Precio de Apertura 6PM
+        <input type="number" step="0.25" id="sessionOpen" placeholder="Open 6PM">
+        <small>Precio donde abrió la sesión principal del sistema.</small>
+      </label>
+
+      <label>
+        Precio Más Bajo de la Sesión
+        <input type="number" step="0.25" id="sessionLow" placeholder="Low sesión">
+        <small>El punto más bajo alcanzado después de la apertura.</small>
+      </label>
+
+      <label>
+        Precio Más Alto de la Sesión
+        <input type="number" step="0.25" id="sessionHigh" placeholder="High sesión">
+        <small>El punto más alto alcanzado durante la sesión.</small>
+      </label>
+
+      <label>
+        Hora del Pico Más Alto
+        <input type="time" id="peakTime">
+        <small>Hora donde el precio alcanzó su máximo recorrido favorable.</small>
+      </label>
+
+      <div class="form-section-title">Clasificación del Trade</div>
+
+      <label>
+        Setup
+        <select id="setup" required>
+          <option value="">Seleccionar setup</option>
+          <option value="6PM Pullback">6PM Pullback</option>
+          <option value="Trend Continuation">Trend Continuation</option>
+          <option value="Breakout">Breakout</option>
+          <option value="Manual">Manual</option>
+        </select>
+        <small>Tipo de operación registrada.</small>
+      </label>
+
+      <label>
+        ¿Cumplió las Reglas?
+        <select id="ruleFollowed" required>
+          <option value="">Seleccionar</option>
+          <option value="yes">Sí, dentro del plan</option>
+          <option value="no">No, fuera del plan</option>
+        </select>
+        <small>Marca si el trade respetó tu sistema.</small>
+      </label>
+
+      <label>
+        Error Principal
+        <select id="mistake">
+          <option value="">Ninguno</option>
+          <option value="Entrada impulsiva">Entrada impulsiva</option>
+          <option value="Salida temprana">Salida temprana</option>
+          <option value="Gestión incorrecta">Gestión incorrecta</option>
+          <option value="Fuera del plan">Fuera del plan</option>
+          <option value="Sobreoperar">Sobreoperar</option>
+          <option value="Otro">Otro</option>
+        </select>
+        <small>Selecciona el error más importante, si hubo alguno.</small>
+      </label>
+
+      <div class="form-section-title">Reflexión del Trade</div>
+
+      <label>
+        Nota del Trade
+        <textarea id="notes" placeholder="¿Qué ocurrió durante esta operación?"></textarea>
+        <small>Describe lo que pasó de forma clara y honesta.</small>
+      </label>
+
+      <label>
+        Estado Emocional
+        <select id="emotionalState">
+          <option value="">Seleccionar estado</option>
+          <option value="Tranquilo">Tranquilo</option>
+          <option value="Confiado">Confiado</option>
+          <option value="Ansioso">Ansioso</option>
+          <option value="Impaciente">Impaciente</option>
+          <option value="Frustrado">Frustrado</option>
+          <option value="Eufórico">Eufórico</option>
+        </select>
+        <small>Cómo te sentías durante o después del trade.</small>
+      </label>
+
+      <label>
+        Lección Aprendida
+        <textarea id="lessonLearned" placeholder="¿Qué te enseñó este trade?"></textarea>
+        <small>Una frase corta sobre lo que debes recordar.</small>
+      </label>
+
+      <button type="submit">Guardar Registro</button>
+    </form>
+  </section>
+
+  <section class="grid-main">
+    <div class="panel">
+      <h2>Research Center</h2>
+      <div id="researchBox" class="research-box"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Distribución Hora Pico</h2>
+      <div id="peakDistribution" class="distribution"></div>
+    </div>
+  </section>
+
+
+
+  <section class="panel">
+    <h2>Calendario P/L Diario</h2>
+    <p>Cada día se colorea según el resultado acumulado.</p>
+    <div id="plCalendar" class="calendar"></div>
+  </section>
+
+  <section class="panel">
+    <h2>Session Database</h2>
+    <p>Base de datos de sesiones del sistema 6PM Pullback.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Día</th>
+          <th>Open 6PM</th>
+          <th>Pullback</th>
+          <th>Max Alta</th>
+          <th>Hora Pico</th>
+          <th>Recovery %</th>
+          <th>Dev Max</th>
+          <th>Resultado</th>
+          <th>Plan</th>
+        </tr>
+      </thead>
+      <tbody id="sessionTable"></tbody>
+    </table>
+  </section>
+
+  <section class="panel">
+    <h2>Historial</h2>
+
+    <div style="margin-bottom:15px;">
+      <button id="historyExportBtn" class="tool-btn">
+        Exportar CSV
+      </button>
+
+      <button id="historyClearBtn"
+              class="tool-btn danger-btn"
+              style="margin-left:10px;">
+        Borrar Todo
+      </button>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Hora</th>
+          <th>Día</th>
+          <th>Símbolo</th>
+          <th>Dir</th>
+          <th>Puntos</th>
+          <th>P/L</th>
+          <th>Pullback</th>
+          <th>Max Alta</th>
+          <th>Hora Pico</th>
+          <th>Plan</th>
+          <th>Error</th>
+          <th>X</th>
+        </tr>
+      </thead>
+      <tbody id="tradeTable"></tbody>
+    </table>
+  </section>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="app.js"></script>
+</body>
+</html>
