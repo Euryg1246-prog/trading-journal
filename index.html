@@ -386,32 +386,43 @@
   
   <section class="panel account-panel" id="section-account">
     <h2>Account Size Engine</h2>
-    <p>Estimación de capital necesario según drawdown, riesgo y comportamiento real del sistema.</p>
+    <p>¿Cuánto capital necesitas para operar este sistema? Basado en tu peor racha real hasta ahora.</p>
 
     <div class="account-grid">
+
+      <div class="account-box minimum">
+        <span>🟠 Cuenta Mínima</span>
+        <strong id="accountMinimum">$0.00</strong>
+        <p class="account-tag">DD x 1</p>
+        <p class="account-explain">Puedes empezar aquí, pero un mal día puede sacarte del juego. Solo si tienes disciplina comprobada y estás dispuesto a asumir más riesgo.</p>
+      </div>
+
       <div class="account-box aggressive">
-        <span>Cuenta Agresiva</span>
+        <span>🟡 Cuenta Recomendada</span>
         <strong id="accountAggressive">$0.00</strong>
-        <p>DD x 2</p>
+        <p class="account-tag">DD x 2</p>
+        <p class="account-explain">El punto de entrada real. Aguantas tu peor racha histórica completa y sigues operando sin quedarte sin capital.</p>
       </div>
 
       <div class="account-box balanced">
-        <span>Cuenta Balanceada</span>
+        <span>🟢 Cuenta Cómoda</span>
         <strong id="accountBalanced">$0.00</strong>
-        <p>DD x 4</p>
+        <p class="account-tag">DD x 4</p>
+        <p class="account-explain">Operas sin presión emocional. Las pérdidas no te afectan psicológicamente porque tienes colchón suficiente.</p>
       </div>
 
       <div class="account-box conservative">
-        <span>Cuenta Conservadora</span>
+        <span>💼 Cuenta Profesional</span>
         <strong id="accountConservative">$0.00</strong>
-        <p>DD x 6</p>
+        <p class="account-tag">DD x 6</p>
+        <p class="account-explain">Para cuando quieres escalar contratos. El sistema tiene espacio para crecer sin poner en riesgo tu capital base.</p>
       </div>
 
-      <div class="account-box">
-        <span>Estado Capital</span>
-        <strong id="accountStatus">Sin datos</strong>
-        <p id="accountAdvice">Importa operaciones para estimar capital.</p>
-      </div>
+    </div>
+
+    <div class="account-status-box">
+      <strong id="accountStatus">Sin datos</strong>
+      <p id="accountAdvice">Importa o registra operaciones para calcular tu capital recomendado.</p>
     </div>
   </section>
 

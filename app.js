@@ -1387,47 +1387,51 @@ function renderAccountSizeEngine() {
   if (!document.getElementById("accountAggressive")) return;
 
   if (!trades.length) {
+    setText("accountMinimum",    "$0.00");
     setText("accountAggressive", "$0.00");
-    setText("accountBalanced", "$0.00");
-    setText("accountConservative", "$0.00");
-    setText("accountStatus", "Sin datos");
-    setText("accountAdvice", "Importa operaciones para calcular capital recomendado.");
+    setText("accountBalanced",   "$0.00");
+    setText("accountConservative","$0.00");
+    setText("accountStatus", "Sin datos aún");
+    setText("accountAdvice", "Registra o importa operaciones para calcular tu capital recomendado.");
     return;
   }
 
-  const maxDD = calculateMaxDrawdown(trades);
-  const totalPL = sum(trades, "pl");
-  const losses = trades.filter(t => t.pl < 0);
-  const avgLoss = losses.length ? Math.abs(sum(losses, "pl")) / losses.length : 0;
+  const maxDD     = calculateMaxDrawdown(trades);
+  const totalPL   = sum(trades, "pl");
+  const losses    = trades.filter(t => t.pl < 0);
+  const avgLoss   = losses.length ? Math.abs(sum(losses, "pl")) / losses.length : 0;
   const worstLoss = losses.length ? Math.max(...losses.map(t => Math.abs(t.pl))) : 0;
 
+  // Base de riesgo: el mayor entre el maxDD real, 3x la peor pérdida, o 6x el promedio de pérdidas
   const baseRisk = Math.max(maxDD, worstLoss * 3, avgLoss * 6, 500);
 
-  const aggressive = baseRisk * 2;
-  const balanced = baseRisk * 4;
-  const conservative = baseRisk * 6;
+  const minimum     = baseRisk * 1;   // DD x 1 — mínimo absoluto
+  const recommended = baseRisk * 2;   // DD x 2 — recomendado
+  const comfortable = baseRisk * 4;   // DD x 4 — cómodo
+  const professional = baseRisk * 6;  // DD x 6 — profesional
 
-  let status = "🟡 En observación";
-  let advice = "El sistema necesita más datos para una lectura fuerte.";
+  let status = "🟡 Sistema en observación";
+  let advice  = "Necesitas más operaciones para una lectura sólida. Con 20+ trades el cálculo será más preciso.";
 
   if (trades.length >= 20 && totalPL > 0 && maxDD > 0) {
-    status = "🟢 Capitalizable";
-    advice = "El sistema muestra datos suficientes para estimar capital. La cuenta balanceada es el punto razonable.";
+    status = "🟢 Sistema capitalizable";
+    advice  = `Tu peor racha histórica fue ${money(maxDD)}. La Cuenta Recomendada (${money(recommended)}) es tu punto de entrada real.`;
   }
 
   if (totalPL < 0) {
-    status = "🔴 No escalar";
-    advice = "El sistema está negativo. No aumentes tamaño hasta mejorar expectativa y drawdown.";
+    status = "🔴 No escalar capital";
+    advice  = "El sistema está en pérdidas netas. No aumentes el tamaño hasta que la curva de equity sea positiva.";
   }
 
   if (maxDD > Math.abs(totalPL) && totalPL > 0) {
-    status = "🟠 Drawdown alto";
-    advice = "El drawdown es grande frente a la ganancia neta. Usa cuenta conservadora o reduce contratos.";
+    status = "🟠 Drawdown elevado";
+    advice  = "Tu drawdown supera tu ganancia neta. Opera con la Cuenta Cómoda o reduce contratos hasta que la relación mejore.";
   }
 
-  setText("accountAggressive", money(aggressive));
-  setText("accountBalanced", money(balanced));
-  setText("accountConservative", money(conservative));
+  setText("accountMinimum",     money(minimum));
+  setText("accountAggressive",  money(recommended));
+  setText("accountBalanced",    money(comfortable));
+  setText("accountConservative",money(professional));
   setText("accountStatus", status);
   setText("accountAdvice", advice);
 }

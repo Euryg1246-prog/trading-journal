@@ -1152,3 +1152,57 @@ header { display: none; }
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
 }
+
+/* ── Account Size Engine — rediseño ── */
+.account-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.account-box.minimum  { border-color: rgba(251,146,60,0.4); }
+
+.account-tag {
+  font-size: 11px;
+  color: var(--text3);
+  font-family: 'DM Mono', monospace;
+  margin: 4px 0 8px;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+
+.account-explain {
+  font-size: 12px !important;
+  color: var(--text2) !important;
+  line-height: 1.5 !important;
+  margin: 0 !important;
+}
+
+.account-status-box {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: 12px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.account-status-box strong {
+  font-size: 14px;
+  color: var(--text);
+  white-space: nowrap;
+}
+.account-status-box p {
+  font-size: 13px;
+  color: var(--text2);
+  margin: 0;
+  line-height: 1.5;
+}
+
+@media (max-width: 900px) {
+  .account-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 500px) {
+  .account-grid { grid-template-columns: 1fr; }
+}
