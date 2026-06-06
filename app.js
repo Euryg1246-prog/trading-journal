@@ -1,5 +1,109 @@
 
 /* ============================================================
+   STRIPE — Suscripciones
+   ============================================================ */
+const STRIPE_PK       = "pk_live_51Ni9tREkiXgRr3dMRaXKZxdFgX2NfaS6xLpgglnPZMLi6MCQmNbRDa44X1XDQ1U9uS58rS0rIvxCXHV2nJbPKQNd00vjdaWBij";
+const STRIPE_PRICE_ID = "price_1TfRzHEkiXgRr3dMjiQgdhuF";
+const FREE_TRADE_LIMIT = 30;
+
+let userPlan = 'free'; // 'free' o 'pro'
+
+async function checkUserPlan() {
+  if (!currentUser) return;
+
+  // Check plan in Supabase profiles table
+  const { data } = await _supabase
+    .from('profiles')
+    .select('plan, stripe_customer_id')
+    .eq('id', currentUser.id)
+    .single();
+
+  userPlan = data?.plan || 'free';
+  updatePlanUI();
+}
+
+function updatePlanUI() {
+  const banner = document.getElementById('upgrade-banner');
+  const badge  = document.getElementById('plan-badge');
+
+  if (userPlan === 'pro') {
+    if (banner) banner.style.display = 'none';
+    if (badge) {
+      badge.textContent = 'PRO';
+      badge.style.display = 'inline';
+      badge.style.background = 'var(--accent)';
+      badge.style.color = '#000';
+    }
+  } else {
+    if (banner) banner.style.display = 'flex';
+    if (badge) {
+      badge.textContent = 'FREE';
+      badge.style.display = 'inline';
+      badge.style.background = 'rgba(255,255,255,0.1)';
+      badge.style.color = 'var(--text2)';
+    }
+  }
+}
+
+function isPro() {
+  return userPlan === 'pro';
+}
+
+function checkTradeLimit() {
+  if (isPro()) return true;
+  if (trades.length >= FREE_TRADE_LIMIT) {
+    showToast('⚡ Límite del plan Free',
+      `Has alcanzado ${FREE_TRADE_LIMIT} trades. Actualiza a Pro para continuar registrando operaciones.`
+    );
+    return false;
+  }
+  return true;
+}
+
+async function startCheckout() {
+  if (!currentUser) { alert('Debes iniciar sesión primero.'); return; }
+
+  showToast('⏳ Preparando checkout...', 'Conectando con Stripe...');
+
+  try {
+    // Create checkout session via Supabase Edge Function
+    const { data, error } = await _supabase.functions.invoke('create-checkout', {
+      body: {
+        priceId:    STRIPE_PRICE_ID,
+        userId:     currentUser.id,
+        userEmail:  currentUser.email,
+        successUrl: window.location.origin + '?upgraded=true',
+        cancelUrl:  window.location.href,
+      }
+    });
+
+    if (error || !data?.url) {
+      showToast('⚠️ Error', 'No se pudo iniciar el checkout. Intenta de nuevo.');
+      console.error(error);
+      return;
+    }
+
+    window.location.href = data.url;
+  } catch(e) {
+    showToast('⚠️ Error', 'Problema de conexión. Intenta de nuevo.');
+    console.error(e);
+  }
+}
+
+// Check if returning from successful payment
+(function checkUpgradeReturn() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('upgraded') === 'true') {
+    showToast('🎉 ¡Bienvenido a Pro!', 'Tu cuenta ha sido actualizada. Disfruta todas las funciones.');
+    // Clean URL
+    window.history.replaceState({}, '', window.location.pathname);
+    // Refresh plan after short delay
+    setTimeout(() => checkUserPlan(), 2000);
+  }
+})();
+
+
+/* ============================================================
    SONIDO DE CAMPANA — Web Audio API
    ============================================================ */
 function playBell() {
@@ -215,6 +319,7 @@ function showApp() {
   setView(saved);
   loadTradesFromSupabase();
   loadNotesFromSupabase();
+  checkUserPlan();
 }
 
 function showAuthOverlay() {
@@ -424,6 +529,7 @@ const dayNames = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 
 form.addEventListener("submit", async function(e) {
   e.preventDefault();
+  if (!checkTradeLimit()) return;
 
   const date      = val("date");
   const time      = val("time");
