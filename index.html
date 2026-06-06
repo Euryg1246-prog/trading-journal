@@ -182,6 +182,41 @@
         <span>Fuera del plan</span>
         <strong id="outPlanTrades">0 trades</strong>
       </div>
+
+      <!-- RELOJ + ALARMA -->
+      <div class="clock-section">
+        <canvas id="analogClock" width="160" height="160"></canvas>
+        <div class="clock-time-digital" id="clockDigital">00:00:00</div>
+        <div class="discipline-msg" id="disciplineMsg">La disciplina siempre gana</div>
+      </div>
+
+      <!-- ALARMAS -->
+      <div class="alarm-section">
+        <div class="alarm-title">⏰ Alarmas</div>
+
+        <div class="alarm-row">
+          <span>Intervalo disciplina</span>
+          <select id="alarmInterval" onchange="updateAlarmInterval()">
+            <option value="0">Apagado</option>
+            <option value="5">Cada 5 min</option>
+            <option value="10" selected>Cada 10 min</option>
+            <option value="15">Cada 15 min</option>
+            <option value="30">Cada 30 min</option>
+          </select>
+        </div>
+
+        <div class="alarm-row">
+          <span>Hora fija</span>
+          <input type="time" id="alarmFixedTime" placeholder="18:00">
+          <button class="alarm-add-btn" onclick="addFixedAlarm()">+ Agregar</button>
+        </div>
+
+        <div id="fixedAlarmsList" class="fixed-alarms-list"></div>
+
+        <button class="alarm-test-btn" onclick="triggerDisciplineAlert()">
+          🔔 Probar alerta
+        </button>
+      </div>
     </div>
   </section>
 
