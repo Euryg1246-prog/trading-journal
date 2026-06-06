@@ -1,5 +1,40 @@
 
 /* ============================================================
+   SONIDO DE CAMPANA — Web Audio API
+   ============================================================ */
+function playBell() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+
+    // Campana: frecuencia fundamental + armónicos
+    const frequencies = [523, 659, 784, 1047];
+    const gains       = [0.6, 0.4, 0.3, 0.2];
+
+    frequencies.forEach((freq, i) => {
+      const osc  = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, ctx.currentTime);
+
+      // Fade in rápido, fade out suave (efecto campana)
+      gain.gain.setValueAtTime(0, ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(gains[i], ctx.currentTime + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2.5);
+
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 2.5);
+    });
+  } catch(e) {
+    console.log('Audio no disponible:', e);
+  }
+}
+
+
+/* ============================================================
    SIDEBAR COLLAPSE / EXPAND
    ============================================================ */
 function collapseSidebar() {
@@ -2640,6 +2675,7 @@ function updateAlarmInterval() {
 
 function triggerDisciplineAlert() {
   const phrase = disciplinePhrases[Math.floor(Math.random() * disciplinePhrases.length)];
+  playBell();
   showToast("⚡ DYGPRO Recordatorio", phrase);
   // Browser notification
   if (Notification.permission === 'granted') {
