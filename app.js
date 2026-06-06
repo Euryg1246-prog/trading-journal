@@ -55,15 +55,25 @@ document.addEventListener('click', e => {
    ============================================================ */
 let currentView = localStorage.getItem('dygpro_view') || 'scroll';
 
-// All section IDs for sidebar mode
-const ALL_SECTIONS = [
-  'section-dashboard','section-equity','section-calendar',
-  'section-setup','section-drift','section-recovery',
-  'section-account','section-scorecard','section-entry',
-  'section-history','section-sessions','section-notes',
-  'section-data','section-gallery'
-];
+// Section map: sidebar ID → array of element IDs/classes to show
+const SECTION_MAP = {
+  'section-dashboard':  ['dash-cards-1','dash-cards-2','dash-cards-3','dash-cards-4'],
+  'section-equity':     ['section-equity'],
+  'section-calendar':   ['section-calendar'],
+  'section-setup':      ['section-setup'],
+  'section-drift':      ['section-drift'],
+  'section-recovery':   ['section-recovery'],
+  'section-account':    ['section-account'],
+  'section-scorecard':  ['section-scorecard'],
+  'section-entry':      ['section-entry'],
+  'section-history':    ['section-history'],
+  'section-sessions':   ['section-sessions'],
+  'section-notes':      ['section-notes'],
+  'section-data':       ['section-data'],
+  'section-gallery':    ['section-gallery'],
+};
 
+const ALL_SECTIONS = Object.keys(SECTION_MAP);
 let activeSidebarSection = localStorage.getItem('dygpro_active_section') || 'section-dashboard';
 
 function setView(mode) {
@@ -114,20 +124,34 @@ function setView(mode) {
 }
 
 function showSidebarSection(sectionId) {
+  if (currentView !== 'sidebar') return;
   activeSidebarSection = sectionId;
   localStorage.setItem('dygpro_active_section', sectionId);
+
+  // Hide all sidebar-controlled sections
   ALL_SECTIONS.forEach(id => {
     const el = document.getElementById(id);
-    if (el) el.style.display = id === sectionId ? '' : 'none';
+    if (el) el.style.display = 'none';
   });
-  // Update active nav item
+
+  // Show target section
+  const target = document.getElementById(sectionId);
+  if (target) target.style.display = '';
+
+  // Dashboard is special — show all its sub-elements
+  if (sectionId === 'section-dashboard') {
+    ['dash-cards-1','dash-cards-2','dash-cards-3','dash-cards-4'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = '';
+    });
+  }
+
+  // Update active nav
   document.querySelectorAll('#sidebar .nav-item').forEach(item => {
-    const href = item.getAttribute('href') || '';
-    item.classList.toggle('active', href === '#' + sectionId);
+    const oc = item.getAttribute('onclick') || '';
+    item.classList.toggle('active', oc.includes("'" + sectionId + "'"));
   });
-  // Scroll to top of main
-  const ms = document.getElementById('main-scroll');
-  if (ms) ms.scrollTop = 0;
+
   window.scrollTo(0, 0);
 }
 
@@ -1912,11 +1936,6 @@ renderChart = function() {
 
   if (equityChart) equityChart.destroy();
 
-  // Fix high-DPI / retina quality
-  const dpr = window.devicePixelRatio || 1;
-  ctx.width  = ctx.offsetWidth  * dpr;
-  ctx.height = ctx.offsetHeight * dpr;
-
   equityChart = new Chart(ctx, {
     type: "line",
     data: {
@@ -1965,7 +1984,7 @@ renderChart = function() {
     },
     options: {
       responsive: true,
-      devicePixelRatio: dpr,
+      maintainAspectRatio: false,
       interaction: { mode: "index", intersect: false },
       plugins: {
         legend: {

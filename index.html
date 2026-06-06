@@ -172,7 +172,7 @@
   <div id="main-scroll">
 
     <section class="grid-main" id="section-dashboard">
-    <div class="panel chart-panel">
+    <div class="panel chart-panel" id="section-equity">
       <h2>Equity Curve Pro</h2>
 
       <div class="equity-controls">
@@ -260,7 +260,7 @@
     </div>
   </section>
 
-  <section class="dashboard">
+  <section class="dashboard" id="dash-cards-1">
     <div class="card"><span>P/L Total</span><strong id="totalPL">$0.00</strong></div>
     <div class="card"><span>P/L Dentro Plan</span><strong id="planPL">$0.00</strong></div>
     <div class="card"><span>P/L Fuera Plan</span><strong id="badPL">$0.00</strong></div>
@@ -271,7 +271,7 @@
 
 
 
-  <section class="dashboard">
+  <section class="dashboard" id="dash-cards-2">
     <div class="card"><span>Profit Factor</span><strong id="profitFactor">0.00</strong></div>
     <div class="card"><span>Payoff Ratio</span><strong id="payoffRatio">0.00</strong></div>
     <div class="card"><span>Avg Win</span><strong id="avgWin">$0.00</strong></div>
@@ -451,7 +451,7 @@
     </div>
   </section>
 
-  <section class="dashboard">
+  <section class="dashboard" id="dash-cards-3">
     <div class="card">
       <span>System Discipline Score</span>
       <strong id="disciplineScore">100/100</strong>
@@ -473,7 +473,7 @@
     </div>
   </section>
 
-  <section class="dashboard">
+  <section class="dashboard" id="dash-cards-4">
     <div class="card"><span>Avg Pullback</span><strong id="avgPullback">0 pts</strong></div>
     <div class="card"><span>Avg Max Alta</span><strong id="avgHighMove">0 pts</strong></div>
     <div class="card"><span>Avg Recovery %</span><strong id="avgRecovery">0%</strong></div>
@@ -745,6 +745,41 @@
   </section>
 
 </div>
+
+  <!-- GALERÍA DE CAPTURAS -->
+  <section class="panel gallery-panel" id="section-gallery">
+    <h2>📸 Galería de Trades</h2>
+    <p>Sube capturas de tus operaciones. Añade notas y aprende viendo tus trades.</p>
+
+    <div class="gallery-upload-area" id="galleryDropZone" onclick="document.getElementById('tradeImageInput').click()">
+      <i class="ti ti-photo-plus" style="font-size:40px;color:var(--text2);margin-bottom:10px"></i>
+      <span style="font-size:15px;color:var(--text2)">Haz clic aquí o arrastra una imagen</span>
+      <small style="color:var(--text3);font-size:12px;margin-top:4px">PNG, JPG — máx 5MB</small>
+      <input type="file" id="tradeImageInput" accept="image/*" multiple style="display:none" onchange="handleImageUpload(event)">
+    </div>
+
+    <div style="margin-bottom:14px">
+      <input type="text" id="gallerySearch" placeholder="Buscar por nota o fecha..." oninput="renderGallery()" style="max-width:300px">
+    </div>
+
+    <div id="tradeGallery" class="trade-gallery-grid"></div>
+  </section>
+
+  <!-- Modal imagen -->
+  <div id="imageModal" class="image-modal hidden" onclick="closeImageModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeImageModal()">✕</button>
+      <img id="modalImg" src="" alt="Trade capture" style="width:100%;border-radius:12px;max-height:420px;object-fit:contain;background:var(--bg)">
+      <div class="modal-meta" style="margin-top:14px">
+        <textarea id="modalNote" placeholder="Nota de esta captura..." rows="3" style="width:100%;margin-bottom:10px"></textarea>
+        <div style="display:flex;gap:10px">
+          <button class="tool-btn" onclick="saveImageNote()">Guardar nota</button>
+          <button class="tool-btn danger-btn" onclick="deleteImage()">Eliminar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
