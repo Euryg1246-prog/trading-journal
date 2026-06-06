@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>System Journal Pro</title>
+  <title>DYGPRO Trading Journal</title>
   <link rel="stylesheet" href="style.css">
   <style>
     /* ── Auth overlay ── */
@@ -60,8 +60,10 @@
 <!-- Auth overlay -->
 <div id="auth-overlay">
   <div class="auth-box">
-    <h2>System Journal Pro</h2>
-    <p>6PM Pullback System · Tu diario de trading</p>
+    <div class="auth-logo">
+      <h1>DYGPRO</h1>
+      <span>Trading Journal</span>
+    </div>
     <div class="auth-tab">
       <button class="active" onclick="showTab('login')">Iniciar sesión</button>
       <button onclick="showTab('register')">Registrarse</button>
@@ -74,19 +76,63 @@
   </div>
 </div>
 
-<div class="app">
-  <!-- User bar -->
-  <div id="user-bar">
-    <span id="user-email-label"></span>
-    <button id="logout-btn" onclick="signOut()">Cerrar sesión</button>
+<div id="app-layout">
+  <div class="app">
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="top-logo">
+      <span class="logo-main">DYGPRO</span>
+      <span class="logo-sub">Trading Journal</span>
+    </div>
+    <div class="top-actions">
+      <div class="view-toggle">
+        <button class="view-btn active" id="btn-scroll" onclick="setView('scroll')">
+          <i class="ti ti-layout-list"></i> Vista Completa
+        </button>
+        <button class="view-btn" id="btn-sidebar" onclick="setView('sidebar')">
+          <i class="ti ti-layout-sidebar"></i> Vista por Secciones
+        </button>
+      </div>
+      <div class="user-chip">
+        <div class="user-avatar-sm" id="user-avatar-initials">U</div>
+        <span id="user-email-label"></span>
+        <button id="logout-btn" onclick="signOut()">Salir</button>
+      </div>
+    </div>
   </div>
 
-  <header>
-    <h1>System Journal Pro</h1>
-    <p>6PM Pullback System · TradingView + Tradovate</p>
-  </header>
+  <!-- Sidebar (hidden by default) -->
+  <div id="sidebar-overlay" class="hidden" onclick="setView('scroll')"></div>
+  <nav id="sidebar" class="hidden">
+    <div class="sidebar-logo">
+      <h1>DYGPRO</h1>
+      <span>Trading Journal</span>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-section">Principal</div>
+      <a class="nav-item" href="#" onclick="showSidebarSection('section-dashboard');return false;"><i class="ti ti-layout-dashboard"></i> Dashboard</a>
+      <a class="nav-item" href="#" onclick="showSidebarSection('section-equity');return false;"><i class="ti ti-chart-line"></i> Equity Curve</a>
+      <a class="nav-item" href="#" onclick="showSidebarSection('section-calendar');return false;"><i class="ti ti-calendar-stats"></i> Calendario P/L</a>
+      <div class="nav-section">Análisis</div>
+      <a class="nav-item" href="#" onclick="showSidebarSection('section-setup');return false;"><i class="ti ti-star"></i> Setup Score</a>
+      <a class="nav-item" href="#" onclick="showSidebarSection('section-drift');return false;"><i class="ti ti-activity"></i> Drift Monitor</a>
+      <a class="nav-item" href="#" onclick="showSidebarSection('section-recovery');return false;"><i class="ti ti-refresh-alert"></i> Recovery</a>
+      <a class="nav-item" href="#" onclick="showSidebarSection('section-account');return false;"><i class="ti ti-wallet"></i> Account Size</a>
+      <a class="nav-item" href="#" onclick="showSidebarSection('section-scorecard');return false;"><i class="ti ti-award"></i> Scorecard</a>
+      <div class="nav-section">Registro</div>
+      <a class="nav-item" href="#" onclick="showSidebarSection('section-entry');return false;"><i class="ti ti-plus-circle"></i> Nuevo Trade</a>
+      <a class="nav-item" href="#" onclick="showSidebarSection('section-history');return false;"><i class="ti ti-list"></i> Historial</a>
+      <a class="nav-item" href="#" onclick="showSidebarSection('section-sessions');return false;"><i class="ti ti-database"></i> Sesiones</a>
+      <a class="nav-item" href="#" onclick="showSidebarSection('section-notes');return false;"><i class="ti ti-notes"></i> Notas</a>
+      <a class="nav-item" href="#" onclick="showSidebarSection('section-data');return false;"><i class="ti ti-upload"></i> Importar CSV</a>
+      <a class="nav-item" href="#" onclick="showSidebarSection('section-gallery');return false;"><i class="ti ti-photo"></i> Galería</a>
+    </div>
+  </nav>
 
-  <section class="grid-main">
+  <div id="main-scroll">
+
+    <section class="grid-main" id="section-dashboard">
     <div class="panel chart-panel">
       <h2>Equity Curve Pro</h2>
 
@@ -137,6 +183,41 @@
         <span>Fuera del plan</span>
         <strong id="outPlanTrades">0 trades</strong>
       </div>
+
+      <!-- RELOJ + ALARMA -->
+      <div class="clock-section">
+        <canvas id="analogClock" width="160" height="160"></canvas>
+        <div class="clock-time-digital" id="clockDigital">00:00:00</div>
+        <div class="discipline-msg" id="disciplineMsg">La disciplina siempre gana</div>
+      </div>
+
+      <!-- ALARMAS -->
+      <div class="alarm-section">
+        <div class="alarm-title">⏰ Alarmas</div>
+
+        <div class="alarm-row">
+          <span>Intervalo disciplina</span>
+          <select id="alarmInterval" onchange="updateAlarmInterval()">
+            <option value="0">Apagado</option>
+            <option value="5">Cada 5 min</option>
+            <option value="10" selected>Cada 10 min</option>
+            <option value="15">Cada 15 min</option>
+            <option value="30">Cada 30 min</option>
+          </select>
+        </div>
+
+        <div class="alarm-row">
+          <span>Hora fija</span>
+          <input type="time" id="alarmFixedTime" placeholder="18:00">
+          <button class="alarm-add-btn" onclick="addFixedAlarm()">+ Agregar</button>
+        </div>
+
+        <div id="fixedAlarmsList" class="fixed-alarms-list"></div>
+
+        <button class="alarm-test-btn" onclick="triggerDisciplineAlert()">
+          🔔 Probar alerta
+        </button>
+      </div>
     </div>
   </section>
 
@@ -165,7 +246,8 @@
 
 
   
-<section class="panel setup-panel">
+
+  <section class="panel setup-panel" id="section-setup">
   <h2>Setup Quality Score</h2>
   <p>Ranking estadístico de setups según rendimiento real.</p>
 
@@ -173,7 +255,8 @@
 </section>
 
 
-<section class="panel drift-panel">
+
+  <section class="panel drift-panel" id="section-drift">
   <h2>System Drift Monitor</h2>
   <p>Compara los últimos 20 trades contra el comportamiento histórico del sistema.</p>
 
@@ -205,7 +288,8 @@
 </section>
 
 
-<section class="panel notes-panel">
+
+  <section class="panel notes-panel" id="section-notes">
   <h2>Personal Notes Calendar Pro</h2>
   <p>Notas personales por fecha. Guarda ideas, emociones, observaciones o bugs del sistema.</p>
 
@@ -245,7 +329,8 @@
 </section>
 
 
-  <section class="panel recovery-panel">
+  
+  <section class="panel recovery-panel" id="section-recovery">
     <h2>Recovery Analytics</h2>
     <p>Mide qué tan resistente es el sistema después de drawdowns y rachas negativas.</p>
 
@@ -270,7 +355,8 @@
     </div>
   </section>
 
-  <section class="panel account-panel">
+  
+  <section class="panel account-panel" id="section-account">
     <h2>Account Size Engine</h2>
     <p>Estimación de capital necesario según drawdown, riesgo y comportamiento real del sistema.</p>
 
@@ -301,7 +387,8 @@
     </div>
   </section>
 
-  <section class="panel scorecard-panel">
+  
+  <section class="panel scorecard-panel" id="section-scorecard">
     <h2>System Scorecard</h2>
 
     <div class="scorecard-grid">
@@ -356,7 +443,8 @@
     <div class="card"><span>Peor Día</span><strong id="worstDay">-</strong></div>
   </section>
 
-  <section class="panel">
+  
+  <section class="panel" id="section-data">
     <h2>Importar / Exportar Datos</h2>
     <p>Importa operaciones desde CSV o descarga un backup del journal.</p>
 
@@ -371,7 +459,8 @@
     </div>
   </section>
 
-  <section class="panel trade-entry-panel">
+  
+  <section class="panel trade-entry-panel" id="section-entry">
     <h2>Registrar Trade / Sesión</h2>
     <p class="panel-subtitle">
       Formulario claro para registrar operaciones sin confusión. Cada campo explica exactamente qué dato debes ingresar.
@@ -533,6 +622,7 @@
     </form>
   </section>
 
+  
   <section class="grid-main">
     <div class="panel">
       <h2>Research Center</h2>
@@ -547,13 +637,15 @@
 
 
 
-  <section class="panel">
+  
+  <section class="panel" id="section-calendar">
     <h2>Calendario P/L Diario</h2>
     <p>Cada día se colorea según el resultado acumulado.</p>
     <div id="plCalendar" class="calendar"></div>
   </section>
 
-  <section class="panel">
+  
+  <section class="panel" id="section-sessions">
     <h2>Session Database</h2>
     <p>Base de datos de sesiones del sistema 6PM Pullback.</p>
 
@@ -576,7 +668,8 @@
     </table>
   </section>
 
-  <section class="panel">
+  
+  <section class="panel" id="section-history">
     <h2>Historial</h2>
 
     <div style="margin-bottom:15px;">
@@ -614,8 +707,13 @@
 
 </div>
 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="app.js"></script>
+    </div>
+  
+  </main>
+</div>
 </body>
 </html>
