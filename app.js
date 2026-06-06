@@ -6,9 +6,9 @@ let currentView = localStorage.getItem('dygpro_view') || 'scroll';
 
 // All section IDs for sidebar mode
 const ALL_SECTIONS = [
-  'section-dashboard','section-equity','section-calendar',
+  'section-dashboard','section-research','section-calendar',
   'section-setup','section-drift','section-recovery',
-  'section-account','section-scorecard','section-entry',
+  'section-account','section-scorecard-wrapper','section-entry',
   'section-history','section-sessions','section-notes',
   'section-data','section-gallery'
 ];
