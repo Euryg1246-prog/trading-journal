@@ -5,32 +5,38 @@
 let activeSourceFilters = new Set(['tradingview','webull','tradovate','manual','universal']);
 
 function toggleSourceFilter(source) {
+  const ALL_SOURCES = ['tradingview','webull','tradovate','manual','universal'];
+
   if (source === 'all') {
-    // Toggle all
-    const allBtn = document.querySelector('[data-source="all"]');
-    const allActive = activeSourceFilters.size === 5;
+    // Si todos activos → desactivar todos. Si alguno inactivo → activar todos
+    const allActive = ALL_SOURCES.every(s => activeSourceFilters.has(s));
     if (allActive) {
       activeSourceFilters.clear();
-      document.querySelectorAll('.source-toggle').forEach(b => {
-        b.style.opacity = '0.4';
-      });
     } else {
-      activeSourceFilters = new Set(['tradingview','webull','tradovate','manual','universal']);
-      document.querySelectorAll('.source-toggle').forEach(b => {
-        b.style.opacity = '1';
-      });
+      activeSourceFilters = new Set(ALL_SOURCES);
     }
   } else {
     if (activeSourceFilters.has(source)) {
       activeSourceFilters.delete(source);
-      const btn = document.querySelector(`[data-source="${source}"]`);
-      if (btn) btn.style.opacity = '0.35';
     } else {
       activeSourceFilters.add(source);
-      const btn = document.querySelector(`[data-source="${source}"]`);
-      if (btn) btn.style.opacity = '1';
     }
   }
+
+  // Update button visual state
+  document.querySelectorAll('.source-toggle').forEach(btn => {
+    const s = btn.getAttribute('data-source');
+    if (s === 'all') {
+      const allActive = ALL_SOURCES.every(x => activeSourceFilters.has(x));
+      btn.style.opacity = allActive ? '1' : '0.4';
+      btn.style.textDecoration = allActive ? 'none' : 'line-through';
+    } else {
+      const isActive = activeSourceFilters.has(s);
+      btn.style.opacity = isActive ? '1' : '0.35';
+      btn.style.textDecoration = isActive ? 'none' : 'line-through';
+    }
+  });
+
   renderChart();
   render();
 }
