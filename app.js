@@ -1001,12 +1001,17 @@ function renderDashboard() {
   const planTrades = trades.filter(t => t.insidePlan);
   const badTrades = trades.filter(t => !t.insidePlan);
 
-  setText("totalPL", money(sum(trades, "pl")));
-  setText("planPL", money(sum(planTrades, "pl")));
-  setText("badPL", money(sum(badTrades, "pl")));
-  setText("winRate", total ? (wins.length / total * 100).toFixed(1) + "%" : "0%");
-  setText("disciplineRate", total ? (planTrades.length / total * 100).toFixed(1) + "%" : "0%");
-  setText("maxDD", money(calculateMaxDrawdown(trades)));
+  const totalPLval = sum(trades, "pl");
+  const winRateVal = total ? (wins.length / total * 100) : 0;
+  const disciplineVal = total ? (planTrades.length / total * 100) : 0;
+  const maxDDval = calculateMaxDrawdown(trades);
+
+  setTextColor("totalPL", money(totalPLval), totalPLval >= 0 ? "var(--green)" : "var(--red)");
+  setTextColor("planPL", money(sum(planTrades, "pl")), sum(planTrades,"pl") >= 0 ? "var(--green)" : "var(--red)");
+  setTextColor("badPL", money(sum(badTrades, "pl")), badTrades.length > 0 ? "var(--red)" : "");
+  setTextColor("winRate", winRateVal.toFixed(1) + "%", winRateVal >= 55 ? "var(--green)" : winRateVal >= 45 ? "var(--gold)" : "var(--red)");
+  setTextColor("disciplineRate", disciplineVal.toFixed(1) + "%", disciplineVal >= 90 ? "var(--green)" : disciplineVal >= 70 ? "var(--gold)" : "var(--red)");
+  setTextColor("maxDD", money(maxDDval), maxDDval > Math.abs(totalPLval) * 0.5 ? "var(--red)" : maxDDval > 0 ? "var(--gold)" : "");
   setText("outPlanTrades", badTrades.length + " trades");
 
   setText("avgPullback", avgText(valid(trades, "pullback"), " pts"));
@@ -1246,6 +1251,13 @@ function money(value) {
 function setText(id, text) {
   const el = document.getElementById(id);
   if (el) el.textContent = text;
+}
+
+function setTextColor(id, text, color) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = text;
+  el.style.color = color || "";
 }
 
 function parseSmartCSV(text) {
@@ -1681,12 +1693,14 @@ function renderPerformanceRatios() {
   const expectancy = (winRate * avgWinValue) - (lossRate * avgLossValue);
   const realRR = avgLossValue > 0 ? avgWinValue / avgLossValue : 0;
 
-  setText("profitFactor", profitFactor === 999 ? "∞" : profitFactor.toFixed(2));
-  setText("payoffRatio", payoffRatio === 999 ? "∞" : payoffRatio.toFixed(2));
-  setText("avgWin", money(avgWinValue));
-  setText("avgLoss", money(-avgLossValue));
-  setText("expectancy", money(expectancy));
-  setText("realRR", realRR.toFixed(2) + "R");
+  setTextColor("profitFactor", profitFactor === 999 ? "∞" : profitFactor.toFixed(2),
+    profitFactor >= 1.5 ? "var(--green)" : profitFactor >= 1 ? "var(--gold)" : "var(--red)");
+  setTextColor("payoffRatio", payoffRatio === 999 ? "∞" : payoffRatio.toFixed(2),
+    payoffRatio >= 1.5 ? "var(--green)" : payoffRatio >= 1 ? "var(--gold)" : "var(--red)");
+  setTextColor("avgWin", money(avgWinValue), avgWinValue > 0 ? "var(--green)" : "");
+  setTextColor("avgLoss", money(-avgLossValue), avgLossValue > 0 ? "var(--red)" : "");
+  setTextColor("expectancy", money(expectancy), expectancy > 0 ? "var(--green)" : "var(--red)");
+  setTextColor("realRR", realRR.toFixed(2) + "R", realRR >= 1.5 ? "var(--green)" : realRR >= 1 ? "var(--gold)" : "var(--red)");
 }
 
 const renderBeforeRatios = render;

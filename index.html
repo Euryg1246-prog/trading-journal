@@ -453,6 +453,81 @@
   </section>
   </div><!-- /section-scorecard wrapper -->
 
+  <section class="panel" id="section-config">
+    <h2>⚙️ Configuración de Mi Sistema</h2>
+    <p>Define tu ventana de trading. El journal validará tus operaciones según estas reglas.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px">
+
+      <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">
+        Nombre de tu sistema
+        <input type="text" id="cfgSystemName" placeholder="Ej: Mi Sistema de Trading" style="font-size:14px">
+      </label>
+
+      <div></div>
+
+      <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">
+        Día de inicio
+        <select id="cfgStartDay">
+          <option value="0">Domingo</option>
+          <option value="1">Lunes</option>
+          <option value="2">Martes</option>
+          <option value="3">Miércoles</option>
+          <option value="4">Jueves</option>
+          <option value="5">Viernes</option>
+          <option value="6">Sábado</option>
+        </select>
+      </label>
+
+      <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">
+        Hora de inicio
+        <input type="time" id="cfgStartHour" value="18:00">
+      </label>
+
+      <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">
+        Día de fin
+        <select id="cfgEndDay">
+          <option value="0">Domingo</option>
+          <option value="1">Lunes</option>
+          <option value="2">Martes</option>
+          <option value="3" selected>Miércoles</option>
+          <option value="4">Jueves</option>
+          <option value="5">Viernes</option>
+          <option value="6">Sábado</option>
+        </select>
+      </label>
+
+      <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">
+        Hora de fin
+        <input type="time" id="cfgEndHour" value="16:00">
+      </label>
+
+    </div>
+
+    <div style="margin-top:16px">
+      <p style="font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px">Días válidos todo el día</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap" id="cfgDayCheckboxes">
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);cursor:pointer"><input type="checkbox" value="0"> Dom</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);cursor:pointer"><input type="checkbox" value="1" checked> Lun</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);cursor:pointer"><input type="checkbox" value="2" checked> Mar</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);cursor:pointer"><input type="checkbox" value="3"> Mié</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);cursor:pointer"><input type="checkbox" value="4"> Jue</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);cursor:pointer"><input type="checkbox" value="5"> Vie</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);cursor:pointer"><input type="checkbox" value="6"> Sáb</label>
+      </div>
+    </div>
+
+    <div style="margin-top:20px;display:flex;gap:12px;align-items:center">
+      <button class="tool-btn" onclick="saveSystemConfigUI()" style="font-size:14px;padding:12px 24px">Guardar configuración</button>
+      <button class="tool-btn danger-btn" onclick="resetSystemConfig()">Restablecer por defecto</button>
+    </div>
+
+    <div id="cfgPreview" style="margin-top:16px;padding:14px;background:var(--bg2);border-radius:12px;border:1px solid var(--border2);font-size:13px;color:var(--text2);display:none"></div>
+
+
+  </section>
+
+
   <section class="panel" id="section-data">
     <h2>Importar / Exportar Datos</h2>
     <p>Importa operaciones desde CSV o descarga un backup del journal.</p>
@@ -741,79 +816,6 @@
 </div>
 
   <!-- CONFIGURACIÓN DEL SISTEMA -->
-  <section class="panel" id="section-config">
-    <h2>⚙️ Configuración de Mi Sistema</h2>
-    <p>Define tu ventana de trading. El journal validará tus operaciones según estas reglas.</p>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px">
-
-      <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">
-        Nombre de tu sistema
-        <input type="text" id="cfgSystemName" placeholder="Ej: Mi Sistema de Trading" style="font-size:14px">
-      </label>
-
-      <div></div>
-
-      <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">
-        Día de inicio
-        <select id="cfgStartDay">
-          <option value="0">Domingo</option>
-          <option value="1">Lunes</option>
-          <option value="2">Martes</option>
-          <option value="3">Miércoles</option>
-          <option value="4">Jueves</option>
-          <option value="5">Viernes</option>
-          <option value="6">Sábado</option>
-        </select>
-      </label>
-
-      <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">
-        Hora de inicio
-        <input type="time" id="cfgStartHour" value="18:00">
-      </label>
-
-      <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">
-        Día de fin
-        <select id="cfgEndDay">
-          <option value="0">Domingo</option>
-          <option value="1">Lunes</option>
-          <option value="2">Martes</option>
-          <option value="3" selected>Miércoles</option>
-          <option value="4">Jueves</option>
-          <option value="5">Viernes</option>
-          <option value="6">Sábado</option>
-        </select>
-      </label>
-
-      <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">
-        Hora de fin
-        <input type="time" id="cfgEndHour" value="16:00">
-      </label>
-
-    </div>
-
-    <div style="margin-top:16px">
-      <p style="font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px">Días válidos todo el día</p>
-      <div style="display:flex;gap:10px;flex-wrap:wrap" id="cfgDayCheckboxes">
-        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);cursor:pointer"><input type="checkbox" value="0"> Dom</label>
-        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);cursor:pointer"><input type="checkbox" value="1" checked> Lun</label>
-        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);cursor:pointer"><input type="checkbox" value="2" checked> Mar</label>
-        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);cursor:pointer"><input type="checkbox" value="3"> Mié</label>
-        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);cursor:pointer"><input type="checkbox" value="4"> Jue</label>
-        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);cursor:pointer"><input type="checkbox" value="5"> Vie</label>
-        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);cursor:pointer"><input type="checkbox" value="6"> Sáb</label>
-      </div>
-    </div>
-
-    <div style="margin-top:20px;display:flex;gap:12px;align-items:center">
-      <button class="tool-btn" onclick="saveSystemConfigUI()" style="font-size:14px;padding:12px 24px">Guardar configuración</button>
-      <button class="tool-btn danger-btn" onclick="resetSystemConfig()">Restablecer por defecto</button>
-    </div>
-
-    <div id="cfgPreview" style="margin-top:16px;padding:14px;background:var(--bg2);border-radius:12px;border:1px solid var(--border2);font-size:13px;color:var(--text2);display:none"></div>
-
-
-  </section>
 
 
   <!-- GALERÍA DE CAPTURAS -->
