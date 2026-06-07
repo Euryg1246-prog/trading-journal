@@ -166,6 +166,10 @@ function initPanelCollapse() {
     const h2 = panel.querySelector('h2');
     if (!h2) return;
 
+    // Assign panel ID FIRST
+    const pid = 'panel_' + Math.random().toString(36).slice(2,7);
+    panel.dataset.panelId = pid;
+
     // Create toggle button
     const btn = document.createElement('button');
     btn.innerHTML = '−';
@@ -173,15 +177,12 @@ function initPanelCollapse() {
     btn.style.cssText = 'background:none;border:1px solid rgba(96,165,250,0.3);color:var(--text2);border-radius:6px;width:22px;height:22px;cursor:pointer;font-size:13px;line-height:1;margin-left:auto;flex-shrink:0;font-family:monospace;';
     btn.onclick = (e) => {
       e.stopPropagation();
-      const pid = panel.dataset.panelId;
       const isHidden = panel.dataset.collapsed === '1';
-      // Toggle all children except h2
       Array.from(panel.children).forEach(child => {
         if (child !== h2) child.style.display = isHidden ? '' : 'none';
       });
       panel.dataset.collapsed = isHidden ? '0' : '1';
       btn.innerHTML = isHidden ? '−' : '+';
-      // Save state
       try {
         const states = JSON.parse(localStorage.getItem('dygpro_collapsed') || '{}');
         states[pid] = !isHidden;
@@ -192,10 +193,6 @@ function initPanelCollapse() {
     // Make h2 flex
     h2.style.cssText += ';display:flex;align-items:center;';
     h2.appendChild(btn);
-
-    // Assign panel ID
-    const pid = 'panel_' + Math.random().toString(36).slice(2,7);
-    panel.dataset.panelId = pid;
 
     // Restore saved state
     try {
