@@ -166,10 +166,6 @@ function initPanelCollapse() {
     const h2 = panel.querySelector('h2');
     if (!h2) return;
 
-    // Assign panel ID FIRST
-    const pid = 'panel_' + Math.random().toString(36).slice(2,7);
-    panel.dataset.panelId = pid;
-
     // Create toggle button
     const btn = document.createElement('button');
     btn.innerHTML = '−';
@@ -177,12 +173,15 @@ function initPanelCollapse() {
     btn.style.cssText = 'background:none;border:1px solid rgba(96,165,250,0.3);color:var(--text2);border-radius:6px;width:22px;height:22px;cursor:pointer;font-size:13px;line-height:1;margin-left:auto;flex-shrink:0;font-family:monospace;';
     btn.onclick = (e) => {
       e.stopPropagation();
+      const pid = panel.dataset.panelId;
       const isHidden = panel.dataset.collapsed === '1';
+      // Toggle all children except h2
       Array.from(panel.children).forEach(child => {
         if (child !== h2) child.style.display = isHidden ? '' : 'none';
       });
       panel.dataset.collapsed = isHidden ? '0' : '1';
       btn.innerHTML = isHidden ? '−' : '+';
+      // Save state
       try {
         const states = JSON.parse(localStorage.getItem('dygpro_collapsed') || '{}');
         states[pid] = !isHidden;
@@ -193,6 +192,10 @@ function initPanelCollapse() {
     // Make h2 flex
     h2.style.cssText += ';display:flex;align-items:center;';
     h2.appendChild(btn);
+
+    // Assign panel ID
+    const pid = 'panel_' + Math.random().toString(36).slice(2,7);
+    panel.dataset.panelId = pid;
 
     // Restore saved state
     try {
@@ -1056,7 +1059,6 @@ function showApp() {
   loadTradesFromSupabase();
   loadNotesFromSupabase();
   checkUserPlan();
-  // Show onboarding after trades load
   setTimeout(checkOnboarding, 2000);
 }
 
@@ -1099,10 +1101,7 @@ async function submitAuth() {
     ({ data, error } = await _supabase.auth.signUp({ email, password }));
     if (!error && data?.user) {
       currentUser = data.user;
-      // Send welcome email
-      _supabase.functions.invoke('send-welcome-email', {
-        body: { email: data.user.email }
-      }).catch(e => console.log('Welcome email error:', e));
+      _supabase.functions.invoke('send-welcome-email', { body: { email: data.user.email } }).catch(e => console.log('email:', e));
       showApp();
     } else if (!error) {
       errEl.style.color = "#22c55e";
@@ -1148,8 +1147,6 @@ async function loadTradesFromSupabase() {
   render();
   // Auto-fix trades with missing PL
   setTimeout(autoRecalcPL, 500);
-  // Check onboarding for new users
-  setTimeout(checkOnboarding, 1000);
 }
 
 async function loadNotesFromSupabase() {
@@ -2052,6 +2049,7 @@ function importWebullRows(rows) {
         date, time, day: dayName, symbol: sym, direction,
         entry, exit, contracts, points, pl,
         setup: 'Webull Import',
+        source: 'webull',
         ruleFollowed: 'yes',
         insideWindow, insidePlan: insideWindow,
         mistake: '', notes: `Webull: ${sym} ${direction} — Entry: ${entry} / Exit: ${exit}`,
@@ -4171,15 +4169,10 @@ document.addEventListener('DOMContentLoaded', () => {
 // Iniciar autenticación
 initAuth();
 
-
-/* ============================================================
-   ONBOARDING — Primera vez del usuario
-   ============================================================ */
 function checkOnboarding() {
   if (localStorage.getItem("dygpro_onboarding_done")) return;
-  if (!currentUser) return;
-  if (trades.length > 0) {
-    localStorage.setItem("dygpro_onboarding_done", "1");
+  if (!currentUser || trades.length > 0) {
+    if (trades.length > 0) localStorage.setItem("dygpro_onboarding_done", "1");
     return;
   }
   const overlay = document.getElementById("onboardingOverlay");
@@ -4190,14 +4183,13 @@ function onboardingAction(action) {
   const overlay = document.getElementById("onboardingOverlay");
   if (overlay) overlay.style.display = "none";
   localStorage.setItem("dygpro_onboarding_done", "1");
-
   if (action === "import") {
     document.getElementById("section-data")?.scrollIntoView({ behavior: "smooth" });
-    showToast("📥 Importar trades", "Selecciona tu archivo CSV.");
+    showToast("importar trades", "Selecciona tu archivo CSV.");
   } else if (action === "manual") {
     document.getElementById("section-entry")?.scrollIntoView({ behavior: "smooth" });
-    showToast("✏️ Registrar trade", "Llena el formulario con tu operación.");
+    showToast("Registrar trade", "Llena el formulario.");
   } else {
-    showToast("👀 Explorando", "Cuando estés listo, importa o registra tus trades.");
+    showToast("Explorando", "Importa o registra tus trades cuando estes listo.");
   }
 }
