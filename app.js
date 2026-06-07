@@ -1,533 +1,32 @@
 
-function toggleMarketsPanel() {
-  const panel = document.getElementById("marketsPanelContent");
-  const arrow = document.getElementById("marketsPanelArrow");
-  if (!panel) return;
-  const isOpen = panel.style.display !== "none";
-  panel.style.display = isOpen ? "none" : "block";
-  if (arrow) arrow.textContent = isOpen ? "▼" : "▲";
-  if (!isOpen) renderCustomMarkets();
-}
-
-
-/* ============================================================
-   MERCADOS PERSONALIZADOS
-   ============================================================ */
-function addCustomMarket() {
-  const name = document.getElementById("newSymbolName")?.value.trim().toUpperCase();
-  const pv   = parseFloat(document.getElementById("newSymbolPoint")?.value || "0");
-
-  if (!name) { showToast("⚠️ Error", "Escribe el nombre del símbolo."); return; }
-  if (!pv || pv <= 0) { showToast("⚠️ Error", "El valor por punto debe ser mayor a 0."); return; }
-
-  const customs = JSON.parse(localStorage.getItem("dygpro_custom_symbols") || "{}");
-  customs[name] = pv;
-  localStorage.setItem("dygpro_custom_symbols", JSON.stringify(customs));
-
-  // Add to all selectors
-  addSymbolToSelectors(name, pv);
-
-  // Clear inputs
-  if (document.getElementById("newSymbolName")) document.getElementById("newSymbolName").value = "";
-  if (document.getElementById("newSymbolPoint")) document.getElementById("newSymbolPoint").value = "";
-
-  renderCustomMarkets();
-  showToast("✅ Mercado agregado", `${name} añadido con valor $${pv} por punto.`);
-}
-
-function removeCustomMarket(name) {
-  const customs = JSON.parse(localStorage.getItem("dygpro_custom_symbols") || "{}");
-  delete customs[name];
-  localStorage.setItem("dygpro_custom_symbols", JSON.stringify(customs));
-
-  // Remove from both selectors
-  const sel = document.getElementById("symbol");
-  sel?.querySelector(`option[value="${name}"]`)?.remove();
-  const quick = document.getElementById("quickMarket");
-  quick?.querySelector(`option[value="${name}|Long"]`)?.remove();
-  quick?.querySelector(`option[value="${name}|Short"]`)?.remove();
-
-  renderCustomMarkets();
-}
-
-function renderCustomMarkets() {
-  const list = document.getElementById("customMarketsList");
-  if (!list) return;
-
-  const customs = JSON.parse(localStorage.getItem("dygpro_custom_symbols") || "{}");
-  const keys = Object.keys(customs);
-
-  if (!keys.length) {
-    list.innerHTML = '<p style="font-size:13px;color:var(--text2)">No hay mercados personalizados aún.</p>';
-    return;
-  }
-
-  list.innerHTML = keys.map(name => `
-    <div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 14px">
-      <span style="font-size:14px;color:var(--text);font-family:DM Mono,monospace">${name}</span>
-      <span style="font-size:13px;color:var(--text2)">$${customs[name]} por punto</span>
-      <button onclick="removeCustomMarket('${name}')" class="danger-btn" style="padding:4px 10px;font-size:12px;border-radius:6px;cursor:pointer;border:1px solid rgba(244,63,94,0.3);background:rgba(244,63,94,0.1);color:var(--red);font-family:DM Sans,sans-serif">Eliminar</button>
-    </div>
-  `).join("");
-}
-
-// Load custom markets into symbol selector on startup
-function addSymbolToSelectors(name, pv) {
-  // Add to all selectors
-  addSymbolToSelectors(name, pv);
-
-  // Add to quickMarket selector (Long + Short)
-  const quick = document.getElementById("quickMarket");
-  if (quick) {
-    if (!quick.querySelector(`option[value="${name}|Long"]`)) {
-      const optL = document.createElement("option");
-      optL.value = `${name}|Long`;
-      optL.textContent = `${name} Long`;
-      quick.insertBefore(optL, quick.querySelector('option[value="custom|Long"]'));
-    }
-    if (!quick.querySelector(`option[value="${name}|Short"]`)) {
-      const optS = document.createElement("option");
-      optS.value = `${name}|Short`;
-      optS.textContent = `${name} Short`;
-      quick.insertBefore(optS, quick.querySelector('option[value="custom|Short"]'));
-    }
-  }
-}
-
-function loadCustomMarketsIntoSelector() {
-  const customs = JSON.parse(localStorage.getItem("dygpro_custom_symbols") || "{}");
-  Object.entries(customs).forEach(([name, pv]) => {
-    addSymbolToSelectors(name, pv);
-  });
-  renderCustomMarkets();
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  loadCustomMarketsIntoSelector();
-});
-
-
-/* ============================================================
-   SÍMBOLO PERSONALIZADO
-   ============================================================ */
-function handleSymbolChange(sel) {
-  const box = document.getElementById("customSymbolBox");
-  if (!box) return;
-  if (sel.value === "custom") {
-    box.style.display = "block";
-  } else {
-    box.style.display = "none";
-  }
-}
-
-function getSelectedSymbol() {
-  const sel = document.getElementById("symbol");
-  if (!sel) return "";
-  if (sel.value === "custom") {
-    const name = document.getElementById("customSymbolName")?.value.trim().toUpperCase();
-    const pv   = parseFloat(document.getElementById("customSymbolPoint")?.value || "1");
-    if (name) {
-      // Save custom symbol for future use
-      const customs = JSON.parse(localStorage.getItem("dygpro_custom_symbols") || "{}");
-      customs[name] = pv;
-      localStorage.setItem("dygpro_custom_symbols", JSON.stringify(customs));
-      // Add to selector for next time
-      if (!sel.querySelector(`option[value="${name}"]`)) {
-        const opt = document.createElement("option");
-        opt.value = name;
-        opt.textContent = `${name} ($${pv}/pt)`;
-        sel.insertBefore(opt, sel.querySelector('option[value="custom"]'));
-      }
-    }
-    return name || "CUSTOM";
-  }
-  return sel.value;
-}
-
-
-/* ============================================================
-   CONFIG UI — Guardar y mostrar configuración del sistema
-   ============================================================ */
-const DAY_NAMES_FULL = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
-const DAY_NAMES_SHORT = ["Dom","Lun","Mar","Mie","Jue","Vie","Sab"];
-
-function initSystemConfigUI() {
-  const cfg = systemConfig;
-
-  const nameEl = document.getElementById("cfgSystemName");
-  if (nameEl) nameEl.value = cfg.systemName || "Mi Sistema";
-
-  const startDayEl = document.getElementById("cfgStartDay");
-  if (startDayEl) startDayEl.value = cfg.startDay;
-
-  const endDayEl = document.getElementById("cfgEndDay");
-  if (endDayEl) endDayEl.value = cfg.endDay;
-
-  const startHourEl = document.getElementById("cfgStartHour");
-  if (startHourEl) startHourEl.value = `${String(cfg.startHour).padStart(2,"0")}:00`;
-
-  const endHourEl = document.getElementById("cfgEndHour");
-  if (endHourEl) endHourEl.value = `${String(cfg.endHour).padStart(2,"0")}:00`;
-
-  const checkboxes = document.querySelectorAll("#cfgDayCheckboxes input[type=checkbox]");
-  checkboxes.forEach(cb => {
-    cb.checked = cfg.allDayDays.includes(Number(cb.value));
-  });
-
-  updateSystemDisplay();
-}
-
-function saveSystemConfigUI() {
-  const name     = document.getElementById("cfgSystemName")?.value || "Mi Sistema";
-  const startDay = Number(document.getElementById("cfgStartDay")?.value ?? 0);
-  const endDay   = Number(document.getElementById("cfgEndDay")?.value ?? 3);
-  const startTime = document.getElementById("cfgStartHour")?.value || "18:00";
-  const endTime   = document.getElementById("cfgEndHour")?.value || "16:00";
-  const startHour = Number(startTime.split(":")[0]);
-  const endHour   = Number(endTime.split(":")[0]);
-
-  const allDayDays = [];
-  document.querySelectorAll("#cfgDayCheckboxes input[type=checkbox]:checked").forEach(cb => {
-    allDayDays.push(Number(cb.value));
-  });
-
-  const tradingDays = [...new Set([startDay, ...allDayDays, endDay])];
-
-  systemConfig = { systemName: name, tradingDays, startDay, startHour, endDay, endHour, allDayDays };
-  saveSystemConfig(systemConfig);
-  updateSystemDisplay();
-
-  const preview = document.getElementById("cfgPreview");
-  if (preview) {
-    preview.style.display = "block";
-    preview.innerHTML = `✅ <strong>Configuración guardada.</strong> Tu ventana: ${DAY_NAMES_SHORT[startDay]} ${startHour}:00 → ${DAY_NAMES_SHORT[endDay]} ${endHour}:00`;
-  }
-
-  showToast("✅ Sistema configurado", `Ventana: ${DAY_NAMES_SHORT[startDay]} ${startHour}:00 → ${DAY_NAMES_SHORT[endDay]} ${endHour}:00`);
-}
-
-function resetSystemConfig() {
-  systemConfig = { ...DEFAULT_CONFIG };
-  saveSystemConfig(systemConfig);
-  initSystemConfigUI();
-  showToast("↩️ Configuración restablecida", "Se usarán los valores por defecto.");
-}
-
-function updateSystemDisplay() {
-  const cfg = systemConfig;
-  const windowEl = document.getElementById("systemWindowDisplay");
-  const daysEl   = document.getElementById("systemDaysDisplay");
-
-  // Check if user has configured their system
-  const hasConfig = localStorage.getItem("dygpro_system_config");
-
-  if (windowEl) {
-    if (!hasConfig) {
-      windowEl.textContent = "Sin configurar — ve a Mi Sistema";
-    } else {
-      const sh = String(cfg.startHour).padStart(2,'0');
-      const eh = String(cfg.endHour).padStart(2,'0');
-      windowEl.textContent = DAY_NAMES_SHORT[cfg.startDay] + ' ' + sh + ':00 → ' + DAY_NAMES_SHORT[cfg.endDay] + ' ' + eh + ':00';
-    }
-  }
-
-  if (daysEl) {
-    if (!hasConfig) {
-      daysEl.textContent = "Sin configurar";
-    } else if (cfg.allDayDays.length === 7) {
-      daysEl.textContent = "Toda la semana";
-    } else if (cfg.allDayDays.length === 0) {
-      daysEl.textContent = "Solo ventana definida";
-    } else {
-      daysEl.textContent = cfg.allDayDays.map(d => DAY_NAMES_SHORT[d]).join(" · ");
-    }
-  }
-}
-
-// Init on load
-document.addEventListener("DOMContentLoaded", () => {
-  initSystemConfigUI();
-});
-
-
-/* ============================================================
-   CONFIGURACIÓN DEL SISTEMA — Cada trader define sus reglas
-   ============================================================ */
-
-const DEFAULT_CONFIG = {
-  systemName:   "Mi Sistema",
-  tradingDays:  [1, 2, 3, 4, 5],  // Lun-Vie por defecto
-  startDay:     1,                 // Lunes
-  startHour:    9,                 // 9:00 AM
-  endDay:       5,                 // Viernes
-  endHour:      16,                // 4:00 PM
-  allDayDays:   [1, 2, 3, 4, 5], // Lun-Vie todo el día
-};
-
-function loadSystemConfig() {
-  try {
-    const saved = localStorage.getItem("dygpro_system_config");
-    return saved ? { ...DEFAULT_CONFIG, ...JSON.parse(saved) } : { ...DEFAULT_CONFIG };
-  } catch(e) {
-    return { ...DEFAULT_CONFIG };
-  }
-}
-
-function saveSystemConfig(cfg) {
-  localStorage.setItem("dygpro_system_config", JSON.stringify(cfg));
-}
-
-let systemConfig = loadSystemConfig();
-
-
-/* ============================================================
-   STRIPE — Suscripciones
-   ============================================================ */
-const STRIPE_PK       = "pk_live_51Ni9tREkiXgRr3dMRaXKZxdFgX2NfaS6xLpgglnPZMLi6MCQmNbRDa44X1XDQ1U9uS58rS0rIvxCXHV2nJbPKQNd00vjdaWBij";
-const STRIPE_PRICE_ID = "price_1TfRzHEkiXgRr3dMjiQgdhuF";
-const FREE_TRADE_LIMIT = 30;
-
-let userPlan = 'free'; // 'free' o 'pro'
-
-async function checkUserPlan() {
-  if (!currentUser) return;
-
-  // Check plan in Supabase profiles table
-  const { data } = await _supabase
-    .from('profiles')
-    .select('plan, stripe_customer_id')
-    .eq('id', currentUser.id)
-    .single();
-
-  userPlan = data?.plan || 'free';
-  updatePlanUI();
-}
-
-function updatePlanUI() {
-  const banner = document.getElementById('upgrade-banner');
-  const badge  = document.getElementById('plan-badge');
-
-  if (userPlan === 'pro') {
-    if (banner) banner.style.display = 'none';
-    if (badge) {
-      badge.textContent = 'PRO';
-      badge.style.display = 'inline';
-      badge.style.background = 'var(--accent)';
-      badge.style.color = '#000';
-    }
-  } else {
-    if (banner) banner.style.display = 'flex';
-    if (badge) {
-      badge.textContent = 'FREE';
-      badge.style.display = 'inline';
-      badge.style.background = 'rgba(255,255,255,0.1)';
-      badge.style.color = 'var(--text2)';
-    }
-  }
-}
-
-function isPro() {
-  return userPlan === 'pro';
-}
-
-function checkTradeLimit() {
-  if (isPro()) return true;
-  if (trades.length >= FREE_TRADE_LIMIT) {
-    showToast('⚡ Límite del plan Free',
-      `Has alcanzado ${FREE_TRADE_LIMIT} trades. Actualiza a Pro para continuar registrando operaciones.`
-    );
-    return false;
-  }
-  return true;
-}
-
-async function startCheckout() {
-  if (!currentUser) { alert('Debes iniciar sesión primero.'); return; }
-
-  showToast('⏳ Preparando checkout...', 'Conectando con Stripe...');
-
-  try {
-    // Create checkout session via Supabase Edge Function
-    const { data, error } = await _supabase.functions.invoke('create-checkout', {
-      body: {
-        priceId:    STRIPE_PRICE_ID,
-        userId:     currentUser.id,
-        userEmail:  currentUser.email,
-        successUrl: window.location.origin + '?upgraded=true',
-        cancelUrl:  window.location.href,
-      }
-    });
-
-    if (error || !data?.url) {
-      showToast('⚠️ Error', 'No se pudo iniciar el checkout. Intenta de nuevo.');
-      console.error(error);
-      return;
-    }
-
-    window.location.href = data.url;
-  } catch(e) {
-    showToast('⚠️ Error', 'Problema de conexión. Intenta de nuevo.');
-    console.error(e);
-  }
-}
-
-// Check if returning from successful payment
-(function checkUpgradeReturn() {
-  const params = new URLSearchParams(window.location.search);
-  if (params.get('upgraded') === 'true') {
-    showToast('🎉 ¡Bienvenido a Pro!', 'Tu cuenta ha sido actualizada. Disfruta todas las funciones.');
-    // Clean URL
-    window.history.replaceState({}, '', window.location.pathname);
-    // Refresh plan after short delay
-    setTimeout(() => checkUserPlan(), 2000);
-  }
-})();
-
-
-/* ============================================================
-   SONIDO DE CAMPANA — Web Audio API
-   ============================================================ */
-function playBell() {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-
-    // Campana: frecuencia fundamental + armónicos
-    const frequencies = [523, 659, 784, 1047];
-    const gains       = [0.6, 0.4, 0.3, 0.2];
-
-    frequencies.forEach((freq, i) => {
-      const osc  = ctx.createOscillator();
-      const gain = ctx.createGain();
-
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(freq, ctx.currentTime);
-
-      // Fade in rápido, fade out suave (efecto campana)
-      gain.gain.setValueAtTime(0, ctx.currentTime);
-      gain.gain.linearRampToValueAtTime(gains[i], ctx.currentTime + 0.01);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2.5);
-
-      osc.start(ctx.currentTime);
-      osc.stop(ctx.currentTime + 2.5);
-    });
-  } catch(e) {
-    console.log('Audio no disponible:', e);
-  }
-}
-
-
-/* ============================================================
-   SIDEBAR COLLAPSE / EXPAND
-   ============================================================ */
-function collapseSidebar() {
-  const sidebar    = document.getElementById('sidebar');
-  const mainScroll = document.getElementById('main-scroll');
-  const showBtn    = document.getElementById('btn-show-sidebar');
-
-  if (sidebar) sidebar.style.display = 'none';
-  if (mainScroll) {
-    mainScroll.style.marginLeft = '0';
-    mainScroll.style.width = '100%';
-  }
-  if (showBtn) showBtn.style.display = 'flex';
-}
-
-function expandSidebar() {
-  const sidebar    = document.getElementById('sidebar');
-  const mainScroll = document.getElementById('main-scroll');
-  const showBtn    = document.getElementById('btn-show-sidebar');
-
-  if (sidebar) sidebar.style.display = 'flex';
-  if (mainScroll) {
-    mainScroll.style.marginLeft = '220px';
-    mainScroll.style.width = 'calc(100vw - 220px)';
-  }
-  if (showBtn) showBtn.style.display = 'none';
-}
-
-
 /* ============================================================
    VISTA COMPLETA vs VISTA POR SECCIONES
    ============================================================ */
 let currentView = localStorage.getItem('dygpro_view') || 'scroll';
 
-// All section IDs for sidebar mode
-const ALL_SECTIONS = [
-  'section-dashboard','section-research','section-calendar',
-  'section-setup','section-drift','section-recovery',
-  'section-account','section-scorecard-wrapper','section-entry',
-  'section-history','section-sessions','section-notes',
-  'section-data','section-config','section-gallery'
-];
-
-let activeSidebarSection = localStorage.getItem('dygpro_active_section') || 'section-dashboard';
-
 function setView(mode) {
   currentView = mode;
   localStorage.setItem('dygpro_view', mode);
 
-  const sidebar    = document.getElementById('sidebar');
+  const sidebar   = document.getElementById('sidebar');
+  const overlay   = document.getElementById('sidebar-overlay');
   const btnScroll  = document.getElementById('btn-scroll');
   const btnSidebar = document.getElementById('btn-sidebar');
   const mainScroll = document.getElementById('main-scroll');
 
   if (mode === 'sidebar') {
-    // Mostrar sidebar
-    if (sidebar) { sidebar.style.display = 'flex'; sidebar.classList.remove('hidden'); }
-    // Empujar contenido a la derecha del sidebar — usar padding no margin
-    if (mainScroll) {
-      mainScroll.style.marginLeft = '220px';
-      mainScroll.style.width = 'calc(100vw - 220px)';
-      mainScroll.style.minWidth = '0';
-      mainScroll.style.overflowX = 'hidden';
-    }
+    sidebar?.classList.remove('hidden');
+    overlay?.classList.remove('hidden');
+    if (mainScroll) mainScroll.style.marginLeft = '220px';
     btnScroll?.classList.remove('active');
     btnSidebar?.classList.add('active');
-    // Ocultar todo, mostrar solo sección activa
-    ALL_SECTIONS.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.style.display = 'none';
-    });
-    showSidebarSection(activeSidebarSection);
   } else {
-    // Ocultar sidebar
-    if (sidebar) { sidebar.style.display = 'none'; sidebar.classList.add('hidden'); }
-    // Contenido a ancho completo
-    if (mainScroll) {
-      mainScroll.style.marginLeft = '0';
-      mainScroll.style.width = '100%';
-      mainScroll.style.overflowX = '';
-    }
+    sidebar?.classList.add('hidden');
+    overlay?.classList.add('hidden');
+    if (mainScroll) mainScroll.style.marginLeft = '0';
     btnScroll?.classList.add('active');
     btnSidebar?.classList.remove('active');
-    // Mostrar todas las secciones
-    ALL_SECTIONS.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.style.display = '';
-    });
   }
-}
-
-function showSidebarSection(sectionId) {
-  activeSidebarSection = sectionId;
-  localStorage.setItem('dygpro_active_section', sectionId);
-  // Ocultar todo
-  ALL_SECTIONS.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.style.display = 'none';
-  });
-  // Mostrar solo la sección pedida
-  const target = document.getElementById(sectionId);
-  if (target) target.style.display = '';
-  // Marcar nav activo por onclick
-  document.querySelectorAll('#sidebar .nav-item').forEach(item => {
-    const oc = item.getAttribute('onclick') || '';
-    item.classList.toggle('active', oc.includes("'" + sectionId + "'"));
-  });
-  window.scrollTo(0, 0);
 }
 
 // Restore saved view on load
@@ -560,14 +59,7 @@ function showPage(pageId) {
 const SUPABASE_URL = "https://mcqrhjahbbcfyqujirmd.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jcXJoamFoYmJjZnlxdWppcm1kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3NDY5NzcsImV4cCI6MjA5NjMyMjk3N30.JCBC1HOFU-6LvBhw9ipoYKI4zzdKOU-t-iu4rNwzkCE";
 
-const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
-  auth: {
-    persistSession:    true,
-    autoRefreshToken:  true,
-    detectSessionInUrl: true,
-    storage:           window.localStorage,
-  }
-});
+const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 /* ============================================================
    AUTH — Estado global y UI
@@ -575,57 +67,38 @@ const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
 let currentUser = null;
 
 async function initAuth() {
-  // Overlay arranca oculto (via style en HTML)
-  // Solo lo mostramos si no hay sesión activa
-  const overlay = document.getElementById("auth-overlay");
-
-  try {
-    const { data: { session } } = await _supabase.auth.getSession();
-
-    if (session?.user) {
-      currentUser = session.user;
-      showApp();
-    } else {
-      // Sin sesión — mostrar login
-      if (overlay) overlay.style.display = 'flex';
-    }
-  } catch(e) {
-    console.error("Error verificando sesión:", e);
-    if (overlay) overlay.style.display = 'flex';
+  const { data: { session } } = await _supabase.auth.getSession();
+  if (session?.user) {
+    currentUser = session.user;
+    showApp();
+  } else {
+    showAuthOverlay();
   }
 
   _supabase.auth.onAuthStateChange((event, session) => {
     if (event === "SIGNED_IN" && session?.user) {
       currentUser = session.user;
-      if (overlay) overlay.style.display = 'none';
       showApp();
-    }
-    if (event === "TOKEN_REFRESHED" && session?.user) {
-      currentUser = session.user;
     }
     if (event === "SIGNED_OUT") {
       currentUser = null;
       trades = [];
       personalNotes = {};
-      render();
-      if (overlay) overlay.style.display = 'flex';
+      showAuthOverlay();
     }
   });
 }
 
 function showApp() {
-  const overlay = document.getElementById("auth-overlay");
-  if (overlay) overlay.style.display = 'none';
+  document.getElementById("auth-overlay").classList.add("hidden");
   document.getElementById("user-email-label").textContent = currentUser.email;
   const initials = currentUser.email.slice(0,2).toUpperCase();
   const av = document.getElementById("user-avatar-initials");
   if (av) av.textContent = initials;
   const saved = localStorage.getItem('dygpro_view') || 'scroll';
   setView(saved);
-  // Load data — render() is called inside each load function after data arrives
   loadTradesFromSupabase();
   loadNotesFromSupabase();
-  checkUserPlan();
 }
 
 function showAuthOverlay() {
@@ -830,31 +303,15 @@ let trades = [];
 let personalNotes = {};
 let equityChart;
 
-// Valor por punto de cada instrumento en USD
-const pointValue = {
-  MNQ: 2, NQ: 20, ES: 50, MES: 5,
-  MYM: 0.5, YM: 5,
-  MGC: 10, GC: 100,
-  CL: 1000, MCL: 100,
-  BTC: 1, ETH: 1,
-};
-
-function getPointValue(symbol) {
-  if (pointValue[symbol]) return pointValue[symbol];
-  // Check custom symbols saved by user
-  const customs = JSON.parse(localStorage.getItem("dygpro_custom_symbols") || "{}");
-  if (customs[symbol]) return customs[symbol];
-  return 1; // default 1:1
-}
+const pointValue = { MNQ: 2, NQ: 20, ES: 50, MES: 5 };
 const dayNames = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 
 form.addEventListener("submit", async function(e) {
   e.preventDefault();
-  if (!checkTradeLimit()) return;
 
   const date      = val("date");
   const time      = val("time");
-  const symbol    = getSelectedSymbol() || val("symbol");
+  const symbol    = val("symbol");
   const direction = val("direction");
   const entry     = num("entry");
   const exit      = num("exit");
@@ -872,7 +329,7 @@ form.addEventListener("submit", async function(e) {
   const peakTime    = val("peakTime");
 
   const points = direction === "Long" ? exit - entry : entry - exit;
-  const pl     = points * getPointValue(symbol) * contracts;
+  const pl     = points * pointValue[symbol] * contracts;
 
   const insideWindow = isInsidePlanWindow(date, time);
   const insidePlan   = insideWindow && ruleFollowed === "yes";
@@ -916,23 +373,13 @@ function optionalNum(id) {
 function save() { /* No-op: guardado en Supabase */ }
 
 function isInsidePlanWindow(date, time) {
-  const cfg = systemConfig;
   const d = new Date(`${date}T${time}`);
   const day = d.getDay();
   const minutes = d.getHours() * 60 + d.getMinutes();
 
-  // Si el trader no configuró nada, todo es válido (neutral)
-  if (!cfg || cfg.tradingDays.length === 0) return true;
-
-  // Día de inicio con hora de inicio
-  if (day === cfg.startDay && minutes >= cfg.startHour * 60) return true;
-
-  // Días que son válidos todo el día
-  if (cfg.allDayDays.includes(day)) return true;
-
-  // Día de fin con hora de fin
-  if (day === cfg.endDay && minutes <= cfg.endHour * 60) return true;
-
+  if (day === 0 && minutes >= 18 * 60) return true;
+  if (day === 1 || day === 2) return true;
+  if (day === 3 && minutes <= 16 * 60) return true;
   return false;
 }
 
@@ -1310,29 +757,13 @@ function importCSV(event) {
                  headers.includes("fechayhora") &&
                  headers.includes("preciousd");
 
-    const isWebull = headers.includes("symbol") &&
-                     headers.includes("side") &&
-                     headers.includes("status") &&
-                     headers.includes("avgprice");
-
-    let result;
-    let formatName;
-    if (isTV) {
-      result = importTradingViewRows(rows, file.name);
-      formatName = "TradingView Strategy Tester";
-    } else if (isWebull) {
-      result = importWebullRows(rows);
-      formatName = "Webull";
-    } else {
-      result = importGenericRows(rows);
-      formatName = "CSV genérico";
-    }
+    let result = isTV ? importTradingViewRows(rows, file.name) : importGenericRows(rows);
 
     save();
     render();
     event.target.value = "";
 
-    alert(`${formatName} importado.\nImportados: ${result.imported}\nIgnorados: ${result.skipped}`);
+    alert(`${isTV ? "TradingView Strategy Tester" : "CSV genérico"} importado.\nImportados: ${result.imported}\nIgnorados: ${result.skipped}`);
   };
 
   reader.readAsText(file);
@@ -1443,141 +874,9 @@ function importGenericRows(rows) {
   return { imported, skipped };
 }
 
-
-/* ============================================================
-   IMPORTADOR WEBULL
-   ============================================================ */
-function importWebullRows(rows) {
-  let imported = 0, skipped = 0;
-
-  // rows already have normalized keys (lowercase, no spaces)
-  // placedtime, filledtime, symbol, side, status, avgprice, price, filled
-
-  function cleanPrice(val) {
-    if (!val) return 0;
-    return parseFloat(String(val).replace('@','').trim()) || 0;
-  }
-
-  function extractSymbol(raw) {
-    const s = String(raw || '').toUpperCase().trim();
-    // Remove futures contract suffix: letter + 1-2 digits at end (e.g. M6, H26)
-    const base = s.replace(/[FGHJKMNQUVXZ]\d{1,2}$/, '');
-    return base || s;
-  }
-
-  function parseWebullDate(dateStr) {
-    // "06/03/2026 10:16:53 EDT" → { date: "2026-06-03", time: "10:16" }
-    if (!dateStr) return { date: '', time: '09:30' };
-    const clean = dateStr.replace(' EDT','').replace(' EST','').trim();
-    const parts = clean.split(' ');
-    const dateParts = (parts[0] || '').split('/');
-    if (dateParts.length < 3) return { date: '', time: '09:30' };
-    const date = `${dateParts[2]}-${dateParts[0].padStart(2,'0')}-${dateParts[1].padStart(2,'0')}`;
-    const time = (parts[1] || '09:30').slice(0,5);
-    return { date, time };
-  }
-
-  // Only filled orders
-  const filled = rows.filter(r => (r.status || '').toLowerCase() === 'filled');
-
-  // Group by date + symbol
-  const grouped = {};
-  filled.forEach(r => {
-    const sym = extractSymbol(r.symbol || '');
-    const { date } = parseWebullDate(r.placedtime || r.filledtime || '');
-    const key = sym + '_' + date;
-    if (!grouped[key]) grouped[key] = [];
-    grouped[key].push({ ...r, _sym: sym });
-  });
-
-  Object.values(grouped).forEach(orders => {
-    // Sort by placed time ascending
-    orders.sort((a, b) => (a.placedtime || '').localeCompare(b.placedtime || ''));
-
-    const buys  = orders.filter(o => (o.side || '').toLowerCase() === 'buy');
-    const sells = orders.filter(o => (o.side || '').toLowerCase() === 'sell');
-    const pairs = Math.min(buys.length, sells.length);
-
-    for (let i = 0; i < pairs; i++) {
-      const buy  = buys[i];
-      const sell = sells[i];
-
-      const buyPrice  = cleanPrice(buy.avgprice  || buy.price);
-      const sellPrice = cleanPrice(sell.avgprice || sell.price);
-      const contracts = parseInt(buy.filled || buy.totalqty || 1) || 1;
-      const sym = buy._sym;
-
-      // Direction based on which was placed first
-      const buyFirst = (buy.placedtime || '') <= (sell.placedtime || '');
-      const direction = buyFirst ? 'Long' : 'Short';
-
-      const entry  = direction === 'Long' ? buyPrice  : sellPrice;
-      const exit   = direction === 'Long' ? sellPrice : buyPrice;
-      const points = direction === 'Long' ? exit - entry : entry - exit;
-      const pv     = getPointValue(sym);
-      const pl     = points * pv * contracts;
-
-      const entryOrder = direction === 'Long' ? buy : sell;
-      const { date, time } = parseWebullDate(entryOrder.placedtime || entryOrder.filledtime || '');
-
-      if (!date || (!buyPrice && !sellPrice)) { skipped++; continue; }
-
-      const d       = new Date(`${date}T${time}`);
-      const dayName = dayNames[d.getDay()];
-      const insideWindow = isInsidePlanWindow(date, time);
-
-      trades.push({
-        date, time, day: dayName, symbol: sym, direction,
-        entry, exit, contracts, points, pl,
-        setup: 'Webull Import',
-        ruleFollowed: 'yes',
-        insideWindow, insidePlan: insideWindow,
-        mistake: '', notes: `Webull: ${sym} ${direction} — Entry: ${entry} / Exit: ${exit}`,
-        emotionalState: '', lessonLearned: '',
-        sessionOpen: null, sessionLow: null, sessionHigh: null,
-        peakTime: '', peakBlock: '-',
-        pullback: null, highMove: null, recovery: null, recoveryPct: null, giveback: null
-      });
-      imported++;
-    }
-  });
-
-  return { imported, skipped };
-}
-
 document.getElementById("csvFile")?.addEventListener("change", importCSV);
 document.getElementById("exportCSV")?.addEventListener("click", function() {
-  if (!trades.length) {
-    alert("No hay trades para exportar.");
-    return;
-  }
-
-  const headers = [
-    "Fecha","Hora","Dia","Simbolo","Direccion","Entrada","Salida","Contratos",
-    "Puntos","PL","Setup","Regla","DentroPlan","Error","Notas",
-    "SessionOpen","SessionLow","SessionHigh","PeakTime","Pullback","HighMove","RecoveryPct"
-  ];
-
-  const rows = trades.map(t => [
-    t.date, t.time, t.day, t.symbol, t.direction,
-    t.entry, t.exit, t.contracts, t.points, t.pl,
-    t.setup, t.ruleFollowed, t.insidePlan ? "Dentro" : "Fuera",
-    t.mistake || "", (t.notes || "").replace(/,/g, ";"),
-    t.sessionOpen ?? "", t.sessionLow ?? "", t.sessionHigh ?? "",
-    t.peakTime || "", t.pullback ?? "", t.highMove ?? "", t.recoveryPct ?? ""
-  ]);
-
-  const csv = [headers, ...rows]
-    .map(row => row.map(v => `"${v}"`).join(","))
-    .join("\n");
-
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement("a");
-  a.href     = url;
-  a.download = `DYGPRO_trades_${new Date().toISOString().slice(0,10)}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
+  alert("Exportar CSV lo reactivamos en el próximo paso. Primero estabilizamos.");
 });
 document.getElementById("clearData")?.addEventListener("click", function() {
   const ok = confirm("¿Seguro que quieres borrar todos los datos?");
@@ -1586,6 +885,7 @@ document.getElementById("clearData")?.addEventListener("click", function() {
   save();
   render();
 });
+
 
 function renderDisciplineEngine() {
   let score = 100;
@@ -1828,51 +1128,47 @@ function renderAccountSizeEngine() {
   if (!document.getElementById("accountAggressive")) return;
 
   if (!trades.length) {
-    setText("accountMinimum",    "$0.00");
     setText("accountAggressive", "$0.00");
-    setText("accountBalanced",   "$0.00");
-    setText("accountConservative","$0.00");
-    setText("accountStatus", "Sin datos aún");
-    setText("accountAdvice", "Registra o importa operaciones para calcular tu capital recomendado.");
+    setText("accountBalanced", "$0.00");
+    setText("accountConservative", "$0.00");
+    setText("accountStatus", "Sin datos");
+    setText("accountAdvice", "Importa operaciones para calcular capital recomendado.");
     return;
   }
 
-  const maxDD     = calculateMaxDrawdown(trades);
-  const totalPL   = sum(trades, "pl");
-  const losses    = trades.filter(t => t.pl < 0);
-  const avgLoss   = losses.length ? Math.abs(sum(losses, "pl")) / losses.length : 0;
+  const maxDD = calculateMaxDrawdown(trades);
+  const totalPL = sum(trades, "pl");
+  const losses = trades.filter(t => t.pl < 0);
+  const avgLoss = losses.length ? Math.abs(sum(losses, "pl")) / losses.length : 0;
   const worstLoss = losses.length ? Math.max(...losses.map(t => Math.abs(t.pl))) : 0;
 
-  // Base de riesgo: el mayor entre el maxDD real, 3x la peor pérdida, o 6x el promedio de pérdidas
   const baseRisk = Math.max(maxDD, worstLoss * 3, avgLoss * 6, 500);
 
-  const minimum     = baseRisk * 1;   // DD x 1 — mínimo absoluto
-  const recommended = baseRisk * 2;   // DD x 2 — recomendado
-  const comfortable = baseRisk * 4;   // DD x 4 — cómodo
-  const professional = baseRisk * 6;  // DD x 6 — profesional
+  const aggressive = baseRisk * 2;
+  const balanced = baseRisk * 4;
+  const conservative = baseRisk * 6;
 
-  let status = "🟡 Sistema en observación";
-  let advice  = "Necesitas más operaciones para una lectura sólida. Con 20+ trades el cálculo será más preciso.";
+  let status = "🟡 En observación";
+  let advice = "El sistema necesita más datos para una lectura fuerte.";
 
   if (trades.length >= 20 && totalPL > 0 && maxDD > 0) {
-    status = "🟢 Sistema capitalizable";
-    advice  = `Tu peor racha histórica fue ${money(maxDD)}. La Cuenta Recomendada (${money(recommended)}) es tu punto de entrada real.`;
+    status = "🟢 Capitalizable";
+    advice = "El sistema muestra datos suficientes para estimar capital. La cuenta balanceada es el punto razonable.";
   }
 
   if (totalPL < 0) {
-    status = "🔴 No escalar capital";
-    advice  = "El sistema está en pérdidas netas. No aumentes el tamaño hasta que la curva de equity sea positiva.";
+    status = "🔴 No escalar";
+    advice = "El sistema está negativo. No aumentes tamaño hasta mejorar expectativa y drawdown.";
   }
 
   if (maxDD > Math.abs(totalPL) && totalPL > 0) {
-    status = "🟠 Drawdown elevado";
-    advice  = "Tu drawdown supera tu ganancia neta. Opera con la Cuenta Cómoda o reduce contratos hasta que la relación mejore.";
+    status = "🟠 Drawdown alto";
+    advice = "El drawdown es grande frente a la ganancia neta. Usa cuenta conservadora o reduce contratos.";
   }
 
-  setText("accountMinimum",     money(minimum));
-  setText("accountAggressive",  money(recommended));
-  setText("accountBalanced",    money(comfortable));
-  setText("accountConservative",money(professional));
+  setText("accountAggressive", money(aggressive));
+  setText("accountBalanced", money(balanced));
+  setText("accountConservative", money(conservative));
   setText("accountStatus", status);
   setText("accountAdvice", advice);
 }
@@ -2499,11 +1795,6 @@ renderChart = function() {
 
   if (equityChart) equityChart.destroy();
 
-  // Fix high-DPI / retina quality
-  const dpr = window.devicePixelRatio || 1;
-  ctx.width  = ctx.offsetWidth  * dpr;
-  ctx.height = ctx.offsetHeight * dpr;
-
   equityChart = new Chart(ctx, {
     type: "line",
     data: {
@@ -2512,81 +1803,73 @@ renderChart = function() {
         {
           label: "Equity Real",
           data: real,
-          borderColor: "#38bdf8",
-          backgroundColor: "rgba(56,189,248,0.08)",
-          borderWidth: 2.5,
-          tension: 0.4,
-          pointRadius: 3,
-          pointHoverRadius: 6,
-          pointHitRadius: 12,
-          pointBackgroundColor: "#38bdf8",
-          fill: true
+          borderWidth: 3,
+          tension: 0.35,
+          pointRadius: 4,
+          pointHoverRadius: 7,
+          pointHitRadius: 12
         },
         {
-          label: "Dentro del Plan",
+          label: "Equity Dentro del Plan",
           data: plan,
-          borderColor: "#22c55e",
-          backgroundColor: "rgba(34,197,94,0.06)",
-          borderWidth: 2,
-          tension: 0.4,
-          pointRadius: 2,
-          pointHoverRadius: 5,
-          pointHitRadius: 10,
-          pointBackgroundColor: "#22c55e",
-          fill: true
+          borderWidth: 3,
+          tension: 0.35,
+          pointRadius: 4,
+          pointHoverRadius: 7,
+          pointHitRadius: 12
         },
         {
-          label: "Fuera del Plan",
+          label: "Equity Fuera del Plan",
           data: bad,
-          borderColor: "#f43f5e",
-          backgroundColor: "rgba(244,63,94,0.06)",
-          borderWidth: 2,
-          tension: 0.4,
-          pointRadius: 2,
-          pointHoverRadius: 5,
-          pointHitRadius: 10,
-          pointBackgroundColor: "#f43f5e",
-          fill: true
+          borderWidth: 3,
+          tension: 0.35,
+          pointRadius: 4,
+          pointHoverRadius: 7,
+          pointHitRadius: 12
         }
       ]
     },
     options: {
       responsive: true,
-      devicePixelRatio: dpr,
-      interaction: { mode: "index", intersect: false },
+      interaction: {
+        mode: "index",
+        intersect: false
+      },
       plugins: {
         legend: {
           labels: {
-            color: "#94a3b8",
-            font: { size: 12 },
-            boxWidth: 14, boxHeight: 2, padding: 16
+            color: "white"
           }
         },
         tooltip: {
           enabled: true,
-          backgroundColor: "#0c1322",
+          backgroundColor: "#020617",
           titleColor: "#38bdf8",
-          bodyColor: "#f0f4fc",
-          borderColor: "rgba(56,189,248,0.3)",
+          bodyColor: "white",
+          borderColor: "#38bdf8",
           borderWidth: 1,
-          padding: 14,
+          padding: 12,
           callbacks: {
             title: function(context) {
               const index = context[0].dataIndex;
               const t = filteredTrades[index];
-              return `Trade #${index + 1} · ${t ? t.date : ""} ${t ? (t.time || "") : ""}`;
+              return `Trade #${index + 1} · ${t.date} ${t.time || ""}`;
             },
             label: function(context) {
-              return ` ${context.dataset.label}: ${money(context.raw)}`;
+              return `${context.dataset.label}: ${money(context.raw)}`;
             },
             afterBody: function(context) {
               const index = context[0].dataIndex;
               const t = filteredTrades[index];
-              if (!t) return [];
+
               return [
                 "",
-                ` ${t.symbol} ${t.direction}  |  P/L: ${money(t.pl)}`,
-                ` Puntos: ${Number(t.points || 0).toFixed(2)}  |  ${t.insidePlan ? "✅ Dentro del plan" : "❌ Fuera del plan"}`
+                `Símbolo: ${t.symbol}`,
+                `Dirección: ${t.direction}`,
+                `P/L Trade: ${money(t.pl)}`,
+                `Puntos: ${Number(t.points || 0).toFixed(2)}`,
+                `Setup: ${t.setup || "-"}`,
+                `Plan: ${t.insidePlan ? "Dentro" : "Rompió"}`
               ];
             }
           }
@@ -2594,15 +1877,12 @@ renderChart = function() {
       },
       scales: {
         x: {
-          ticks: { color: "#64748b", font: { size: 11 }, maxTicksLimit: 12 },
-          grid: { color: "rgba(255,255,255,0.04)" }
+          ticks: { color: "#cbd5e1" },
+          grid: { color: "rgba(255,255,255,.08)" }
         },
         y: {
-          ticks: {
-            color: "#64748b", font: { size: 11 },
-            callback: val => "$" + Number(val).toLocaleString()
-          },
-          grid: { color: "rgba(255,255,255,0.04)" }
+          ticks: { color: "#cbd5e1" },
+          grid: { color: "rgba(255,255,255,.08)" }
         }
       }
     }
@@ -3149,90 +2429,69 @@ initPersonalNotesProRestore();
 function drawClock() {
   const canvas = document.getElementById('analogClock');
   if (!canvas) return;
-
-  // Force exact square size
-  canvas.width  = 160;
-  canvas.height = 160;
-
   const ctx = canvas.getContext('2d');
-  const cx = 80, cy = 80, r = 70;
+  const cx = 80, cy = 80, r = 72;
   const now = new Date();
   const h = now.getHours() % 12, m = now.getMinutes(), s = now.getSeconds();
 
   ctx.clearRect(0, 0, 160, 160);
 
-  // Outer ring glow
-  ctx.beginPath();
-  ctx.arc(cx, cy, r + 2, 0, Math.PI * 2);
-  ctx.strokeStyle = 'rgba(0,212,255,0.15)';
-  ctx.lineWidth = 6;
-  ctx.stroke();
-
   // Face
   ctx.beginPath();
   ctx.arc(cx, cy, r, 0, Math.PI * 2);
-  ctx.fillStyle = '#06101e';
+  ctx.fillStyle = '#0d1220';
   ctx.fill();
-  ctx.strokeStyle = 'rgba(0,212,255,0.5)';
-  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = 'rgba(0,212,255,0.4)';
+  ctx.lineWidth = 2;
   ctx.stroke();
 
   // Hour marks
   for (let i = 0; i < 12; i++) {
     const a = (i * Math.PI) / 6;
-    const isMain = i % 3 === 0;
-    const outer = r - 4;
-    const inner = isMain ? r - 14 : r - 9;
+    const x1 = cx + Math.sin(a) * 62, y1 = cy - Math.cos(a) * 62;
+    const x2 = cx + Math.sin(a) * (i % 3 === 0 ? 52 : 57);
+    const y2 = cy - Math.cos(a) * (i % 3 === 0 ? 52 : 57);
     ctx.beginPath();
-    ctx.moveTo(cx + Math.sin(a) * outer, cy - Math.cos(a) * outer);
-    ctx.lineTo(cx + Math.sin(a) * inner, cy - Math.cos(a) * inner);
-    ctx.strokeStyle = isMain ? 'rgba(0,212,255,0.9)' : 'rgba(255,255,255,0.2)';
-    ctx.lineWidth = isMain ? 2 : 1;
+    ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
+    ctx.strokeStyle = i % 3 === 0 ? 'rgba(0,212,255,0.8)' : 'rgba(255,255,255,0.25)';
+    ctx.lineWidth = i % 3 === 0 ? 2 : 1;
     ctx.stroke();
   }
-
-  ctx.lineCap = 'round';
 
   // Hour hand
   const ha = ((h + m / 60) * Math.PI) / 6;
   ctx.beginPath();
-  ctx.moveTo(cx - Math.sin(ha) * 8, cy + Math.cos(ha) * 8);
-  ctx.lineTo(cx + Math.sin(ha) * 40, cy - Math.cos(ha) * 40);
-  ctx.strokeStyle = '#e8edf5';
-  ctx.lineWidth = 4;
-  ctx.stroke();
+  ctx.moveTo(cx, cy);
+  ctx.lineTo(cx + Math.sin(ha) * 42, cy - Math.cos(ha) * 42);
+  ctx.strokeStyle = '#e8edf5'; ctx.lineWidth = 3.5;
+  ctx.lineCap = 'round'; ctx.stroke();
 
   // Minute hand
   const ma = ((m + s / 60) * Math.PI) / 30;
   ctx.beginPath();
-  ctx.moveTo(cx - Math.sin(ma) * 10, cy + Math.cos(ma) * 10);
-  ctx.lineTo(cx + Math.sin(ma) * 56, cy - Math.cos(ma) * 56);
-  ctx.strokeStyle = '#38bdf8';
-  ctx.lineWidth = 2.5;
+  ctx.moveTo(cx, cy);
+  ctx.lineTo(cx + Math.sin(ma) * 58, cy - Math.cos(ma) * 58);
+  ctx.strokeStyle = '#00d4ff'; ctx.lineWidth = 2.5;
   ctx.stroke();
 
   // Second hand
   const sa = (s * Math.PI) / 30;
   ctx.beginPath();
-  ctx.moveTo(cx - Math.sin(sa) * 12, cy + Math.cos(sa) * 12);
+  ctx.moveTo(cx, cy);
   ctx.lineTo(cx + Math.sin(sa) * 62, cy - Math.cos(sa) * 62);
-  ctx.strokeStyle = '#fbbf24';
-  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = '#f0b429'; ctx.lineWidth = 1.5;
   ctx.stroke();
 
   // Center dot
   ctx.beginPath();
-  ctx.arc(cx, cy, 5, 0, Math.PI * 2);
-  ctx.fillStyle = '#38bdf8';
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(cx, cy, 2.5, 0, Math.PI * 2);
-  ctx.fillStyle = '#06101e';
-  ctx.fill();
+  ctx.arc(cx, cy, 4, 0, Math.PI * 2);
+  ctx.fillStyle = '#00d4ff'; ctx.fill();
 
   // Digital time
   const dig = document.getElementById('clockDigital');
-  if (dig) dig.textContent = now.toLocaleTimeString('es', { hour12: false });
+  if (dig) {
+    dig.textContent = now.toLocaleTimeString('es', { hour12: false });
+  }
 }
 
 setInterval(drawClock, 1000);
@@ -3269,7 +2528,6 @@ function updateAlarmInterval() {
 
 function triggerDisciplineAlert() {
   const phrase = disciplinePhrases[Math.floor(Math.random() * disciplinePhrases.length)];
-  playBell();
   showToast("⚡ DYGPRO Recordatorio", phrase);
   // Browser notification
   if (Notification.permission === 'granted') {
