@@ -149,7 +149,7 @@ function getSelectedSymbol() {
    CONFIG UI — Guardar y mostrar configuración del sistema
    ============================================================ */
 const DAY_NAMES_FULL = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
-const DAY_NAMES_SHORT = ["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];
+const DAY_NAMES_SHORT = ["Dom","Lun","Mar","Mie","Jue","Vie","Sab"];
 
 function initSystemConfigUI() {
   const cfg = systemConfig;
@@ -218,11 +218,29 @@ function updateSystemDisplay() {
   const windowEl = document.getElementById("systemWindowDisplay");
   const daysEl   = document.getElementById("systemDaysDisplay");
 
+  // Check if user has configured their system
+  const hasConfig = localStorage.getItem("dygpro_system_config");
+
   if (windowEl) {
-    windowEl.textContent = `${DAY_NAMES_SHORT[cfg.startDay]} ${cfg.startHour}:00 → ${DAY_NAMES_SHORT[cfg.endDay]} ${cfg.endHour}:00`;
+    if (!hasConfig) {
+      windowEl.textContent = "Sin configurar — ve a Mi Sistema";
+    } else {
+      const sh = String(cfg.startHour).padStart(2,'0');
+      const eh = String(cfg.endHour).padStart(2,'0');
+      windowEl.textContent = DAY_NAMES_SHORT[cfg.startDay] + ' ' + sh + ':00 → ' + DAY_NAMES_SHORT[cfg.endDay] + ' ' + eh + ':00';
+    }
   }
+
   if (daysEl) {
-    daysEl.textContent = cfg.allDayDays.map(d => DAY_NAMES_SHORT[d]).join(" · ") || "—";
+    if (!hasConfig) {
+      daysEl.textContent = "Sin configurar";
+    } else if (cfg.allDayDays.length === 7) {
+      daysEl.textContent = "Toda la semana";
+    } else if (cfg.allDayDays.length === 0) {
+      daysEl.textContent = "Solo ventana definida";
+    } else {
+      daysEl.textContent = cfg.allDayDays.map(d => DAY_NAMES_SHORT[d]).join(" · ");
+    }
   }
 }
 
@@ -238,12 +256,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
 const DEFAULT_CONFIG = {
   systemName:   "Mi Sistema",
-  tradingDays:  [0, 1, 2, 3],     // 0=Dom, 1=Lun, 2=Mar, 3=Mié, 4=Jue, 5=Vie, 6=Sáb
-  startDay:     0,                 // Día de inicio (0=Dom)
-  startHour:    18,                // Hora de inicio
-  endDay:       3,                 // Día de fin (3=Mié)
-  endHour:      16,                // Hora de fin
-  allDayDays:   [1, 2],           // Días que son válidos todo el día
+  tradingDays:  [1, 2, 3, 4, 5],  // Lun-Vie por defecto
+  startDay:     1,                 // Lunes
+  startHour:    9,                 // 9:00 AM
+  endDay:       5,                 // Viernes
+  endHour:      16,                // 4:00 PM
+  allDayDays:   [1, 2, 3, 4, 5], // Lun-Vie todo el día
 };
 
 function loadSystemConfig() {
@@ -3122,69 +3140,90 @@ initPersonalNotesProRestore();
 function drawClock() {
   const canvas = document.getElementById('analogClock');
   if (!canvas) return;
+
+  // Force exact square size
+  canvas.width  = 160;
+  canvas.height = 160;
+
   const ctx = canvas.getContext('2d');
-  const cx = 80, cy = 80, r = 72;
+  const cx = 80, cy = 80, r = 70;
   const now = new Date();
   const h = now.getHours() % 12, m = now.getMinutes(), s = now.getSeconds();
 
   ctx.clearRect(0, 0, 160, 160);
 
+  // Outer ring glow
+  ctx.beginPath();
+  ctx.arc(cx, cy, r + 2, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(0,212,255,0.15)';
+  ctx.lineWidth = 6;
+  ctx.stroke();
+
   // Face
   ctx.beginPath();
   ctx.arc(cx, cy, r, 0, Math.PI * 2);
-  ctx.fillStyle = '#0d1220';
+  ctx.fillStyle = '#06101e';
   ctx.fill();
-  ctx.strokeStyle = 'rgba(0,212,255,0.4)';
-  ctx.lineWidth = 2;
+  ctx.strokeStyle = 'rgba(0,212,255,0.5)';
+  ctx.lineWidth = 1.5;
   ctx.stroke();
 
   // Hour marks
   for (let i = 0; i < 12; i++) {
     const a = (i * Math.PI) / 6;
-    const x1 = cx + Math.sin(a) * 62, y1 = cy - Math.cos(a) * 62;
-    const x2 = cx + Math.sin(a) * (i % 3 === 0 ? 52 : 57);
-    const y2 = cy - Math.cos(a) * (i % 3 === 0 ? 52 : 57);
+    const isMain = i % 3 === 0;
+    const outer = r - 4;
+    const inner = isMain ? r - 14 : r - 9;
     ctx.beginPath();
-    ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
-    ctx.strokeStyle = i % 3 === 0 ? 'rgba(0,212,255,0.8)' : 'rgba(255,255,255,0.25)';
-    ctx.lineWidth = i % 3 === 0 ? 2 : 1;
+    ctx.moveTo(cx + Math.sin(a) * outer, cy - Math.cos(a) * outer);
+    ctx.lineTo(cx + Math.sin(a) * inner, cy - Math.cos(a) * inner);
+    ctx.strokeStyle = isMain ? 'rgba(0,212,255,0.9)' : 'rgba(255,255,255,0.2)';
+    ctx.lineWidth = isMain ? 2 : 1;
     ctx.stroke();
   }
+
+  ctx.lineCap = 'round';
 
   // Hour hand
   const ha = ((h + m / 60) * Math.PI) / 6;
   ctx.beginPath();
-  ctx.moveTo(cx, cy);
-  ctx.lineTo(cx + Math.sin(ha) * 42, cy - Math.cos(ha) * 42);
-  ctx.strokeStyle = '#e8edf5'; ctx.lineWidth = 3.5;
-  ctx.lineCap = 'round'; ctx.stroke();
+  ctx.moveTo(cx - Math.sin(ha) * 8, cy + Math.cos(ha) * 8);
+  ctx.lineTo(cx + Math.sin(ha) * 40, cy - Math.cos(ha) * 40);
+  ctx.strokeStyle = '#e8edf5';
+  ctx.lineWidth = 4;
+  ctx.stroke();
 
   // Minute hand
   const ma = ((m + s / 60) * Math.PI) / 30;
   ctx.beginPath();
-  ctx.moveTo(cx, cy);
-  ctx.lineTo(cx + Math.sin(ma) * 58, cy - Math.cos(ma) * 58);
-  ctx.strokeStyle = '#00d4ff'; ctx.lineWidth = 2.5;
+  ctx.moveTo(cx - Math.sin(ma) * 10, cy + Math.cos(ma) * 10);
+  ctx.lineTo(cx + Math.sin(ma) * 56, cy - Math.cos(ma) * 56);
+  ctx.strokeStyle = '#38bdf8';
+  ctx.lineWidth = 2.5;
   ctx.stroke();
 
   // Second hand
   const sa = (s * Math.PI) / 30;
   ctx.beginPath();
-  ctx.moveTo(cx, cy);
+  ctx.moveTo(cx - Math.sin(sa) * 12, cy + Math.cos(sa) * 12);
   ctx.lineTo(cx + Math.sin(sa) * 62, cy - Math.cos(sa) * 62);
-  ctx.strokeStyle = '#f0b429'; ctx.lineWidth = 1.5;
+  ctx.strokeStyle = '#fbbf24';
+  ctx.lineWidth = 1.5;
   ctx.stroke();
 
   // Center dot
   ctx.beginPath();
-  ctx.arc(cx, cy, 4, 0, Math.PI * 2);
-  ctx.fillStyle = '#00d4ff'; ctx.fill();
+  ctx.arc(cx, cy, 5, 0, Math.PI * 2);
+  ctx.fillStyle = '#38bdf8';
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(cx, cy, 2.5, 0, Math.PI * 2);
+  ctx.fillStyle = '#06101e';
+  ctx.fill();
 
   // Digital time
   const dig = document.getElementById('clockDigital');
-  if (dig) {
-    dig.textContent = now.toLocaleTimeString('es', { hour12: false });
-  }
+  if (dig) dig.textContent = now.toLocaleTimeString('es', { hour12: false });
 }
 
 setInterval(drawClock, 1000);

@@ -921,7 +921,16 @@ header { display: none; }
   padding-top: 16px;
   border-top: 1px solid var(--border);
 }
-#analogClock { filter: drop-shadow(0 0 12px rgba(0,212,255,0.25)); }
+#analogClock {
+  width: 160px !important;
+  height: 160px !important;
+  min-width: 160px;
+  min-height: 160px;
+  max-width: 160px;
+  max-height: 160px;
+  display: block;
+  filter: drop-shadow(0 0 16px rgba(0,212,255,0.3));
+}
 .clock-time-digital {
   font-family: 'DM Mono', monospace;
   font-size: 20px; color: var(--accent);
