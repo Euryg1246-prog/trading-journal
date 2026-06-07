@@ -1,16 +1,242 @@
 
 /* ============================================================
-   PANEL MANAGER — Ocultar/mostrar y resize de paneles
+   AUTO-RECÁLCULO DE P/L
+   Detecta trades con PL=0 que tienen entry+exit y los corrige
    ============================================================ */
-let panelStates = {};
+async function autoRecalcPL() {
+  if (!currentUser || !trades.length) return;
 
+  const toFix = trades.filter(t => 
+    (t.pl === 0 || t.pl === null || t.pl === undefined) &&
+    t.entry > 0 && t.exit > 0 && t.symbol
+  );
+
+  if (!toFix.length) return;
+
+  console.log(`Auto-recalculando P/L para ${toFix.length} trades...`);
+
+  const updates = toFix.map(async t => {
+    const pv     = getPointValue(t.symbol);
+    const points = t.direction === 'Short' ? t.entry - t.exit : t.exit - t.entry;
+    const pl     = points * pv * (t.contracts || 1);
+
+    // Update local
+    t.points = points;
+    t.pl     = pl;
+
+    // Update in Supabase
+    if (t._id) {
+      await _supabase
+        .from('trades')
+        .update({ pl, points })
+        .eq('id', t._id)
+        .eq('user_id', currentUser.id);
+    }
+  });
+
+  await Promise.all(updates);
+
+  if (toFix.length > 0) {
+    showToast(`✅ ${toFix.length} trade${toFix.length > 1 ? 's' : ''} recalculado${toFix.length > 1 ? 's' : ''}`, 
+      'El sistema detectó y corrigió trades con P/L pendiente.');
+    render();
+  }
+}
+
+
+/* ============================================================
+   DETECCIÓN AUTOMÁTICA DE SÍMBOLO POR PRECIO
+   ============================================================ */
+// Pairs: [micro, full, label]
+const SYMBOL_PAIRS = [
+  ['MNQ', 'NQ',  'Nasdaq',  25000, 40000],
+  ['MYM', 'YM',  'Dow',     40000, 60000],
+  ['MES', 'ES',  'S&P 500', 5000,  7000 ],
+  ['MGC', 'GC',  'Gold',    250,   3500 ],
+  ['MCL', 'CL',  'Crude',   60,    100  ],
+];
+
+function autoDetectSymbol() {
+  const entryEl = document.getElementById("entry");
+  const symbolEl = document.getElementById("symbol");
+  if (!entryEl || !symbolEl) return;
+
+  const price = parseFloat(entryEl.value);
+  if (!price) return;
+
+  // Only auto-detect if symbol is not already selected
+  if (symbolEl.value && symbolEl.value !== '') return;
+
+  // Remove any existing picker
+  const existingPicker = document.getElementById("symbolPicker");
+  if (existingPicker) existingPicker.remove();
+
+  // Find matching pair by price range
+  const pair = SYMBOL_PAIRS.find(p => price >= p[3] && price <= p[4]);
+
+  // All available symbols with their point values
+  const allSymbols = [
+    { sym: 'MNQ', pv: 2,    label: 'Micro Nasdaq'  },
+    { sym: 'NQ',  pv: 20,   label: 'Nasdaq Full'   },
+    { sym: 'MYM', pv: 0.5,  label: 'Micro Dow'     },
+    { sym: 'YM',  pv: 5,    label: 'Dow Full'      },
+    { sym: 'MES', pv: 5,    label: 'Micro S&P'     },
+    { sym: 'ES',  pv: 50,   label: 'S&P Full'      },
+    { sym: 'MGC', pv: 10,   label: 'Micro Gold'    },
+    { sym: 'GC',  pv: 100,  label: 'Gold Full'     },
+    { sym: 'MCL', pv: 100,  label: 'Micro Crude'   },
+    { sym: 'CL',  pv: 1000, label: 'Crude Full'    },
+  ];
+
+  // Add custom symbols
+  try {
+    const customs = JSON.parse(localStorage.getItem("dygpro_custom_symbols") || "{}");
+    Object.entries(customs).forEach(([sym, pv]) => {
+      allSymbols.push({ sym, pv, label: 'Custom' });
+    });
+  } catch(e) {}
+
+  // If price matches a pair, show those two first + rest collapsible
+  // If no match, show all
+  const suggested = pair ? [pair[0], pair[1]] : [];
+  const others    = allSymbols.filter(s => !suggested.includes(s.sym));
+
+  const picker = document.createElement('div');
+  picker.id = 'symbolPicker';
+  picker.style.cssText = 'margin-top:10px;';
+
+  const colors = ['#38bdf8','#a78bfa','#34d399','#fb923c','#f472b6','#fbbf24','#94a3b8'];
+
+  let btns = '';
+
+  // Suggested first (highlighted)
+  if (suggested.length) {
+    btns += `<div style="font-size:11px;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px">Sugeridos por precio:</div>`;
+    btns += `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">`;
+    suggested.forEach((sym, i) => {
+      const info = allSymbols.find(s => s.sym === sym);
+      if (!info) return;
+      btns += `<button type="button" onclick="pickSymbol('${sym}')" style="
+        background:rgba(56,189,248,0.2);border:2px solid #38bdf8;color:#38bdf8;
+        padding:7px 14px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700;
+        font-family:DM Sans,sans-serif;display:flex;flex-direction:column;align-items:center;gap:2px">
+        ${sym}<span style="font-size:10px;opacity:.7">$${info.pv}/pt</span>
+      </button>`;
+    });
+    btns += `</div>`;
+  }
+
+  btns += `<div style="font-size:11px;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px">${suggested.length ? 'Otros instrumentos:' : 'Selecciona el instrumento:'}</div>`;
+  btns += `<div style="display:flex;gap:8px;flex-wrap:wrap">`;
+  others.forEach((info, i) => {
+    const c = colors[i % colors.length];
+    btns += `<button type="button" onclick="pickSymbol('${info.sym}')" style="
+      background:${c}18;border:1.5px solid ${c};color:${c};
+      padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:700;
+      font-family:DM Sans,sans-serif;display:flex;flex-direction:column;align-items:center;gap:2px">
+      ${info.sym}<span style="font-size:10px;opacity:.7">$${info.pv}/pt</span>
+    </button>`;
+  });
+  btns += `</div>`;
+
+  picker.innerHTML = btns;
+  entryEl.closest('label').appendChild(picker);
+}
+
+function pickSymbol(sym) {
+  const symbolEl = document.getElementById("symbol");
+  if (symbolEl && symbolEl.querySelector(`option[value="${sym}"]`)) {
+    symbolEl.value = sym;
+  }
+  // Remove picker
+  const picker = document.getElementById("symbolPicker");
+  if (picker) picker.remove();
+  showToast('✅ Símbolo seleccionado', sym);
+}
+
+
+/* ============================================================
+   PANEL COLLAPSE — Solo ocultar/mostrar contenido
+   ============================================================ */
+function initPanelCollapse() {
+  document.querySelectorAll('.panel').forEach(panel => {
+    if (panel.dataset.collapseInit) return;
+    panel.dataset.collapseInit = "1";
+
+    const h2 = panel.querySelector('h2');
+    if (!h2) return;
+
+    // Create toggle button
+    const btn = document.createElement('button');
+    btn.innerHTML = '−';
+    btn.title = 'Ocultar / mostrar';
+    btn.style.cssText = 'background:none;border:1px solid rgba(96,165,250,0.3);color:var(--text2);border-radius:6px;width:22px;height:22px;cursor:pointer;font-size:13px;line-height:1;margin-left:auto;flex-shrink:0;font-family:monospace;';
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      const pid = panel.dataset.panelId;
+      const isHidden = panel.dataset.collapsed === '1';
+      // Toggle all children except h2
+      Array.from(panel.children).forEach(child => {
+        if (child !== h2) child.style.display = isHidden ? '' : 'none';
+      });
+      panel.dataset.collapsed = isHidden ? '0' : '1';
+      btn.innerHTML = isHidden ? '−' : '+';
+      // Save state
+      try {
+        const states = JSON.parse(localStorage.getItem('dygpro_collapsed') || '{}');
+        states[pid] = !isHidden;
+        localStorage.setItem('dygpro_collapsed', JSON.stringify(states));
+      } catch(e) {}
+    };
+
+    // Make h2 flex
+    h2.style.cssText += ';display:flex;align-items:center;';
+    h2.appendChild(btn);
+
+    // Assign panel ID
+    const pid = 'panel_' + Math.random().toString(36).slice(2,7);
+    panel.dataset.panelId = pid;
+
+    // Restore saved state
+    try {
+      const states = JSON.parse(localStorage.getItem('dygpro_collapsed') || '{}');
+      if (states[pid]) {
+        Array.from(panel.children).forEach(child => {
+          if (child !== h2) child.style.display = 'none';
+        });
+        panel.dataset.collapsed = '1';
+        btn.innerHTML = '+';
+      }
+    } catch(e) {}
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(initPanelCollapse, 600);
+});
+
+
+/* ============================================================
+   FILTRO POR PLATAFORMA EN EQUITY CURVE
+   ============================================================ */
+let activeSourceFilters = new Set(); // se llena dinámicamente con los sources reales
 
 function buildSourceFilters() {
   // Get all unique sources from current trades
   const sources = [...new Set(trades.map(t => (t.source || 'manual').toLowerCase()))];
 
-  // Add all to active filters
-  sources.forEach(s => activeSourceFilters.add(s));
+  // Restore saved filters or activate all
+  try {
+    const saved = localStorage.getItem("dygpro_source_filters");
+    if (saved) {
+      const savedFilters = JSON.parse(saved);
+      activeSourceFilters = new Set(savedFilters);
+    } else {
+      sources.forEach(s => activeSourceFilters.add(s));
+    }
+  } catch(e) {
+    sources.forEach(s => activeSourceFilters.add(s));
+  }
 
   // Build filter buttons dynamically
   const row = document.getElementById("sourceFilterRow");
@@ -58,6 +284,9 @@ function toggleSourceFilter(source) {
       activeSourceFilters.add(source);
     }
   }
+
+  // Save active filters to localStorage
+  try { localStorage.setItem("dygpro_source_filters", JSON.stringify([...activeSourceFilters])); } catch(e) {}
 
   // Update button visual state
   document.querySelectorAll('.source-toggle').forEach(btn => {
@@ -910,9 +1139,12 @@ async function loadTradesFromSupabase() {
 
   trades = (data || []).map(dbRowToTrade);
   try { localStorage.setItem("dygpro_trades_cache", JSON.stringify(trades)); } catch(e) {}
+  // Restore filters after reload
+  restoreEquityFilter();
   buildSourceFilters();
   render();
-  setTimeout(checkOnboarding, 800);
+  // Auto-fix trades with missing PL
+  setTimeout(autoRecalcPL, 500);
 }
 
 async function loadNotesFromSupabase() {
@@ -1059,11 +1291,15 @@ const pointValue = {
 };
 
 function getPointValue(symbol) {
-  if (pointValue[symbol]) return pointValue[symbol];
-  // Check custom symbols saved by user
-  const customs = JSON.parse(localStorage.getItem("dygpro_custom_symbols") || "{}");
-  if (customs[symbol]) return customs[symbol];
-  return 1; // default 1:1
+  if (!symbol) return 1;
+  const s = String(symbol).toUpperCase().trim();
+  if (pointValue[s]) return pointValue[s];
+  // Check custom symbols
+  try {
+    const customs = JSON.parse(localStorage.getItem("dygpro_custom_symbols") || "{}");
+    if (customs[s]) return customs[s];
+  } catch(e) {}
+  return 1;
 }
 const dayNames = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 
@@ -1072,14 +1308,17 @@ form.addEventListener("submit", async function(e) {
   if (!checkTradeLimit()) return;
 
   const date      = val("date");
-  const time      = val("time");
-  const symbol    = getSelectedSymbol() || val("symbol");
-  const direction = val("direction");
-  const entry     = num("entry");
-  const exit      = num("exit");
-  const contracts = num("contracts");
-  const setup     = val("setup");
-  const ruleFollowed   = val("ruleFollowed");
+  const time      = val("time") || "09:30";
+  const symbol    = getSelectedSymbol() || val("symbol") || "CUSTOM";
+  const direction = val("direction") || "Long";
+  const entry     = num("entry") || 0;
+  const exit      = num("exit") || 0;
+  const contracts = num("contracts") || 1;
+  const setup     = val("setup") || "Sin setup";
+  const ruleFollowed   = val("ruleFollowed") || "yes";
+
+  // Solo la fecha es obligatoria
+  if (!date) { alert("La fecha es el único campo obligatorio."); return; }
   const mistake        = val("mistake");
   const notes          = val("notes");
   const emotionalState = val("emotionalState");
@@ -1090,9 +1329,12 @@ form.addEventListener("submit", async function(e) {
   const sessionHigh = optionalNum("sessionHigh");
   const peakTime    = val("peakTime");
 
-  const points = instrumentType === "futures" ? (direction === "Long" ? exit - entry : entry - exit) : 0;
+  const instrumentType = document.getElementById("instrumentType")?.value || "futures";
+  const points = direction === "Long" ? exit - entry : entry - exit;
   const directPL = instrumentType !== "futures" ? getInstrumentPL() : null;
-  const pl     = directPL !== null ? directPL : points * getPointValue(symbol) * contracts;
+  const pl = directPL !== null && directPL !== 0
+    ? directPL
+    : points * getPointValue(symbol) * contracts;
 
   const insideWindow = isInsidePlanWindow(date, time);
   const insidePlan   = insideWindow && ruleFollowed === "yes";
@@ -1204,11 +1446,10 @@ function renderHistory(activeTrades) {
         <td>${t.day}</td>
         <td>${t.symbol} ${getSourceBadge(t.source || "manual")}</td>
         <td>${t.direction}</td>
+        <td>${t.entry ? Number(t.entry).toFixed(2) : "-"}</td>
+        <td>${t.exit  ? Number(t.exit).toFixed(2)  : "-"}</td>
         <td class="${t.points >= 0 ? "win" : "loss"}">${Number(t.points).toFixed(2)}</td>
         <td class="${t.pl >= 0 ? "win" : "loss"}">${money(t.pl)}</td>
-        <td>${formatPts(t.pullback)}</td>
-        <td>${formatPts(t.highMove)}</td>
-        <td>${t.peakTime || "-"}</td>
         <td class="${t.insidePlan ? "plan-ok" : "plan-bad"}">${t.insidePlan ? "Dentro" : "Rompió"}</td>
         <td>${t.mistake || "-"}</td>
         <td><button class="delete-btn" onclick="deleteTrade(${index})">X</button></td>
@@ -1365,6 +1606,8 @@ function renderSessionDatabase(activeTrades) {
       <tr>
         <td>${t.date}</td>
         <td>${t.day}</td>
+        <td>${t.entry ? Number(t.entry).toFixed(2) : "-"}</td>
+        <td>${t.exit  ? Number(t.exit).toFixed(2)  : "-"}</td>
         <td>${t.sessionOpen ?? "-"}</td>
         <td>${formatPts(t.pullback)}</td>
         <td class="win">${formatPts(t.highMove)}</td>
@@ -3921,63 +4164,3 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Iniciar autenticación
 initAuth();
-
-
-/* ============================================================
-   ONBOARDING — Primera vez del usuario
-   ============================================================ */
-function checkOnboarding() {
-  if (localStorage.getItem("dygpro_onboarding_done")) return;
-  if (!currentUser) return;
-  if (trades.length > 0) {
-    localStorage.setItem("dygpro_onboarding_done", "1");
-    return;
-  }
-  showOnboarding();
-}
-
-function showOnboarding() {
-  document.getElementById("onboardingOverlay")?.remove();
-  const overlay = document.createElement("div");
-  overlay.id = "onboardingOverlay";
-  overlay.style.cssText = "position:fixed;inset:0;z-index:8000;background:rgba(6,13,26,0.96);display:flex;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(8px);";
-  overlay.innerHTML = `
-    <div style="background:#0a1628;border:1px solid rgba(56,189,248,0.3);border-radius:24px;padding:48px;max-width:540px;width:100%;text-align:center">
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:3px;color:#38bdf8;margin-bottom:8px">BIENVENIDO A DYGPRO</div>
-      <p style="color:#94a3b8;font-size:15px;margin-bottom:36px">Tu journal está listo. ¿Cómo quieres empezar?</p>
-      <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:32px;text-align:left">
-        <div onclick="onboardingAction('import')" style="background:#122040;border:1.5px solid rgba(56,189,248,0.2);border-radius:14px;padding:18px 20px;cursor:pointer;display:flex;align-items:center;gap:14px" onmouseover="this.style.borderColor='#38bdf8'" onmouseout="this.style.borderColor='rgba(56,189,248,0.2)'">
-          <span style="font-size:28px">📥</span>
-          <div><div style="font-weight:700;color:#e2e8f0;margin-bottom:3px">Importar mis trades</div><div style="color:#94a3b8;font-size:13px">Tengo un CSV de Webull, Tradovate u otro broker</div></div>
-          <span style="margin-left:auto;color:#38bdf8">→</span>
-        </div>
-        <div onclick="onboardingAction('manual')" style="background:#122040;border:1.5px solid rgba(56,189,248,0.2);border-radius:14px;padding:18px 20px;cursor:pointer;display:flex;align-items:center;gap:14px" onmouseover="this.style.borderColor='#38bdf8'" onmouseout="this.style.borderColor='rgba(56,189,248,0.2)'">
-          <span style="font-size:28px">✏️</span>
-          <div><div style="font-weight:700;color:#e2e8f0;margin-bottom:3px">Registrar manualmente</div><div style="color:#94a3b8;font-size:13px">Ingreso mis trades uno por uno</div></div>
-          <span style="margin-left:auto;color:#38bdf8">→</span>
-        </div>
-        <div onclick="onboardingAction('explore')" style="background:#122040;border:1.5px solid rgba(56,189,248,0.2);border-radius:14px;padding:18px 20px;cursor:pointer;display:flex;align-items:center;gap:14px" onmouseover="this.style.borderColor='#94a3b8'" onmouseout="this.style.borderColor='rgba(56,189,248,0.2)'">
-          <span style="font-size:28px">👀</span>
-          <div><div style="font-weight:700;color:#e2e8f0;margin-bottom:3px">Explorar primero</div><div style="color:#94a3b8;font-size:13px">Quiero ver cómo funciona antes de agregar datos</div></div>
-          <span style="margin-left:auto;color:#94a3b8">→</span>
-        </div>
-      </div>
-      <p style="font-size:12px;color:#475569">Configura tu sistema en <strong style="color:#38bdf8">⚙️ Mi Sistema</strong> cuando estés listo</p>
-    </div>
-  `;
-  document.body.appendChild(overlay);
-}
-
-function onboardingAction(action) {
-  document.getElementById("onboardingOverlay")?.remove();
-  localStorage.setItem("dygpro_onboarding_done", "1");
-  if (action === "import") {
-    document.getElementById("section-data")?.scrollIntoView({ behavior: "smooth" });
-    showToast("📥 Importar trades", "Selecciona tu archivo CSV.");
-  } else if (action === "manual") {
-    document.getElementById("section-entry")?.scrollIntoView({ behavior: "smooth" });
-    showToast("✏️ Registrar trade", "Llena el formulario con tu operación.");
-  } else {
-    showToast("👀 Explorando", "Cuando estés listo, importa o registra tus trades.");
-  }
-}
