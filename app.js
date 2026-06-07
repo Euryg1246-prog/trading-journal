@@ -1343,6 +1343,9 @@ function importCSV(event) {
                      headers.includes("status") &&
                      headers.includes("avgprice");
 
+    const isTradovate = headers.includes("positionid") ||
+                        (headers.includes("buyprice") && headers.includes("sellprice") && headers.includes("pairedqty"));
+
     let result;
     let formatName;
     if (isTV) {
@@ -1351,9 +1354,12 @@ function importCSV(event) {
     } else if (isWebull) {
       result = importWebullRows(rows);
       formatName = "Webull";
+    } else if (isTradovate) {
+      result = importTradovateRows(rows);
+      formatName = "Tradovate";
     } else {
-      result = importGenericRows(rows);
-      formatName = "CSV genérico";
+      result = importUniversalRows(rows, headers);
+      formatName = "CSV Universal";
     }
 
     // Guardar cada trade nuevo en Supabase
@@ -1578,6 +1584,151 @@ function importWebullRows(rows) {
       });
       imported++;
     }
+  });
+
+  return { imported, skipped };
+}
+
+
+/* ============================================================
+   IMPORTADOR TRADOVATE
+   ============================================================ */
+function importTradovateRows(rows) {
+  let imported = 0, skipped = 0;
+
+  function extractSymbol(raw) {
+    const s = String(raw || '').toUpperCase().trim();
+    return s.replace(/[FGHJKMNQUVXZ]\d{1,2}$/, '') || s;
+  }
+
+  function parseDate(raw) {
+    if (!raw) return { date: '', time: '09:30' };
+    // "06/01/2026 09:33:21" or "2026-06-01"
+    const clean = raw.trim();
+    if (clean.includes('-') && !clean.includes('/')) {
+      return { date: clean.slice(0,10), time: '09:30' };
+    }
+    const parts = clean.split(' ');
+    const dateParts = parts[0].split('/');
+    if (dateParts.length === 3) {
+      const date = `${dateParts[2]}-${dateParts[0].padStart(2,'0')}-${dateParts[1].padStart(2,'0')}`;
+      const time = parts[1] ? parts[1].slice(0,5) : '09:30';
+      return { date, time };
+    }
+    return { date: '', time: '09:30' };
+  }
+
+  rows.forEach(r => {
+    // Support both "Buy Price"/"Sell Price" and "Avg. Buy"/"Avg. Sell"
+    const buyPrice  = parseFloat(r.buyprice  || r.avgbuy  || r.buy  || 0);
+    const sellPrice = parseFloat(r.sellprice || r.avgsell || r.sell || 0);
+    const pl        = parseFloat(r['p/l'] || r.pl || r.pnl || r.profit || 0);
+    const sym       = extractSymbol(r.product || r.symbol || r.contract || '');
+    const contracts = parseInt(r.pairedqty || r.bought || r.qty || r.quantity || 1) || 1;
+
+    // Entry timestamp for direction
+    const boughtTs = r.boughttimestamp || r.placedtime || '';
+    const soldTs   = r.soldtimestamp   || r.filledtime || '';
+    const direction = boughtTs <= soldTs ? 'Long' : 'Short';
+
+    const entry = direction === 'Long' ? buyPrice  : sellPrice;
+    const exit  = direction === 'Long' ? sellPrice : buyPrice;
+    const points = entry && exit ? (direction === 'Long' ? exit - entry : entry - exit) : 0;
+
+    const { date, time } = parseDate(boughttimestamp || r.tradedate || r.timestamp || '');
+
+    if (!date || (!buyPrice && !sellPrice)) { skipped++; return; }
+
+    const d = new Date(`${date}T${time}`);
+    const dayName = dayNames[d.getDay()];
+    const insideWindow = isInsidePlanWindow(date, time);
+
+    trades.push({
+      date, time, day: dayName, symbol: sym, direction,
+      entry, exit, contracts, points,
+      pl: pl || points * getPointValue(sym) * contracts,
+      setup: 'Tradovate Import', ruleFollowed: 'yes',
+      insideWindow, insidePlan: insideWindow,
+      mistake: '', notes: `Tradovate: ${sym} ${direction}`,
+      emotionalState: '', lessonLearned: '',
+      sessionOpen: null, sessionLow: null, sessionHigh: null,
+      peakTime: '', peakBlock: '-',
+      pullback: null, highMove: null, recovery: null, recoveryPct: null, giveback: null
+    });
+    imported++;
+  });
+
+  return { imported, skipped };
+}
+
+/* ============================================================
+   IMPORTADOR UNIVERSAL INTELIGENTE
+   ============================================================ */
+function importUniversalRows(rows, headers) {
+  let imported = 0, skipped = 0;
+
+  // Try to find columns by common names
+  function findCol(...names) {
+    for (const name of names) {
+      const found = headers.find(h => h.includes(name));
+      if (found) return found;
+    }
+    return null;
+  }
+
+  const colDate   = findCol('date', 'time', 'timestamp', 'fecha');
+  const colSym    = findCol('symbol', 'product', 'contract', 'instrument', 'ticker');
+  const colPL     = findCol('p/l', 'pl', 'pnl', 'profit', 'gain', 'net');
+  const colBuy    = findCol('buy', 'entry', 'open', 'avg.buy', 'buyprice');
+  const colSell   = findCol('sell', 'exit', 'close', 'avg.sell', 'sellprice');
+  const colQty    = findCol('qty', 'quantity', 'contracts', 'size', 'filled', 'pairedqty');
+  const colDir    = findCol('side', 'direction', 'type', 'action');
+
+  rows.forEach(r => {
+    const pl        = parseFloat(r[colPL] || 0);
+    const buyPrice  = parseFloat(r[colBuy]  || 0);
+    const sellPrice = parseFloat(r[colSell] || 0);
+    const rawSym    = r[colSym] || 'CUSTOM';
+    const sym       = rawSym.toUpperCase().replace(/[FGHJKMNQUVXZ]\d{1,2}$/, '').trim();
+    const contracts = parseInt(r[colQty] || 1) || 1;
+    const rawDir    = (r[colDir] || '').toLowerCase();
+    const direction = rawDir.includes('sell') || rawDir.includes('short') ? 'Short' : 'Long';
+
+    const entry = direction === 'Long' ? buyPrice  : sellPrice;
+    const exit  = direction === 'Long' ? sellPrice : buyPrice;
+    const points = entry && exit ? (direction === 'Long' ? exit - entry : entry - exit) : 0;
+
+    // Parse date
+    const rawDate = r[colDate] || '';
+    let date = '', time = '09:30';
+    const m = rawDate.match(/(\d{4})[-/](\d{2})[-/](\d{2})/);
+    const m2 = rawDate.match(/(\d{2})[-/](\d{2})[-/](\d{4})/);
+    if (m) { date = `${m[1]}-${m[2]}-${m[3]}`; }
+    else if (m2) { date = `${m2[3]}-${m2[1]}-${m2[2]}`; }
+    const tm = rawDate.match(/(\d{2}:\d{2})/);
+    if (tm) time = tm[1];
+
+    if (!date) { skipped++; return; }
+
+    const d = new Date(`${date}T${time}`);
+    const dayName = dayNames[d.getDay()];
+    const insideWindow = isInsidePlanWindow(date, time);
+    const finalPL = pl || points * getPointValue(sym) * contracts;
+
+    if (!finalPL && !points && !buyPrice && !sellPrice) { skipped++; return; }
+
+    trades.push({
+      date, time, day: dayName, symbol: sym || 'CUSTOM', direction,
+      entry, exit, contracts, points, pl: finalPL,
+      setup: 'Import', ruleFollowed: 'yes',
+      insideWindow, insidePlan: insideWindow,
+      mistake: '', notes: `Importado: ${sym}`,
+      emotionalState: '', lessonLearned: '',
+      sessionOpen: null, sessionLow: null, sessionHigh: null,
+      peakTime: '', peakBlock: '-',
+      pullback: null, highMove: null, recovery: null, recoveryPct: null, giveback: null
+    });
+    imported++;
   });
 
   return { imported, skipped };
@@ -2010,35 +2161,36 @@ function calculateWorstDrawdownRecoveryTime(list) {
 }
 
 function calculateWorstLosingStreak(list) {
-  const ordered = [...list].sort((a, b) => {
-    const da = new Date(`${a.date}T${a.time || "00:00"}`);
-    const db = new Date(`${b.date}T${b.time || "00:00"}`);
-    return da - db;
+  // Agrupar P/L por día — un día es ganador si su P/L neto es positivo
+  const byDay = {};
+  list.forEach(t => {
+    if (!t.date) return;
+    if (!byDay[t.date]) byDay[t.date] = 0;
+    byDay[t.date] += Number(t.pl) || 0;
   });
 
+  // Ordenar días
+  const days = Object.keys(byDay).sort();
+
   let currentCount = 0;
-  let currentLoss = 0;
+  let currentLoss  = 0;
+  let worstCount   = 0;
+  let worstLoss    = 0;
 
-  let worstCount = 0;
-  let worstLoss = 0;
-
-  ordered.forEach(t => {
-    const pl = Number(t.pl) || 0;
-
-    if (pl < 0) {
-      currentCount += 1;
-      currentLoss += Math.abs(pl);
-
-      if (
-        currentCount > worstCount ||
-        (currentCount === worstCount && currentLoss > worstLoss)
-      ) {
+  days.forEach(day => {
+    const dayPL = byDay[day];
+    if (dayPL < 0) {
+      currentCount++;
+      currentLoss += Math.abs(dayPL);
+      if (currentCount > worstCount ||
+         (currentCount === worstCount && currentLoss > worstLoss)) {
         worstCount = currentCount;
-        worstLoss = currentLoss;
+        worstLoss  = currentLoss;
       }
-    } else if (pl > 0) {
+    } else {
+      // Día ganador o break-even resetea la racha
       currentCount = 0;
-      currentLoss = 0;
+      currentLoss  = 0;
     }
   });
 
