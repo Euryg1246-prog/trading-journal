@@ -1340,11 +1340,21 @@ function importCSV(event) {
       formatName = "CSV genérico";
     }
 
-    save();
-    render();
+    // Guardar cada trade nuevo en Supabase
+    const newTrades = trades.slice(-(result.imported));
     event.target.value = "";
 
-    alert(`${formatName} importado.\nImportados: ${result.imported}\nIgnorados: ${result.skipped}`);
+    if (currentUser && newTrades.length > 0) {
+      Promise.all(newTrades.map(t => saveTradeToSupabase(t)))
+        .then(() => loadTradesFromSupabase())
+        .then(() => alert(`${formatName} importado.\nImportados: ${result.imported}\nIgnorados: ${result.skipped}`))
+        .catch(e => {
+          console.error("Error guardando en Supabase:", e);
+          alert("Error guardando en Supabase. Intenta de nuevo.");
+        });
+    } else {
+      alert(`${formatName} importado.\nImportados: ${result.imported}\nIgnorados: ${result.skipped}`);
+    }
   };
 
   reader.readAsText(file);
