@@ -1,4 +1,39 @@
 
+/* ============================================================
+   ORIGEN DEL TRADE — Badge por plataforma
+   ============================================================ */
+const SOURCE_CONFIG = {
+  "manual":      { label: "Manual",      color: "#38bdf8", bg: "rgba(56,189,248,0.12)"  },
+  "webull":      { label: "Webull",      color: "#fb923c", bg: "rgba(251,146,60,0.12)"  },
+  "tradovate":   { label: "Tradovate",   color: "#a78bfa", bg: "rgba(167,139,250,0.12)" },
+  "tradingview": { label: "TradingView", color: "#34d399", bg: "rgba(52,211,153,0.12)"  },
+  "ninjatrader": { label: "NinjaTrader", color: "#f472b6", bg: "rgba(244,114,182,0.12)" },
+  "universal":   { label: "CSV Import",  color: "#94a3b8", bg: "rgba(148,163,184,0.12)" },
+};
+
+function getSourceBadge(source) {
+  const key = (source || "manual").toLowerCase()
+    .replace(" import","").replace(" strategy","").replace("tester","")
+    .replace("tradingview strategy tester","tradingview")
+    .trim();
+  const cfg = SOURCE_CONFIG[key] || SOURCE_CONFIG["universal"];
+  return `<span style="
+    display:inline-block;
+    padding:2px 8px;
+    border-radius:999px;
+    font-size:10px;
+    font-weight:700;
+    letter-spacing:.4px;
+    text-transform:uppercase;
+    color:${cfg.color};
+    background:${cfg.bg};
+    border:1px solid ${cfg.color}40;
+    font-family:DM Sans,sans-serif;
+    white-space:nowrap;
+  ">${cfg.label}</span>`;
+}
+
+
 /* ── Zoom en imagen del modal ── */
 let _imgZoomLevel = 1;
 
@@ -848,6 +883,7 @@ function tradeToDbRow(t) {
     points:         t.points,
     pl:             t.pl,
     setup:          t.setup,
+    source:         t.source || "manual",
     rule_followed:  t.ruleFollowed,
     inside_window:  t.insideWindow,
     inside_plan:    t.insidePlan,
@@ -1067,7 +1103,7 @@ function renderHistory(activeTrades) {
         <td>${t.date}</td>
         <td>${t.time}</td>
         <td>${t.day}</td>
-        <td>${t.symbol}</td>
+        <td>${t.symbol} ${getSourceBadge(t.source || "manual")}</td>
         <td>${t.direction}</td>
         <td class="${t.points >= 0 ? "win" : "loss"}">${Number(t.points).toFixed(2)}</td>
         <td class="${t.pl >= 0 ? "win" : "loss"}">${money(t.pl)}</td>
@@ -1735,7 +1771,7 @@ function importTradovateRows(rows) {
       date, time, day: dayName, symbol: sym, direction,
       entry, exit, contracts, points,
       pl: pl || points * getPointValue(sym) * contracts,
-      setup: 'Tradovate Import', ruleFollowed: 'yes',
+      setup: 'Tradovate Import', source: 'tradovate', ruleFollowed: 'yes',
       insideWindow, insidePlan: insideWindow,
       mistake: '', notes: `Tradovate: ${sym} ${direction}`,
       emotionalState: '', lessonLearned: '',
@@ -1808,7 +1844,7 @@ function importUniversalRows(rows, headers) {
     trades.push({
       date, time, day: dayName, symbol: sym || 'CUSTOM', direction,
       entry, exit, contracts, points, pl: finalPL,
-      setup: 'Import', ruleFollowed: 'yes',
+      setup: 'Import', source: 'universal', ruleFollowed: 'yes',
       insideWindow, insidePlan: insideWindow,
       mistake: '', notes: `Importado: ${sym}`,
       emotionalState: '', lessonLearned: '',
