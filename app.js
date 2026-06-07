@@ -1,4 +1,65 @@
 
+/* ============================================================
+   TIPO DE INSTRUMENTO
+   ============================================================ */
+function handleInstrumentType(type) {
+  const futuresFields = document.getElementById("futuresFields");
+  const optionsFields = document.getElementById("optionsFields");
+
+  if (type === "futures") {
+    if (futuresFields) futuresFields.style.display = "contents";
+    if (optionsFields) optionsFields.style.display = "none";
+    // Make futures fields required
+    document.getElementById("entry")?.removeAttribute("required");
+    document.getElementById("exit")?.removeAttribute("required");
+  } else {
+    if (futuresFields) futuresFields.style.display = "none";
+    if (optionsFields) optionsFields.style.display = "block";
+  }
+}
+
+function getInstrumentPL() {
+  const type = document.getElementById("instrumentType")?.value || "futures";
+
+  if (type === "futures") return null; // calculated from points
+
+  const entry     = parseFloat(document.getElementById("optionEntry")?.value || 0);
+  const exit      = parseFloat(document.getElementById("optionExit")?.value || 0);
+  const contracts = parseFloat(document.getElementById("optionContracts")?.value || 1);
+  const directPL  = parseFloat(document.getElementById("directPL")?.value || 0);
+  const optType   = document.getElementById("optionType")?.value || "call";
+
+  // If direct P/L provided, use it
+  if (directPL !== 0) return directPL;
+
+  // Calculate from entry/exit
+  if (entry && exit) {
+    const multiplier = optType === "stock" ? 1 : 100; // options = 100 shares per contract
+    return (exit - entry) * contracts * multiplier;
+  }
+
+  return 0;
+}
+
+function getInstrumentEntry() {
+  const type = document.getElementById("instrumentType")?.value || "futures";
+  if (type === "futures") return parseFloat(document.getElementById("entry")?.value || 0);
+  return parseFloat(document.getElementById("optionEntry")?.value || 0);
+}
+
+function getInstrumentExit() {
+  const type = document.getElementById("instrumentType")?.value || "futures";
+  if (type === "futures") return parseFloat(document.getElementById("exit")?.value || 0);
+  return parseFloat(document.getElementById("optionExit")?.value || 0);
+}
+
+function getInstrumentContracts() {
+  const type = document.getElementById("instrumentType")?.value || "futures";
+  if (type === "futures") return parseInt(document.getElementById("contracts")?.value || 1);
+  return parseInt(document.getElementById("optionContracts")?.value || 1);
+}
+
+
 
 function toggleMarketsPanel() {
   const panel = document.getElementById("marketsPanelContent");
@@ -876,8 +937,9 @@ form.addEventListener("submit", async function(e) {
   const sessionHigh = optionalNum("sessionHigh");
   const peakTime    = val("peakTime");
 
-  const points = direction === "Long" ? exit - entry : entry - exit;
-  const pl     = points * getPointValue(symbol) * contracts;
+  const points = instrumentType === "futures" ? (direction === "Long" ? exit - entry : entry - exit) : 0;
+  const directPL = instrumentType !== "futures" ? getInstrumentPL() : null;
+  const pl     = directPL !== null ? directPL : points * getPointValue(symbol) * contracts;
 
   const insideWindow = isInsidePlanWindow(date, time);
   const insidePlan   = insideWindow && ruleFollowed === "yes";
