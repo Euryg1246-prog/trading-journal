@@ -1152,9 +1152,12 @@ form.addEventListener("submit", async function(e) {
   const sessionHigh = optionalNum("sessionHigh");
   const peakTime    = val("peakTime");
 
-  const points = instrumentType === "futures" ? (direction === "Long" ? exit - entry : entry - exit) : 0;
+  const instrumentType = document.getElementById("instrumentType")?.value || "futures";
+  const points = direction === "Long" ? exit - entry : entry - exit;
   const directPL = instrumentType !== "futures" ? getInstrumentPL() : null;
-  const pl     = directPL !== null ? directPL : points * getPointValue(symbol) * contracts;
+  const pl = directPL !== null && directPL !== 0
+    ? directPL
+    : points * getPointValue(symbol) * contracts;
 
   const insideWindow = isInsidePlanWindow(date, time);
   const insidePlan   = insideWindow && ruleFollowed === "yes";
