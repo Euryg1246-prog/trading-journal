@@ -560,7 +560,14 @@ function showPage(pageId) {
 const SUPABASE_URL = "https://mcqrhjahbbcfyqujirmd.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jcXJoamFoYmJjZnlxdWppcm1kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3NDY5NzcsImV4cCI6MjA5NjMyMjk3N30.JCBC1HOFU-6LvBhw9ipoYKI4zzdKOU-t-iu4rNwzkCE";
 
-const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: {
+    persistSession:    true,
+    autoRefreshToken:  true,
+    detectSessionInUrl: true,
+    storage:           window.localStorage,
+  }
+});
 
 /* ============================================================
    AUTH — Estado global y UI
