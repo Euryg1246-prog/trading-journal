@@ -22,42 +22,79 @@ function autoDetectSymbol() {
   // Only auto-detect if symbol is not already selected
   if (symbolEl.value && symbolEl.value !== '') return;
 
-  // Find matching pair
-  const pair = SYMBOL_PAIRS.find(p => price >= p[3] && price <= p[4]);
-  if (!pair) return;
-
-  const [micro, full, label] = pair;
-
-  // Remove any existing symbol picker
+  // Remove any existing picker
   const existingPicker = document.getElementById("symbolPicker");
   if (existingPicker) existingPicker.remove();
 
-  // Point values for display
-  const pvMicro = { MNQ: 2, MYM: 0.5, MES: 5, MGC: 10, MCL: 100 }[micro] || 1;
-  const pvFull  = { NQ: 20, YM: 5, ES: 50, GC: 100, CL: 1000 }[full] || 1;
+  // Find matching pair by price range
+  const pair = SYMBOL_PAIRS.find(p => price >= p[3] && price <= p[4]);
 
-  // Create inline picker below the entry field
+  // All available symbols with their point values
+  const allSymbols = [
+    { sym: 'MNQ', pv: 2,    label: 'Micro Nasdaq'  },
+    { sym: 'NQ',  pv: 20,   label: 'Nasdaq Full'   },
+    { sym: 'MYM', pv: 0.5,  label: 'Micro Dow'     },
+    { sym: 'YM',  pv: 5,    label: 'Dow Full'      },
+    { sym: 'MES', pv: 5,    label: 'Micro S&P'     },
+    { sym: 'ES',  pv: 50,   label: 'S&P Full'      },
+    { sym: 'MGC', pv: 10,   label: 'Micro Gold'    },
+    { sym: 'GC',  pv: 100,  label: 'Gold Full'     },
+    { sym: 'MCL', pv: 100,  label: 'Micro Crude'   },
+    { sym: 'CL',  pv: 1000, label: 'Crude Full'    },
+  ];
+
+  // Add custom symbols
+  try {
+    const customs = JSON.parse(localStorage.getItem("dygpro_custom_symbols") || "{}");
+    Object.entries(customs).forEach(([sym, pv]) => {
+      allSymbols.push({ sym, pv, label: 'Custom' });
+    });
+  } catch(e) {}
+
+  // If price matches a pair, show those two first + rest collapsible
+  // If no match, show all
+  const suggested = pair ? [pair[0], pair[1]] : [];
+  const others    = allSymbols.filter(s => !suggested.includes(s.sym));
+
   const picker = document.createElement('div');
   picker.id = 'symbolPicker';
-  picker.style.cssText = `
-    display:flex; gap:10px; margin-top:8px; flex-wrap:wrap; align-items:center;
-  `;
-  picker.innerHTML = `
-    <span style="font-size:12px;color:var(--text2)">Selecciona el instrumento:</span>
-    <button type="button" onclick="pickSymbol('${micro}')" style="
-      background:rgba(56,189,248,0.15);border:1.5px solid #38bdf8;color:#38bdf8;
-      padding:6px 14px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700;
-      font-family:DM Sans,sans-serif;">
-      ${micro} <span style="font-size:10px;opacity:.7">$${pvMicro}/pt</span>
-    </button>
-    <button type="button" onclick="pickSymbol('${full}')" style="
-      background:rgba(167,139,250,0.15);border:1.5px solid #a78bfa;color:#a78bfa;
-      padding:6px 14px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700;
-      font-family:DM Sans,sans-serif;">
-      ${full} <span style="font-size:10px;opacity:.7">$${pvFull}/pt</span>
-    </button>
-  `;
+  picker.style.cssText = 'margin-top:10px;';
 
+  const colors = ['#38bdf8','#a78bfa','#34d399','#fb923c','#f472b6','#fbbf24','#94a3b8'];
+
+  let btns = '';
+
+  // Suggested first (highlighted)
+  if (suggested.length) {
+    btns += `<div style="font-size:11px;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px">Sugeridos por precio:</div>`;
+    btns += `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">`;
+    suggested.forEach((sym, i) => {
+      const info = allSymbols.find(s => s.sym === sym);
+      if (!info) return;
+      btns += `<button type="button" onclick="pickSymbol('${sym}')" style="
+        background:rgba(56,189,248,0.2);border:2px solid #38bdf8;color:#38bdf8;
+        padding:7px 14px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700;
+        font-family:DM Sans,sans-serif;display:flex;flex-direction:column;align-items:center;gap:2px">
+        ${sym}<span style="font-size:10px;opacity:.7">$${info.pv}/pt</span>
+      </button>`;
+    });
+    btns += `</div>`;
+  }
+
+  btns += `<div style="font-size:11px;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px">${suggested.length ? 'Otros instrumentos:' : 'Selecciona el instrumento:'}</div>`;
+  btns += `<div style="display:flex;gap:8px;flex-wrap:wrap">`;
+  others.forEach((info, i) => {
+    const c = colors[i % colors.length];
+    btns += `<button type="button" onclick="pickSymbol('${info.sym}')" style="
+      background:${c}18;border:1.5px solid ${c};color:${c};
+      padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:700;
+      font-family:DM Sans,sans-serif;display:flex;flex-direction:column;align-items:center;gap:2px">
+      ${info.sym}<span style="font-size:10px;opacity:.7">$${info.pv}/pt</span>
+    </button>`;
+  });
+  btns += `</div>`;
+
+  picker.innerHTML = btns;
   entryEl.closest('label').appendChild(picker);
 }
 
