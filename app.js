@@ -1,4 +1,15 @@
 
+function toggleMarketsPanel() {
+  const panel = document.getElementById("marketsPanelContent");
+  const arrow = document.getElementById("marketsPanelArrow");
+  if (!panel) return;
+  const isOpen = panel.style.display !== "none";
+  panel.style.display = isOpen ? "none" : "block";
+  if (arrow) arrow.textContent = isOpen ? "▼" : "▲";
+  if (!isOpen) renderCustomMarkets();
+}
+
+
 /* ============================================================
    MERCADOS PERSONALIZADOS
    ============================================================ */

@@ -509,6 +509,22 @@
         <small>Hora exacta donde entraste al trade.</small>
       </label>
 
+      <!-- Mini panel de mercados -->
+      <div style="grid-column:1/-1;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:4px">
+        <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="toggleMarketsPanel()">
+          <span style="font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;font-weight:600">📊 Mis Mercados — agregar símbolo personalizado</span>
+          <span id="marketsPanelArrow" style="color:var(--text2);font-size:14px">▼</span>
+        </div>
+        <div id="marketsPanelContent" style="display:none;margin-top:12px">
+          <div style="display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap">
+            <input type="text" id="newSymbolName" placeholder="Símbolo (ej: BTC)" style="max-width:140px;margin:0">
+            <input type="number" id="newSymbolPoint" placeholder="Valor punto USD" step="0.01" style="max-width:160px;margin:0">
+            <button class="tool-btn" onclick="addCustomMarket()" style="padding:10px 16px">+ Agregar</button>
+          </div>
+          <div id="customMarketsList" style="display:flex;flex-direction:column;gap:6px"></div>
+        </div>
+      </div>
+
       <label>
         Símbolo
         <select id="symbol" required onchange="handleSymbolChange(this)">
@@ -796,18 +812,7 @@
 
     <div id="cfgPreview" style="margin-top:16px;padding:14px;background:var(--bg2);border-radius:12px;border:1px solid var(--border2);font-size:13px;color:var(--text2);display:none"></div>
 
-    <div style="margin-top:24px;border-top:1px solid var(--border);padding-top:20px">
-      <h3 style="font-size:16px;color:var(--accent);margin-bottom:6px">📊 Mis Mercados</h3>
-      <p style="font-size:13px;color:var(--text2);margin-bottom:14px">Agrega mercados personalizados que no estén en la lista predefinida.</p>
 
-      <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">
-        <input type="text" id="newSymbolName" placeholder="Símbolo (ej: BTC)" style="max-width:140px">
-        <input type="number" id="newSymbolPoint" placeholder="Valor punto USD" step="0.01" style="max-width:160px">
-        <button class="tool-btn" onclick="addCustomMarket()">+ Agregar mercado</button>
-      </div>
-
-      <div id="customMarketsList" style="display:flex;flex-direction:column;gap:8px"></div>
-    </div>
   </section>
 
 
