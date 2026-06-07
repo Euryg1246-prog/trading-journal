@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DYGPRO — Trading Journal Profesional</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:      #060d1a;
+    --bg2:     #0a1628;
+    --surface: #0f1f38;
+    --accent:  #38bdf8;
+    --green:   #34d399;
+    --gold:    #fbbf24;
+    --red:     #f43f5e;
+    --text:    #e2e8f0;
+    --text2:   #94a3b8;
+    --border:  rgba(56,189,248,0.15);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 60px;
+    background: rgba(6,13,26,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 3px;
+    color: var(--accent);
+  }
+  .nav-logo span { color: var(--text2); font-size: 13px; letter-spacing: 1px; display: block; margin-top: -4px; }
+  .nav-links { display: flex; gap: 32px; align-items: center; }
+  .nav-links a { color: var(--text2); text-decoration: none; font-size: 14px; transition: color .2s; }
+  .nav-links a:hover { color: var(--text); }
+  .nav-cta {
+    background: var(--accent); color: #000; padding: 10px 24px;
+    border-radius: 8px; font-weight: 700; font-size: 14px;
+    text-decoration: none; transition: all .2s;
+  }
+  .nav-cta:hover { background: #7dd3fc; transform: translateY(-1px); }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center;
+    padding: 120px 40px 80px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Animated grid background */
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(56,189,248,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(56,189,248,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: gridMove 20s linear infinite;
+  }
+  @keyframes gridMove {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(60px); }
+  }
+
+  /* Glow orbs */
+  .hero::after {
+    content: '';
+    position: absolute;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(56,189,248,0.08) 0%, transparent 70%);
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(56,189,248,0.1);
+    border: 1px solid rgba(56,189,248,0.3);
+    border-radius: 999px;
+    padding: 6px 16px;
+    font-size: 12px; color: var(--accent);
+    text-transform: uppercase; letter-spacing: 1px;
+    margin-bottom: 32px;
+    position: relative; z-index: 1;
+    animation: fadeUp .6s ease both;
+  }
+  .hero-badge::before {
+    content: ''; width: 6px; height: 6px;
+    background: var(--accent); border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.3); }
+  }
+
+  .hero h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(64px, 10vw, 120px);
+    letter-spacing: 4px;
+    line-height: .9;
+    position: relative; z-index: 1;
+    animation: fadeUp .6s .1s ease both;
+  }
+  .hero h1 .accent { color: var(--accent); }
+  .hero h1 .outline {
+    -webkit-text-stroke: 2px var(--accent);
+    color: transparent;
+  }
+
+  .hero-sub {
+    font-size: clamp(18px, 2.5vw, 24px);
+    color: var(--text2);
+    max-width: 600px;
+    line-height: 1.6;
+    margin: 24px auto 0;
+    position: relative; z-index: 1;
+    animation: fadeUp .6s .2s ease both;
+  }
+
+  .hero-actions {
+    display: flex; gap: 16px; align-items: center; justify-content: center;
+    margin-top: 48px;
+    position: relative; z-index: 1;
+    animation: fadeUp .6s .3s ease both;
+    flex-wrap: wrap;
+  }
+  .btn-primary {
+    background: var(--accent); color: #000;
+    padding: 16px 36px; border-radius: 10px;
+    font-weight: 700; font-size: 16px;
+    text-decoration: none; transition: all .2s;
+    box-shadow: 0 0 32px rgba(56,189,248,0.3);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 48px rgba(56,189,248,0.5); }
+  .btn-secondary {
+    color: var(--text2); padding: 16px 36px;
+    border: 1px solid var(--border); border-radius: 10px;
+    font-size: 16px; text-decoration: none; transition: all .2s;
+  }
+  .btn-secondary:hover { color: var(--text); border-color: var(--accent); }
+
+  .hero-stats {
+    display: flex; gap: 48px; justify-content: center;
+    margin-top: 72px;
+    position: relative; z-index: 1;
+    animation: fadeUp .6s .4s ease both;
+    flex-wrap: wrap;
+  }
+  .hero-stat { text-align: center; }
+  .hero-stat strong {
+    font-family: 'DM Mono', monospace;
+    font-size: 36px; color: var(--accent); display: block;
+  }
+  .hero-stat span { font-size: 13px; color: var(--text2); text-transform: uppercase; letter-spacing: .5px; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── SECTION ── */
+  section { padding: 100px 40px; max-width: 1200px; margin: 0 auto; }
+  .section-label {
+    font-size: 11px; color: var(--accent); text-transform: uppercase;
+    letter-spacing: 2px; margin-bottom: 16px;
+  }
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(40px, 6vw, 72px);
+    letter-spacing: 2px; line-height: 1;
+    margin-bottom: 20px;
+  }
+  .section-sub { font-size: 18px; color: var(--text2); max-width: 560px; line-height: 1.6; }
+
+  /* ── FEATURES ── */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px; margin-top: 60px;
+  }
+  .feature-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px; padding: 32px;
+    transition: all .3s;
+    position: relative; overflow: hidden;
+  }
+  .feature-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0; transition: opacity .3s;
+  }
+  .feature-card:hover { border-color: rgba(56,189,248,0.4); transform: translateY(-4px); }
+  .feature-card:hover::before { opacity: 1; }
+  .feature-icon {
+    font-size: 32px; margin-bottom: 16px; display: block;
+  }
+  .feature-card h3 {
+    font-size: 18px; font-weight: 700; margin-bottom: 10px; color: var(--text);
+  }
+  .feature-card p { font-size: 14px; color: var(--text2); line-height: 1.6; }
+
+  /* ── BROKERS ── */
+  .brokers-section {
+    text-align: center; padding: 80px 40px;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .brokers-label { font-size: 12px; color: var(--text2); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 32px; }
+  .brokers-list {
+    display: flex; gap: 48px; justify-content: center; align-items: center; flex-wrap: wrap;
+  }
+  .broker-item {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px; letter-spacing: 2px;
+    color: var(--text2); transition: color .2s;
+  }
+  .broker-item:hover { color: var(--accent); }
+
+  /* ── PRICING ── */
+  .pricing-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 24px; margin-top: 60px; max-width: 800px; margin-left: auto; margin-right: auto;
+  }
+  .pricing-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 24px; padding: 40px; position: relative;
+  }
+  .pricing-card.featured {
+    border-color: var(--accent);
+    background: linear-gradient(135deg, rgba(56,189,248,0.08), var(--surface));
+  }
+  .pricing-badge {
+    position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+    background: var(--accent); color: #000;
+    padding: 4px 16px; border-radius: 999px;
+    font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+    white-space: nowrap;
+  }
+  .pricing-name { font-size: 13px; color: var(--text2); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; }
+  .pricing-price {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 64px; letter-spacing: 2px; line-height: 1;
+    color: var(--text); margin-bottom: 4px;
+  }
+  .pricing-price span { font-size: 24px; color: var(--text2); }
+  .pricing-period { font-size: 13px; color: var(--text2); margin-bottom: 32px; }
+  .pricing-features { list-style: none; margin-bottom: 32px; }
+  .pricing-features li {
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+    font-size: 14px; color: var(--text2);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .pricing-features li::before { content: '✓'; color: var(--green); font-weight: 700; }
+  .pricing-features li.disabled { color: rgba(148,163,184,0.4); }
+  .pricing-features li.disabled::before { content: '×'; color: rgba(244,63,94,0.4); }
+  .pricing-btn {
+    display: block; text-align: center; padding: 14px;
+    border-radius: 10px; font-weight: 700; font-size: 15px;
+    text-decoration: none; transition: all .2s;
+  }
+  .pricing-btn.free { border: 1px solid var(--border); color: var(--text2); }
+  .pricing-btn.free:hover { border-color: var(--accent); color: var(--accent); }
+  .pricing-btn.pro { background: var(--accent); color: #000; box-shadow: 0 0 24px rgba(56,189,248,0.3); }
+  .pricing-btn.pro:hover { transform: translateY(-2px); box-shadow: 0 0 40px rgba(56,189,248,0.5); }
+
+  /* ── CTA FINAL ── */
+  .cta-section {
+    text-align: center; padding: 120px 40px;
+    background: linear-gradient(135deg, rgba(56,189,248,0.05), transparent);
+    border-top: 1px solid var(--border);
+  }
+  .cta-section h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 8vw, 96px);
+    letter-spacing: 3px; line-height: 1; margin-bottom: 24px;
+  }
+  .cta-section p { font-size: 18px; color: var(--text2); margin-bottom: 48px; }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center; padding: 40px;
+    border-top: 1px solid var(--border);
+    font-size: 13px; color: var(--text2);
+  }
+  footer strong { color: var(--accent); font-family: 'Bebas Neue', sans-serif; letter-spacing: 2px; font-size: 16px; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    nav { padding: 16px 24px; }
+    .nav-links { display: none; }
+    .pricing-grid { grid-template-columns: 1fr; }
+    .hero-stats { gap: 32px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">DYGPRO <span>TRADING JOURNAL</span></div>
+  <div class="nav-links">
+    <a href="#features">Funciones</a>
+    <a href="#brokers">Brokers</a>
+    <a href="#pricing">Precios</a>
+    <a href="https://trading-journal-beta-red.vercel.app" class="nav-cta">Entrar al Journal →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">Nuevo — Ahora con importación automática</div>
+  <h1>
+    <span class="accent">DYGPRO</span><br>
+    <span class="outline">TRADING</span><br>
+    JOURNAL
+  </h1>
+  <p class="hero-sub">
+    El journal que entiende cómo operas. Importa desde cualquier broker, analiza tu sistema y te dice exactamente qué está funcionando.
+  </p>
+  <div class="hero-actions">
+    <a href="https://trading-journal-beta-red.vercel.app" class="btn-primary">Empezar gratis →</a>
+    <a href="#features" class="btn-secondary">Ver funciones</a>
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <strong>3+</strong>
+      <span>Brokers soportados</span>
+    </div>
+    <div class="hero-stat">
+      <strong>100%</strong>
+      <span>Datos en la nube</span>
+    </div>
+    <div class="hero-stat">
+      <strong>$0</strong>
+      <span>Para empezar</span>
+    </div>
+  </div>
+</div>
+
+<!-- BROKERS -->
+<div class="brokers-section">
+  <p class="brokers-label">Importa desde tus plataformas favoritas</p>
+  <div class="brokers-list">
+    <div class="broker-item">Webull</div>
+    <div class="broker-item">Tradovate</div>
+    <div class="broker-item">TradingView</div>
+    <div class="broker-item">NinjaTrader</div>
+    <div class="broker-item">Universal CSV</div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section id="features">
+  <p class="section-label">Funciones</p>
+  <h2 class="section-title">Todo lo que<br>necesita tu sistema</h2>
+  <p class="section-sub">Diseñado para traders que toman en serio su desempeño. Sin complicaciones, sin excusas.</p>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <span class="feature-icon">📈</span>
+      <h3>Equity Curve Pro</h3>
+      <p>Visualiza tu curva de equity en tiempo real con filtros por fecha y plataforma. Ve exactamente cómo crece tu cuenta.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🎯</span>
+      <h3>Setup Quality Score</h3>
+      <p>Ranking estadístico de tus setups según rendimiento real. Sabe cuál setup te da dinero y cuál te lo quita.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🔄</span>
+      <h3>System Drift Monitor</h3>
+      <p>Detecta si tu sistema está desviándose de su comportamiento histórico. Actúa antes de que el drawdown llegue.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">💰</span>
+      <h3>Account Size Engine</h3>
+      <p>Calcula exactamente cuánto capital necesitas para operar tu sistema con seguridad. Basado en tu drawdown real.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">📥</span>
+      <h3>Importación Universal</h3>
+      <p>Importa desde Webull, Tradovate, TradingView o cualquier CSV. El sistema detecta el formato automáticamente.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🔒</span>
+      <h3>Datos en la nube</h3>
+      <p>Tus trades viven en Supabase — seguros, privados y accesibles desde cualquier dispositivo. Nunca pierdes nada.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing" style="text-align:center">
+  <p class="section-label">Precios</p>
+  <h2 class="section-title">Simple y justo</h2>
+  <p class="section-sub" style="margin: 0 auto 0;">Empieza gratis. Actualiza cuando estés listo.</p>
+
+  <div class="pricing-grid">
+    <div class="pricing-card">
+      <p class="pricing-name">Free</p>
+      <div class="pricing-price"><span>$</span>0</div>
+      <p class="pricing-period">Para siempre</p>
+      <ul class="pricing-features">
+        <li>Hasta 30 trades</li>
+        <li>Equity Curve básica</li>
+        <li>Importación CSV</li>
+        <li>Ratios de rendimiento</li>
+        <li class="disabled">Trades ilimitados</li>
+        <li class="disabled">Setup Quality Score</li>
+        <li class="disabled">System Drift Monitor</li>
+        <li class="disabled">Account Size Engine</li>
+      </ul>
+      <a href="https://trading-journal-beta-red.vercel.app" class="pricing-btn free">Empezar gratis</a>
+    </div>
+
+    <div class="pricing-card featured">
+      <div class="pricing-badge">⚡ Más popular</div>
+      <p class="pricing-name">Pro</p>
+      <div class="pricing-price"><span>$</span>19</div>
+      <p class="pricing-period">por mes — cancela cuando quieras</p>
+      <ul class="pricing-features">
+        <li>Trades ilimitados</li>
+        <li>Equity Curve Pro + filtros</li>
+        <li>Importación universal</li>
+        <li>Setup Quality Score</li>
+        <li>System Drift Monitor</li>
+        <li>Account Size Engine</li>
+        <li>Recovery Analytics</li>
+        <li>Galería de capturas</li>
+      </ul>
+      <a href="https://trading-journal-beta-red.vercel.app" class="pricing-btn pro">Empezar Pro →</a>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<div class="cta-section">
+  <h2>Empieza a<br><span style="color:var(--accent)">entender</span><br>tu sistema</h2>
+  <p>El conocimiento de tu trading es tu ventaja. No lo desperdicies.</p>
+  <a href="https://trading-journal-beta-red.vercel.app" class="btn-primary" style="display:inline-block;font-size:18px;padding:18px 48px">
+    Abrir DYGPRO gratis →
+  </a>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <strong>DYGPRO</strong>
+  <p style="margin-top:12px">Trading Journal Profesional · Hecho para traders serios</p>
+</footer>
+
+</body>
+</html>
