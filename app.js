@@ -5,17 +5,17 @@
 function detectSymbolByPrice(price) {
   if (!price || price <= 0) return null;
 
-  // Rangos aproximados de precios por instrumento
-  if (price >= 18000 && price <= 25000) return 'MNQ'; // Micro Nasdaq
-  if (price >= 18000 && price <= 25000) return 'NQ';  // Nasdaq (mismo rango, MNQ más común)
-  if (price >= 28000 && price <= 45000) return 'MYM'; // Micro Dow
-  if (price >= 28000 && price <= 45000) return 'YM';  // Dow Jones
-  if (price >= 4500  && price <= 6500)  return 'MES'; // Micro S&P
-  if (price >= 4500  && price <= 6500)  return 'ES';  // S&P 500
-  if (price >= 1800  && price <= 3000)  return 'GC';  // Gold
-  if (price >= 180   && price <= 300)   return 'MGC'; // Micro Gold
-  if (price >= 60    && price <= 120)   return 'CL';  // Crude Oil
-  if (price >= 25000 && price <= 110000) return 'BTC'; // Bitcoin
+  // Rangos reales de precios por instrumento (2025-2026)
+  if (price >= 25000 && price <= 40000) return 'MNQ'; // Micro Nasdaq ~21,000
+  if (price >= 25000 && price <= 40000) return 'NQ';  // Nasdaq full
+  if (price >= 40000 && price <= 60000) return 'MYM'; // Micro Dow ~42,000-45,000
+  if (price >= 40000 && price <= 60000) return 'YM';  // Dow Jones full
+  if (price >= 5000  && price <= 7000)  return 'MES'; // Micro S&P ~5,500-6,000
+  if (price >= 5000  && price <= 7000)  return 'ES';  // S&P 500 full
+  if (price >= 2500  && price <= 3500)  return 'GC';  // Gold ~3,000
+  if (price >= 250   && price <= 350)   return 'MGC'; // Micro Gold
+  if (price >= 60    && price <= 100)   return 'CL';  // Crude Oil
+  if (price >= 80000 && price <= 120000) return 'BTC'; // Bitcoin
 
   return null;
 }
