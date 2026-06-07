@@ -587,6 +587,7 @@ async function initAuth() {
       currentUser = null;
       trades = [];
       personalNotes = {};
+      localStorage.removeItem("dygpro_trades_cache");
       showAuthOverlay();
     }
   });
@@ -682,6 +683,7 @@ async function loadTradesFromSupabase() {
   if (error) { console.error("Error cargando trades:", error); return; }
 
   trades = (data || []).map(dbRowToTrade);
+  try { localStorage.setItem("dygpro_trades_cache", JSON.stringify(trades)); } catch(e) {}
   render();
 }
 
@@ -804,6 +806,11 @@ const form  = document.getElementById("tradeForm");
 const table = document.getElementById("tradeTable");
 
 let trades = [];
+// Cache local temporal — se sobreescribe cuando llegan datos de Supabase
+try {
+  const cached = localStorage.getItem("dygpro_trades_cache");
+  if (cached) trades = JSON.parse(cached);
+} catch(e) {}
 let personalNotes = {};
 let equityChart;
 
