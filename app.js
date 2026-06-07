@@ -1,5 +1,171 @@
 
 /* ============================================================
+   PANEL MANAGER — Ocultar/mostrar y resize de paneles
+   ============================================================ */
+let panelStates = {};
+
+function loadPanelStates() {
+  try {
+    const saved = localStorage.getItem("dygpro_panel_states");
+    if (saved) panelStates = JSON.parse(saved);
+  } catch(e) {}
+}
+
+function savePanelStates() {
+  try {
+    localStorage.setItem("dygpro_panel_states", JSON.stringify(panelStates));
+  } catch(e) {}
+}
+
+function initPanelManager() {
+  loadPanelStates();
+
+  // Add collapse button and resize handle to every panel
+  document.querySelectorAll('.panel, .panel-card').forEach(panel => {
+    const id = panel.id || panel.closest('[id]')?.id;
+    if (!id || panel.dataset.panelInit) return;
+    panel.dataset.panelInit = "1";
+
+    // Add panel-id for state tracking
+    if (!panel.dataset.panelId) panel.dataset.panelId = id || Math.random().toString(36).slice(2);
+    const pid = panel.dataset.panelId;
+
+    // Add collapse button to panel header (h2)
+    const h2 = panel.querySelector('h2, h3');
+    if (h2 && !h2.querySelector('.panel-toggle-btn')) {
+      h2.style.display = 'flex';
+      h2.style.alignItems = 'center';
+      h2.style.justifyContent = 'space-between';
+      h2.style.cursor = 'default';
+
+      const btn = document.createElement('button');
+      btn.className = 'panel-toggle-btn';
+      btn.innerHTML = '−';
+      btn.title = 'Ocultar/mostrar panel';
+      btn.style.cssText = `
+        background: none; border: 1px solid var(--border2); color: var(--text2);
+        border-radius: 6px; width: 24px; height: 24px; cursor: pointer;
+        font-size: 14px; line-height: 1; flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
+        font-family: monospace; transition: all .2s;
+      `;
+      btn.onclick = (e) => { e.stopPropagation(); togglePanel(pid, panel, btn); };
+      h2.appendChild(btn);
+    }
+
+    // Add resize handle at bottom
+    if (!panel.querySelector('.panel-resize-handle')) {
+      const handle = document.createElement('div');
+      handle.className = 'panel-resize-handle';
+      handle.style.cssText = `
+        position: absolute; bottom: 0; left: 0; right: 0; height: 6px;
+        cursor: ns-resize; background: transparent;
+        border-bottom-left-radius: 18px; border-bottom-right-radius: 18px;
+      `;
+      handle.addEventListener('mouseenter', () => handle.style.background = 'rgba(56,189,248,0.15)');
+      handle.addEventListener('mouseleave', () => handle.style.background = 'transparent');
+      panel.style.position = 'relative';
+      panel.appendChild(handle);
+      initPanelResize(handle, panel, pid);
+    }
+
+    // Restore saved state
+    if (panelStates[pid]) {
+      const state = panelStates[pid];
+      if (state.collapsed) {
+        const content = getPanelContent(panel);
+        if (content) content.style.display = 'none';
+        const btn = panel.querySelector('.panel-toggle-btn');
+        if (btn) btn.innerHTML = '+';
+      }
+      if (state.height) panel.style.height = state.height;
+    }
+  });
+}
+
+function getPanelContent(panel) {
+  // Get everything except the h2/h3 header
+  const children = [...panel.children];
+  const headerIdx = children.findIndex(c => c.tagName === 'H2' || c.tagName === 'H3');
+  if (headerIdx === -1) return null;
+  // Wrap non-header children in a div if not already wrapped
+  let wrapper = panel.querySelector('.panel-content-wrapper');
+  if (!wrapper) {
+    wrapper = document.createElement('div');
+    wrapper.className = 'panel-content-wrapper';
+    children.slice(headerIdx + 1).forEach(child => {
+      if (!child.classList.contains('panel-resize-handle')) {
+        wrapper.appendChild(child);
+      }
+    });
+    panel.appendChild(wrapper);
+  }
+  return wrapper;
+}
+
+function togglePanel(pid, panel, btn) {
+  const content = getPanelContent(panel);
+  if (!content) return;
+
+  const isCollapsed = content.style.display === 'none';
+  content.style.display = isCollapsed ? '' : 'none';
+  btn.innerHTML = isCollapsed ? '−' : '+';
+  btn.title = isCollapsed ? 'Ocultar panel' : 'Mostrar panel';
+
+  if (!panelStates[pid]) panelStates[pid] = {};
+  panelStates[pid].collapsed = !isCollapsed;
+  savePanelStates();
+}
+
+function initPanelResize(handle, panel, pid) {
+  let startY, startHeight;
+
+  handle.addEventListener('mousedown', (e) => {
+    e.preventDefault();
+    startY = e.clientY;
+    startHeight = panel.offsetHeight;
+
+    const onMove = (e) => {
+      const newHeight = Math.max(80, startHeight + (e.clientY - startY));
+      panel.style.height = newHeight + 'px';
+      panel.style.overflow = 'hidden';
+    };
+
+    const onUp = () => {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+      if (!panelStates[pid]) panelStates[pid] = {};
+      panelStates[pid].height = panel.style.height;
+      savePanelStates();
+    };
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+}
+
+function resetPanelLayout() {
+  localStorage.removeItem("dygpro_panel_states");
+  panelStates = {};
+  // Remove all inline heights and show all content
+  document.querySelectorAll('.panel, .panel-card').forEach(panel => {
+    panel.style.height = '';
+    panel.style.overflow = '';
+    const content = panel.querySelector('.panel-content-wrapper');
+    if (content) content.style.display = '';
+    const btn = panel.querySelector('.panel-toggle-btn');
+    if (btn) btn.innerHTML = '−';
+  });
+  showToast('↩️ Layout restablecido', 'Todos los paneles vuelven a su tamaño original.');
+}
+
+// Init after DOM loads
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(initPanelManager, 500);
+});
+
+
+/* ============================================================
    FILTRO POR PLATAFORMA EN EQUITY CURVE
    ============================================================ */
 let activeSourceFilters = new Set(); // se llena dinámicamente con los sources reales

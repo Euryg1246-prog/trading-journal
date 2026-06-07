@@ -1236,3 +1236,40 @@ header { display: none; }
   transition: opacity .2s;
 }
 .source-toggle:hover { opacity: 0.8 !important; }
+
+/* ── Panel Manager ── */
+.panel-toggle-btn:hover {
+  background: var(--surface2) !important;
+  color: var(--accent) !important;
+  border-color: var(--accent) !important;
+}
+
+.panel-content-wrapper {
+  transition: all .2s ease;
+}
+
+.panel-resize-handle:hover {
+  background: rgba(56,189,248,0.15) !important;
+}
+
+/* Reset layout button */
+.reset-layout-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 500;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  color: var(--text2);
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: DM Sans, sans-serif;
+  display: none;
+  transition: all .2s;
+}
+.reset-layout-btn:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
