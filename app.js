@@ -1167,8 +1167,7 @@ function getPeakBlock(peakTime) {
 }
 
 function render() {
-  // Si hay filtro activo, usar trades filtrados para todo
-  // Apply source filter + date filter to all renders
+  // Filtro combinado: source + fechas
   let activeTrades = getSourceFilteredTrades(trades);
   if (equityFilterStart || equityFilterEnd) {
     activeTrades = getEquityFilteredTrades();
@@ -1181,6 +1180,13 @@ function render() {
   renderPeakDistribution(activeTrades);
   renderSessionDatabase(activeTrades);
   renderPLCalendar(activeTrades);
+  renderDisciplineEngine(activeTrades);
+  renderPerformanceRatios(activeTrades);
+  renderSystemScorecard(activeTrades);
+  renderAccountSizeEngine(activeTrades);
+  renderRecoveryAnalytics(activeTrades);
+  renderSetupQualityScore(activeTrades);
+  renderSystemDriftMonitor(activeTrades);
 }
 
 function renderHistory(activeTrades) {
@@ -1997,7 +2003,8 @@ document.getElementById("clearData")?.addEventListener("click", function() {
   render();
 });
 
-function renderDisciplineEngine() {
+function renderDisciplineEngine(activeTrades) {
+  const trades = activeTrades || window.trades;
   let score = 100;
 
   const outPlan = trades.filter(t => !t.insidePlan);
@@ -2050,7 +2057,8 @@ render = function() {
   renderDisciplineEngine();
 };
 
-function renderPerformanceRatios() {
+function renderPerformanceRatios(activeTrades) {
+  const trades = activeTrades || window.trades;
   const wins = trades.filter(t => t.pl > 0);
   const losses = trades.filter(t => t.pl < 0);
 
@@ -2119,7 +2127,8 @@ document.getElementById("historyClearBtn")?.addEventListener("click", async func
   alert("Historial eliminado.");
 });
 
-function renderSystemScorecard() {
+function renderSystemScorecard(activeTrades) {
+  const trades = activeTrades || window.trades;
   if (!document.getElementById("systemRating")) return;
 
   const total = trades.length;
@@ -2236,7 +2245,8 @@ render = function() {
   renderSystemScorecard();
 };
 
-function renderAccountSizeEngine() {
+function renderAccountSizeEngine(activeTrades) {
+  const trades = activeTrades || window.trades;
   if (!document.getElementById("accountAggressive")) return;
 
   if (!trades.length) {
@@ -2296,7 +2306,8 @@ render = function() {
   renderAccountSizeEngine();
 };
 
-function renderRecoveryAnalytics() {
+function renderRecoveryAnalytics(activeTrades) {
+  const trades = activeTrades || window.trades;
   if (!document.getElementById("recoveryFactor")) return;
 
   if (!trades.length) {
@@ -2522,7 +2533,8 @@ function openPersonalNote(date) {
 
 initPersonalNotes();
 
-function renderSetupQualityScore() {
+function renderSetupQualityScore(activeTrades) {
+  const trades = activeTrades || window.trades;
 
   const container = document.getElementById("setupRanking");
 
@@ -2653,7 +2665,8 @@ render = function() {
 };
 
 
-function renderSystemDriftMonitor() {
+function renderSystemDriftMonitor(activeTrades) {
+  const trades = activeTrades || window.trades;
   if (!document.getElementById("driftScore")) return;
 
   const total = trades.length;
