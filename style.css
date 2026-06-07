@@ -1218,3 +1218,7 @@ header { display: none; }
 @media (max-width: 500px) {
   .account-grid { grid-template-columns: 1fr; }
 }
+
+/* ── Image Modal ── */
+#imageModal { display: none; }
+#imageModal:not(.hidden) { display: flex; }
