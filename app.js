@@ -3683,13 +3683,21 @@ function openImageModal(index) {
   const img = tradeImages[index];
   document.getElementById('modalImg').src = img.data;
   document.getElementById('modalNote').value = img.note || '';
-  document.getElementById('imageModal').classList.remove('hidden');
+  const modal = document.getElementById('imageModal');
+  modal.classList.remove('hidden');
+  // Close on backdrop click
+  modal.onclick = (e) => { if (e.target === modal) closeImageModal(); };
 }
 
 function closeImageModal() {
   document.getElementById('imageModal').classList.add('hidden');
   currentImageIndex = null;
 }
+
+// Close modal with Escape key
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeImageModal();
+});
 
 function saveImageNote() {
   if (currentImageIndex === null) return;
