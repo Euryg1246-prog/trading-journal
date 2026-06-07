@@ -698,6 +698,7 @@ async function loadTradesFromSupabase() {
   if (error) { console.error("Error cargando trades:", error); return; }
 
   trades = (data || []).map(dbRowToTrade);
+  _dataLoaded = true;
   render();
 }
 
@@ -940,6 +941,16 @@ function getPeakBlock(peakTime) {
   if (hour === 13) return "1PM";
   return "2PM+";
 }
+
+
+/* ── Bloquear render hasta que Supabase cargue los datos ── */
+let _dataLoaded = false;
+
+const _originalRender = render;
+render = function() {
+  if (!_dataLoaded) return;
+  _originalRender();
+};
 
 function render() {
   renderHistory();
