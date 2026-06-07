@@ -575,25 +575,29 @@ const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
 let currentUser = null;
 
 async function initAuth() {
-  // Ocultar auth overlay mientras verificamos sesión
+  // Overlay arranca oculto (via style en HTML)
+  // Solo lo mostramos si no hay sesión activa
   const overlay = document.getElementById("auth-overlay");
-  if (overlay) overlay.style.display = 'none';
 
-  // Esperar a que Supabase recupere la sesión guardada
-  const { data: { session } } = await _supabase.auth.getSession();
+  try {
+    const { data: { session } } = await _supabase.auth.getSession();
 
-  if (session?.user) {
-    currentUser = session.user;
-    showApp();
-  } else {
-    // No hay sesión — mostrar login
+    if (session?.user) {
+      currentUser = session.user;
+      showApp();
+    } else {
+      // Sin sesión — mostrar login
+      if (overlay) overlay.style.display = 'flex';
+    }
+  } catch(e) {
+    console.error("Error verificando sesión:", e);
     if (overlay) overlay.style.display = 'flex';
   }
 
-  // Escuchar cambios de sesión
   _supabase.auth.onAuthStateChange((event, session) => {
     if (event === "SIGNED_IN" && session?.user) {
       currentUser = session.user;
+      if (overlay) overlay.style.display = 'none';
       showApp();
     }
     if (event === "TOKEN_REFRESHED" && session?.user) {
@@ -603,19 +607,22 @@ async function initAuth() {
       currentUser = null;
       trades = [];
       personalNotes = {};
+      render();
       if (overlay) overlay.style.display = 'flex';
     }
   });
 }
 
 function showApp() {
-  document.getElementById("auth-overlay").classList.add("hidden");
+  const overlay = document.getElementById("auth-overlay");
+  if (overlay) overlay.style.display = 'none';
   document.getElementById("user-email-label").textContent = currentUser.email;
   const initials = currentUser.email.slice(0,2).toUpperCase();
   const av = document.getElementById("user-avatar-initials");
   if (av) av.textContent = initials;
   const saved = localStorage.getItem('dygpro_view') || 'scroll';
   setView(saved);
+  // Load data — render() is called inside each load function after data arrives
   loadTradesFromSupabase();
   loadNotesFromSupabase();
   checkUserPlan();
@@ -698,7 +705,6 @@ async function loadTradesFromSupabase() {
   if (error) { console.error("Error cargando trades:", error); return; }
 
   trades = (data || []).map(dbRowToTrade);
-  _dataLoaded = true;
   render();
 }
 
@@ -941,16 +947,6 @@ function getPeakBlock(peakTime) {
   if (hour === 13) return "1PM";
   return "2PM+";
 }
-
-
-/* ── Bloquear render hasta que Supabase cargue los datos ── */
-let _dataLoaded = false;
-
-const _originalRender = render;
-render = function() {
-  if (!_dataLoaded) return;
-  _originalRender();
-};
 
 function render() {
   renderHistory();
