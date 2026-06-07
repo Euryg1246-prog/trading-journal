@@ -2,13 +2,48 @@
 /* ============================================================
    FILTRO POR PLATAFORMA EN EQUITY CURVE
    ============================================================ */
-let activeSourceFilters = new Set(['tradingview','webull','tradovate','manual','universal']);
+let activeSourceFilters = new Set(); // se llena dinámicamente con los sources reales
+
+function buildSourceFilters() {
+  // Get all unique sources from current trades
+  const sources = [...new Set(trades.map(t => (t.source || 'manual').toLowerCase()))];
+
+  // Add all to active filters
+  sources.forEach(s => activeSourceFilters.add(s));
+
+  // Build filter buttons dynamically
+  const row = document.getElementById("sourceFilterRow");
+  if (!row) return;
+
+  const SOURCE_COLORS = {
+    tradingview: { color: '#34d399', bg: 'rgba(52,211,153,0.2)',  label: 'TradingView' },
+    webull:      { color: '#fb923c', bg: 'rgba(251,146,60,0.2)',  label: 'Webull'      },
+    tradovate:   { color: '#a78bfa', bg: 'rgba(167,139,250,0.2)', label: 'Tradovate'   },
+    manual:      { color: '#38bdf8', bg: 'rgba(56,189,248,0.2)',  label: 'Manual'      },
+    universal:   { color: '#94a3b8', bg: 'rgba(148,163,184,0.2)', label: 'CSV Import'  },
+    ninjatrader: { color: '#f472b6', bg: 'rgba(244,114,182,0.2)', label: 'NinjaTrader' },
+  };
+
+  // Clear existing dynamic buttons (keep "Todas")
+  row.querySelectorAll('.source-toggle:not([data-source="all"])').forEach(b => b.remove());
+
+  // Add a button for each source found
+  sources.forEach(src => {
+    const cfg = SOURCE_COLORS[src] || { color: '#94a3b8', bg: 'rgba(148,163,184,0.2)', label: src.charAt(0).toUpperCase() + src.slice(1) };
+    const btn = document.createElement('button');
+    btn.className = 'source-toggle';
+    btn.setAttribute('data-source', src);
+    btn.onclick = () => toggleSourceFilter(src);
+    btn.style.cssText = `background:${cfg.bg};border:2px solid ${cfg.color};color:${cfg.color};padding:8px 16px;font-size:12px`;
+    btn.textContent = '● ' + cfg.label;
+    row.appendChild(btn);
+  });
+}
 
 function toggleSourceFilter(source) {
-  const ALL_SOURCES = ['tradingview','webull','tradovate','manual','universal'];
+  const ALL_SOURCES = [...new Set(trades.map(t => (t.source || 'manual').toLowerCase()))];
 
   if (source === 'all') {
-    // Si todos activos → desactivar todos. Si alguno inactivo → activar todos
     const allActive = ALL_SOURCES.every(s => activeSourceFilters.has(s));
     if (allActive) {
       activeSourceFilters.clear();
@@ -27,7 +62,8 @@ function toggleSourceFilter(source) {
   document.querySelectorAll('.source-toggle').forEach(btn => {
     const s = btn.getAttribute('data-source');
     if (s === 'all') {
-      const allActive = ALL_SOURCES.every(x => activeSourceFilters.has(x));
+      const ALL_SOURCES_CHECK = [...new Set(trades.map(t => (t.source || 'manual').toLowerCase()))];
+      const allActive = ALL_SOURCES_CHECK.every(x => activeSourceFilters.has(x));
       btn.style.opacity = allActive ? '1' : '0.4';
       btn.style.textDecoration = allActive ? 'none' : 'line-through';
     } else {
@@ -873,6 +909,7 @@ async function loadTradesFromSupabase() {
 
   trades = (data || []).map(dbRowToTrade);
   try { localStorage.setItem("dygpro_trades_cache", JSON.stringify(trades)); } catch(e) {}
+  buildSourceFilters();
   render();
 }
 
