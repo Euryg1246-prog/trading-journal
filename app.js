@@ -1059,6 +1059,7 @@ function showApp() {
   loadTradesFromSupabase();
   loadNotesFromSupabase();
   checkUserPlan();
+  setTimeout(checkOnboarding, 2000);
 }
 
 function showAuthOverlay() {
@@ -4167,3 +4168,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Iniciar autenticación
 initAuth();
+
+
+/* ── ONBOARDING ── */
+function checkOnboarding() {
+  if (localStorage.getItem("dygpro_onboarding_done")) return;
+  if (!currentUser) return;
+  if (trades.length > 0) { localStorage.setItem("dygpro_onboarding_done","1"); return; }
+  const el = document.getElementById("onboardingOverlay");
+  if (el) el.style.display = "flex";
+}
+
+function onboardingAction(action) {
+  const el = document.getElementById("onboardingOverlay");
+  if (el) el.style.display = "none";
+  localStorage.setItem("dygpro_onboarding_done","1");
+  if (action === "import") {
+    document.getElementById("section-data")?.scrollIntoView({behavior:"smooth"});
+    showToast("📥 Importar trades","Selecciona tu archivo CSV.");
+  } else if (action === "manual") {
+    document.getElementById("section-entry")?.scrollIntoView({behavior:"smooth"});
+    showToast("✏️ Registrar trade","Llena el formulario.");
+  } else {
+    showToast("👀 Explorando","Importa o registra tus trades cuando estés listo.");
+  }
+}
