@@ -1844,7 +1844,8 @@ function importCSV(event) {
         .then(() => alert(`${formatName} importado.\nImportados: ${result.imported}\nIgnorados: ${result.skipped}`))
         .catch(e => {
           console.error("Error guardando en Supabase:", e);
-          alert("Error guardando en Supabase. Intenta de nuevo.");
+          // Reload anyway in case some trades saved
+          loadTradesFromSupabase();
         });
     } else {
       alert(`${formatName} importado.\nImportados: ${result.imported}\nIgnorados: ${result.skipped}`);
@@ -1889,6 +1890,7 @@ function importTradingViewRows(rows, filename) {
       date, time, day: dayNames[d.getDay()], symbol, direction,
       entry, exit, contracts, points, pl,
       setup: "TradingView Strategy",
+      source: "tradingview",
       ruleFollowed: "yes",
       insideWindow,
       insidePlan: insideWindow,
@@ -2046,6 +2048,7 @@ function importWebullRows(rows) {
         date, time, day: dayName, symbol: sym, direction,
         entry, exit, contracts, points, pl,
         setup: 'Webull Import',
+        source: 'webull',
         ruleFollowed: 'yes',
         insideWindow, insidePlan: insideWindow,
         mistake: '', notes: `Webull: ${sym} ${direction} — Entry: ${entry} / Exit: ${exit}`,
