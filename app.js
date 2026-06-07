@@ -1446,11 +1446,10 @@ function renderHistory(activeTrades) {
         <td>${t.day}</td>
         <td>${t.symbol} ${getSourceBadge(t.source || "manual")}</td>
         <td>${t.direction}</td>
+        <td>${t.entry ? Number(t.entry).toFixed(2) : "-"}</td>
+        <td>${t.exit  ? Number(t.exit).toFixed(2)  : "-"}</td>
         <td class="${t.points >= 0 ? "win" : "loss"}">${Number(t.points).toFixed(2)}</td>
         <td class="${t.pl >= 0 ? "win" : "loss"}">${money(t.pl)}</td>
-        <td>${formatPts(t.pullback)}</td>
-        <td>${formatPts(t.highMove)}</td>
-        <td>${t.peakTime || "-"}</td>
         <td class="${t.insidePlan ? "plan-ok" : "plan-bad"}">${t.insidePlan ? "Dentro" : "Rompió"}</td>
         <td>${t.mistake || "-"}</td>
         <td><button class="delete-btn" onclick="deleteTrade(${index})">X</button></td>
@@ -1607,6 +1606,8 @@ function renderSessionDatabase(activeTrades) {
       <tr>
         <td>${t.date}</td>
         <td>${t.day}</td>
+        <td>${t.entry ? Number(t.entry).toFixed(2) : "-"}</td>
+        <td>${t.exit  ? Number(t.exit).toFixed(2)  : "-"}</td>
         <td>${t.sessionOpen ?? "-"}</td>
         <td>${formatPts(t.pullback)}</td>
         <td class="win">${formatPts(t.highMove)}</td>
