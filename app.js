@@ -940,20 +940,26 @@ function getPeakBlock(peakTime) {
 }
 
 function render() {
-  renderHistory();
-  renderDashboard();
+  // Si hay filtro activo, usar trades filtrados para todo
+  const activeTrades = (equityFilterStart || equityFilterEnd)
+    ? getEquityFilteredTrades()
+    : trades;
+
+  renderHistory(activeTrades);
+  renderDashboard(activeTrades);
   renderChart();
-  renderResearchCenter();
-  renderPeakDistribution();
-  renderSessionDatabase();
-  renderPLCalendar();
+  renderResearchCenter(activeTrades);
+  renderPeakDistribution(activeTrades);
+  renderSessionDatabase(activeTrades);
+  renderPLCalendar(activeTrades);
 }
 
-function renderHistory() {
+function renderHistory(activeTrades) {
+  activeTrades = activeTrades || trades;
   if (!table) return;
   table.innerHTML = "";
 
-  trades.forEach((t, index) => {
+  activeTrades.forEach((t, index) => {
     table.innerHTML += `
       <tr>
         <td>${t.date}</td>
@@ -2467,6 +2473,7 @@ function initEquityCurveControls() {
   applyBtn.addEventListener("click", function() {
     equityFilterStart = document.getElementById("equityStartDate").value || null;
     equityFilterEnd = document.getElementById("equityEndDate").value || null;
+    render();
     renderChart();
   });
 
@@ -2476,6 +2483,7 @@ function initEquityCurveControls() {
 
     document.getElementById("equityStartDate").value = "";
     document.getElementById("equityEndDate").value = "";
+    render();
 
     renderChart();
   });
