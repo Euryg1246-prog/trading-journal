@@ -1035,6 +1035,14 @@ async function initAuth() {
   _supabase.auth.onAuthStateChange((event, session) => {
     if (event === "SIGNED_IN" && session?.user) {
       currentUser = session.user;
+      // Send welcome email only first time
+      const welcomeKey = "dygpro_welcome_sent_" + session.user.id;
+      if (!localStorage.getItem(welcomeKey)) {
+        localStorage.setItem(welcomeKey, "1");
+        _supabase.functions.invoke('send-welcome-email', {
+          body: { email: session.user.email }
+        }).catch(e => console.log('Welcome email:', e));
+      }
       showApp();
     }
     if (event === "SIGNED_OUT") {
