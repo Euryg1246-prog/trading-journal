@@ -1635,7 +1635,7 @@ function importTradovateRows(rows) {
     const exit  = direction === 'Long' ? sellPrice : buyPrice;
     const points = entry && exit ? (direction === 'Long' ? exit - entry : entry - exit) : 0;
 
-    const { date, time } = parseDate(boughttimestamp || r.tradedate || r.timestamp || '');
+    const { date, time } = parseDate(r.boughttimestamp || r.tradedate || r.timestamp || '');
 
     if (!date || (!buyPrice && !sellPrice)) { skipped++; return; }
 
