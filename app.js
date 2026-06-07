@@ -1056,6 +1056,8 @@ function showApp() {
   loadTradesFromSupabase();
   loadNotesFromSupabase();
   checkUserPlan();
+  // Show onboarding after trades load
+  setTimeout(checkOnboarding, 2000);
 }
 
 function showAuthOverlay() {
