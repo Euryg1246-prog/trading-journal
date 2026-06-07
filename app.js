@@ -104,16 +104,29 @@ function getPanelContent(panel) {
 }
 
 function togglePanel(pid, panel, btn) {
-  const content = getPanelContent(panel);
-  if (!content) return;
+  const isCollapsed = panelStates[pid]?.collapsed;
 
-  const isCollapsed = content.style.display === 'none';
-  content.style.display = isCollapsed ? '' : 'none';
-  btn.innerHTML = isCollapsed ? '−' : '+';
-  btn.title = isCollapsed ? 'Ocultar panel' : 'Mostrar panel';
+  if (isCollapsed) {
+    // Expand
+    panel.style.height = panelStates[pid]?.prevHeight || '';
+    panel.style.overflow = '';
+    btn.innerHTML = '−';
+    btn.title = 'Colapsar panel';
+    if (!panelStates[pid]) panelStates[pid] = {};
+    panelStates[pid].collapsed = false;
+  } else {
+    // Collapse to just header
+    const h2 = panel.querySelector('h2, h3');
+    const headerHeight = h2 ? h2.offsetHeight + 32 : 56;
+    if (!panelStates[pid]) panelStates[pid] = {};
+    panelStates[pid].prevHeight = panel.style.height || '';
+    panelStates[pid].collapsed = true;
+    panel.style.height = headerHeight + 'px';
+    panel.style.overflow = 'hidden';
+    btn.innerHTML = '+';
+    btn.title = 'Expandir panel';
+  }
 
-  if (!panelStates[pid]) panelStates[pid] = {};
-  panelStates[pid].collapsed = !isCollapsed;
   savePanelStates();
 }
 
@@ -125,13 +138,20 @@ function initPanelResize(handle, panel, pid) {
     startY = e.clientY;
     startHeight = panel.offsetHeight;
 
+    // Show visual feedback
+    handle.style.background = 'rgba(56,189,248,0.3)';
+    document.body.style.userSelect = 'none';
+
     const onMove = (e) => {
-      const newHeight = Math.max(80, startHeight + (e.clientY - startY));
+      const newHeight = Math.max(120, startHeight + (e.clientY - startY));
       panel.style.height = newHeight + 'px';
-      panel.style.overflow = 'hidden';
+      panel.style.overflow = 'auto'; // scroll interno, contenido visible
+      panel.style.minHeight = 'unset';
     };
 
     const onUp = () => {
+      handle.style.background = 'transparent';
+      document.body.style.userSelect = '';
       document.removeEventListener('mousemove', onMove);
       document.removeEventListener('mouseup', onUp);
       if (!panelStates[pid]) panelStates[pid] = {};
@@ -151,8 +171,7 @@ function resetPanelLayout() {
   document.querySelectorAll('.panel, .panel-card').forEach(panel => {
     panel.style.height = '';
     panel.style.overflow = '';
-    const content = panel.querySelector('.panel-content-wrapper');
-    if (content) content.style.display = '';
+    panel.style.minHeight = '';
     const btn = panel.querySelector('.panel-toggle-btn');
     if (btn) btn.innerHTML = '−';
   });
