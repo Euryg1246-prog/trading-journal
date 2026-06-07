@@ -1236,3 +1236,70 @@ header { display: none; }
   color: var(--accent);
   border-color: var(--accent);
 }
+
+/* ── MOBILE RESPONSIVE ── */
+@media (max-width: 768px) {
+  /* Grid principal — una columna en mobile */
+  .grid-main {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Nav top bar más compacto */
+  .topbar {
+    padding: 8px 12px;
+    gap: 8px;
+  }
+
+  /* Main scroll sin padding excesivo */
+  #main-scroll {
+    padding: 12px !important;
+  }
+
+  /* Cards de ratios — 2 columnas en mobile */
+  .dashboard {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* Setup grid — 2 columnas */
+  .setup-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* Account grid — 2 columnas */
+  .account-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* Equity controls en columna */
+  .equity-controls {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  /* Source filter row — wrap */
+  #sourceFilterRow {
+    gap: 6px !important;
+  }
+  #sourceFilterRow button {
+    padding: 6px 10px !important;
+    font-size: 11px !important;
+  }
+
+  /* Panel padding reducido */
+  .panel {
+    padding: 16px !important;
+    border-radius: 12px !important;
+  }
+
+  /* Tabla — scroll horizontal */
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  /* Vista por secciones — sidebar ocupa menos */
+  #sidebar {
+    width: 200px !important;
+  }
+}
