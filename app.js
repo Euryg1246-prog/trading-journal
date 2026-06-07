@@ -1,22 +1,4 @@
 
-/* ── Pantalla de carga mientras Supabase trae los datos ── */
-function showLoading() {
-  let el = document.getElementById("dygpro-loading");
-  if (!el) {
-    el = document.createElement("div");
-    el.id = "dygpro-loading";
-    el.style.cssText = "position:fixed;inset:0;z-index:9000;background:var(--bg,#081428);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;";
-    el.innerHTML = '<div style="font-family:Bebas Neue,sans-serif;font-size:32px;letter-spacing:3px;color:#38bdf8">DYGPRO</div><div style="color:#94a3b8;font-size:14px">Cargando tus datos...</div>';
-    document.body.appendChild(el);
-  }
-  el.style.display = "flex";
-}
-
-function hideLoading() {
-  const el = document.getElementById("dygpro-loading");
-  if (el) el.style.display = "none";
-}
-
 
 function toggleMarketsPanel() {
   const panel = document.getElementById("marketsPanelContent");
@@ -589,7 +571,6 @@ const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
 let currentUser = null;
 
 async function initAuth() {
-  showLoading();
   const { data: { session } } = await _supabase.auth.getSession();
   if (session?.user) {
     currentUser = session.user;
@@ -628,7 +609,6 @@ function showApp() {
 }
 
 function showAuthOverlay() {
-  hideLoading();
   document.getElementById("auth-overlay").classList.remove("hidden");
   document.getElementById("user-bar").classList.remove("visible");
 }
@@ -706,7 +686,6 @@ async function loadTradesFromSupabase() {
 
   trades = (data || []).map(dbRowToTrade);
   try { localStorage.setItem("dygpro_trades_cache", JSON.stringify(trades)); } catch(e) {}
-  hideLoading();
   render();
 }
 
