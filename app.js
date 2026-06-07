@@ -918,6 +918,7 @@ function dbRowToTrade(r) {
     points:        Number(r.points),
     pl:            Number(r.pl),
     setup:         r.setup,
+    source:        r.source || "manual",
     ruleFollowed:  r.rule_followed,
     insideWindow:  r.inside_window,
     insidePlan:    r.inside_plan,
