@@ -1099,10 +1099,6 @@ async function submitAuth() {
     ({ data, error } = await _supabase.auth.signUp({ email, password }));
     if (!error && data?.user) {
       currentUser = data.user;
-      // Send welcome email
-      _supabase.functions.invoke('send-welcome-email', {
-        body: { email: data.user.email }
-      }).catch(e => console.log('Welcome email error:', e));
       showApp();
     } else if (!error) {
       errEl.style.color = "#22c55e";
