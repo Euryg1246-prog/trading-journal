@@ -1587,8 +1587,6 @@ document.getElementById("clearData")?.addEventListener("click", function() {
   render();
 });
 
-render();
-
 function renderDisciplineEngine() {
   let score = 100;
 
@@ -1642,8 +1640,6 @@ render = function() {
   renderDisciplineEngine();
 };
 
-render();
-
 function renderPerformanceRatios() {
   const wins = trades.filter(t => t.pl > 0);
   const losses = trades.filter(t => t.pl < 0);
@@ -1677,8 +1673,6 @@ render = function() {
   renderBeforeRatios();
   renderPerformanceRatios();
 };
-
-render();
 
 // Botón borrar todo
 document.getElementById("clearData")?.addEventListener("click", async function() {
@@ -1830,8 +1824,6 @@ render = function() {
   renderSystemScorecard();
 };
 
-render();
-
 function renderAccountSizeEngine() {
   if (!document.getElementById("accountAggressive")) return;
 
@@ -1891,8 +1883,6 @@ render = function() {
   renderBeforeAccountSize();
   renderAccountSizeEngine();
 };
-
-render();
 
 function renderRecoveryAnalytics() {
   if (!document.getElementById("recoveryFactor")) return;
@@ -2024,8 +2014,6 @@ render = function() {
   renderBeforeRecoveryAnalytics();
   renderRecoveryAnalytics();
 };
-
-render();
 
 // personalNotes se carga desde Supabase en loadNotesFromSupabase()
 
@@ -2251,8 +2239,6 @@ render = function() {
   renderSetupQualityScore();
 };
 
-render();
-
 
 function renderSystemDriftMonitor() {
   if (!document.getElementById("driftScore")) return;
@@ -2345,8 +2331,6 @@ render = function() {
   renderBeforeDriftMonitor();
   renderSystemDriftMonitor();
 };
-
-render();
 
 let equityFilterStart = null;
 let equityFilterEnd = null;
