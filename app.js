@@ -13,14 +13,8 @@ function addCustomMarket() {
   customs[name] = pv;
   localStorage.setItem("dygpro_custom_symbols", JSON.stringify(customs));
 
-  // Add to symbol selector
-  const sel = document.getElementById("symbol");
-  if (sel && !sel.querySelector(`option[value="${name}"]`)) {
-    const opt = document.createElement("option");
-    opt.value = name;
-    opt.textContent = `${name} ($${pv}/pt)`;
-    sel.insertBefore(opt, sel.querySelector('option[value="custom"]'));
-  }
+  // Add to all selectors
+  addSymbolToSelectors(name, pv);
 
   // Clear inputs
   if (document.getElementById("newSymbolName")) document.getElementById("newSymbolName").value = "";
@@ -35,10 +29,12 @@ function removeCustomMarket(name) {
   delete customs[name];
   localStorage.setItem("dygpro_custom_symbols", JSON.stringify(customs));
 
-  // Remove from selector
+  // Remove from both selectors
   const sel = document.getElementById("symbol");
-  const opt = sel?.querySelector(`option[value="${name}"]`);
-  if (opt) opt.remove();
+  sel?.querySelector(`option[value="${name}"]`)?.remove();
+  const quick = document.getElementById("quickMarket");
+  quick?.querySelector(`option[value="${name}|Long"]`)?.remove();
+  quick?.querySelector(`option[value="${name}|Short"]`)?.remove();
 
   renderCustomMarkets();
 }
@@ -65,17 +61,32 @@ function renderCustomMarkets() {
 }
 
 // Load custom markets into symbol selector on startup
+function addSymbolToSelectors(name, pv) {
+  // Add to all selectors
+  addSymbolToSelectors(name, pv);
+
+  // Add to quickMarket selector (Long + Short)
+  const quick = document.getElementById("quickMarket");
+  if (quick) {
+    if (!quick.querySelector(`option[value="${name}|Long"]`)) {
+      const optL = document.createElement("option");
+      optL.value = `${name}|Long`;
+      optL.textContent = `${name} Long`;
+      quick.insertBefore(optL, quick.querySelector('option[value="custom|Long"]'));
+    }
+    if (!quick.querySelector(`option[value="${name}|Short"]`)) {
+      const optS = document.createElement("option");
+      optS.value = `${name}|Short`;
+      optS.textContent = `${name} Short`;
+      quick.insertBefore(optS, quick.querySelector('option[value="custom|Short"]'));
+    }
+  }
+}
+
 function loadCustomMarketsIntoSelector() {
   const customs = JSON.parse(localStorage.getItem("dygpro_custom_symbols") || "{}");
-  const sel = document.getElementById("symbol");
-  if (!sel) return;
   Object.entries(customs).forEach(([name, pv]) => {
-    if (!sel.querySelector(`option[value="${name}"]`)) {
-      const opt = document.createElement("option");
-      opt.value = name;
-      opt.textContent = `${name} ($${pv}/pt)`;
-      sel.insertBefore(opt, sel.querySelector('option[value="custom"]'));
-    }
+    addSymbolToSelectors(name, pv);
   });
   renderCustomMarkets();
 }
