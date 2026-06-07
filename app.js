@@ -575,24 +575,35 @@ const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
 let currentUser = null;
 
 async function initAuth() {
+  // Ocultar auth overlay mientras verificamos sesión
+  const overlay = document.getElementById("auth-overlay");
+  if (overlay) overlay.style.display = 'none';
+
+  // Esperar a que Supabase recupere la sesión guardada
   const { data: { session } } = await _supabase.auth.getSession();
+
   if (session?.user) {
     currentUser = session.user;
     showApp();
   } else {
-    showAuthOverlay();
+    // No hay sesión — mostrar login
+    if (overlay) overlay.style.display = 'flex';
   }
 
+  // Escuchar cambios de sesión
   _supabase.auth.onAuthStateChange((event, session) => {
     if (event === "SIGNED_IN" && session?.user) {
       currentUser = session.user;
       showApp();
     }
+    if (event === "TOKEN_REFRESHED" && session?.user) {
+      currentUser = session.user;
+    }
     if (event === "SIGNED_OUT") {
       currentUser = null;
       trades = [];
       personalNotes = {};
-      showAuthOverlay();
+      if (overlay) overlay.style.display = 'flex';
     }
   });
 }
