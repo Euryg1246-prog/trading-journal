@@ -1,5 +1,50 @@
 
 /* ============================================================
+   FILTRO POR PLATAFORMA EN EQUITY CURVE
+   ============================================================ */
+let activeSourceFilters = new Set(['tradingview','webull','tradovate','manual','universal']);
+
+function toggleSourceFilter(source) {
+  if (source === 'all') {
+    // Toggle all
+    const allBtn = document.querySelector('[data-source="all"]');
+    const allActive = activeSourceFilters.size === 5;
+    if (allActive) {
+      activeSourceFilters.clear();
+      document.querySelectorAll('.source-toggle').forEach(b => {
+        b.style.opacity = '0.4';
+      });
+    } else {
+      activeSourceFilters = new Set(['tradingview','webull','tradovate','manual','universal']);
+      document.querySelectorAll('.source-toggle').forEach(b => {
+        b.style.opacity = '1';
+      });
+    }
+  } else {
+    if (activeSourceFilters.has(source)) {
+      activeSourceFilters.delete(source);
+      const btn = document.querySelector(`[data-source="${source}"]`);
+      if (btn) btn.style.opacity = '0.35';
+    } else {
+      activeSourceFilters.add(source);
+      const btn = document.querySelector(`[data-source="${source}"]`);
+      if (btn) btn.style.opacity = '1';
+    }
+  }
+  renderChart();
+  render();
+}
+
+function getSourceFilteredTrades(list) {
+  if (activeSourceFilters.size === 0) return [];
+  return list.filter(t => {
+    const src = (t.source || 'manual').toLowerCase();
+    return activeSourceFilters.has(src);
+  });
+}
+
+
+/* ============================================================
    ORIGEN DEL TRADE — Badge por plataforma
    ============================================================ */
 const SOURCE_CONFIG = {
@@ -1080,9 +1125,11 @@ function getPeakBlock(peakTime) {
 
 function render() {
   // Si hay filtro activo, usar trades filtrados para todo
-  const activeTrades = (equityFilterStart || equityFilterEnd)
-    ? getEquityFilteredTrades()
-    : trades;
+  // Apply source filter + date filter to all renders
+  let activeTrades = getSourceFilteredTrades(trades);
+  if (equityFilterStart || equityFilterEnd) {
+    activeTrades = getEquityFilteredTrades();
+  }
 
   renderHistory(activeTrades);
   renderDashboard(activeTrades);
@@ -2660,6 +2707,9 @@ let equityFilterEnd   = localStorage.getItem("dygpro_filter_end")   || null;
 
 function getEquityFilteredTrades() {
   let list = [...trades];
+
+  // Apply source filter
+  list = getSourceFilteredTrades(list);
 
   if (equityFilterStart) {
     list = list.filter(t => t.date >= equityFilterStart);

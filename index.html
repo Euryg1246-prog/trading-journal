@@ -181,6 +181,31 @@
         <button type="button" class="tool-btn danger-btn" id="resetEquityFilter">Reset</button>
       </div>
 
+      <!-- Filtro por plataforma -->
+      <div id="sourceFilterRow" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center">
+        <span style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px">Plataformas:</span>
+        <button class="source-toggle active" data-source="all" onclick="toggleSourceFilter('all')"
+          style="background:rgba(56,189,248,0.15);border:1px solid rgba(56,189,248,0.4);color:#38bdf8">
+          Todas
+        </button>
+        <button class="source-toggle active" data-source="tradingview" onclick="toggleSourceFilter('tradingview')"
+          style="background:rgba(52,211,153,0.15);border:1px solid rgba(52,211,153,0.4);color:#34d399">
+          TradingView
+        </button>
+        <button class="source-toggle active" data-source="webull" onclick="toggleSourceFilter('webull')"
+          style="background:rgba(251,146,60,0.15);border:1px solid rgba(251,146,60,0.4);color:#fb923c">
+          Webull
+        </button>
+        <button class="source-toggle active" data-source="tradovate" onclick="toggleSourceFilter('tradovate')"
+          style="background:rgba(167,139,250,0.15);border:1px solid rgba(167,139,250,0.4);color:#a78bfa">
+          Tradovate
+        </button>
+        <button class="source-toggle active" data-source="manual" onclick="toggleSourceFilter('manual')"
+          style="background:rgba(56,189,248,0.15);border:1px solid rgba(56,189,248,0.4);color:#38bdf8">
+          Manual
+        </button>
+      </div>
+
       
 <canvas id="equityChart"></canvas>
 
