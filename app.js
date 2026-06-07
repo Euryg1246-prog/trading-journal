@@ -1131,14 +1131,17 @@ form.addEventListener("submit", async function(e) {
   if (!checkTradeLimit()) return;
 
   const date      = val("date");
-  const time      = val("time");
-  const symbol    = getSelectedSymbol() || val("symbol");
-  const direction = val("direction");
-  const entry     = num("entry");
-  const exit      = num("exit");
-  const contracts = num("contracts");
-  const setup     = val("setup");
-  const ruleFollowed   = val("ruleFollowed");
+  const time      = val("time") || "09:30";
+  const symbol    = getSelectedSymbol() || val("symbol") || "CUSTOM";
+  const direction = val("direction") || "Long";
+  const entry     = num("entry") || 0;
+  const exit      = num("exit") || 0;
+  const contracts = num("contracts") || 1;
+  const setup     = val("setup") || "Sin setup";
+  const ruleFollowed   = val("ruleFollowed") || "yes";
+
+  // Solo la fecha es obligatoria
+  if (!date) { alert("La fecha es el único campo obligatorio."); return; }
   const mistake        = val("mistake");
   const notes          = val("notes");
   const emotionalState = val("emotionalState");

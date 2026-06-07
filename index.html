@@ -645,7 +645,7 @@
 
       <label>
         Hora de Entrada
-        <input type="time" id="time" required>
+        <input type="time" id="time">
         <small>Hora exacta donde entraste al trade.</small>
       </label>
 
@@ -667,7 +667,7 @@
 
       <label>
         Símbolo
-        <select id="symbol" required onchange="handleSymbolChange(this)">
+        <select id="symbol" onchange="handleSymbolChange(this)">
           <option value="">Seleccionar símbolo</option>
           <option value="MNQ">MNQ — Micro Nasdaq ($2/pt)</option>
           <option value="NQ">NQ — Nasdaq ($20/pt)</option>
@@ -691,7 +691,7 @@
 
       <label>
         Dirección
-        <select id="direction" required>
+        <select id="direction">
           <option value="">Seleccionar dirección</option>
           <option value="Long">Long</option>
           <option value="Short">Short</option>
@@ -729,7 +729,7 @@
 
       <label>
         Setup
-        <select id="setup" required>
+        <select id="setup">
           <option value="">Seleccionar setup</option>
           <option value="Mi Setup">Mi Setup</option>
           <option value="Trend Continuation">Trend Continuation</option>
@@ -741,7 +741,7 @@
 
       <label>
         ¿Cumplió las Reglas?
-        <select id="ruleFollowed" required>
+        <select id="ruleFollowed">
           <option value="">Seleccionar</option>
           <option value="yes">Sí, dentro del plan</option>
           <option value="no">No, fuera del plan</option>
