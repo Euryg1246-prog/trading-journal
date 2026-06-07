@@ -1,5 +1,50 @@
 
 /* ============================================================
+   AUTO-RECÁLCULO DE P/L
+   Detecta trades con PL=0 que tienen entry+exit y los corrige
+   ============================================================ */
+async function autoRecalcPL() {
+  if (!currentUser || !trades.length) return;
+
+  const toFix = trades.filter(t => 
+    (t.pl === 0 || t.pl === null || t.pl === undefined) &&
+    t.entry > 0 && t.exit > 0 && t.symbol
+  );
+
+  if (!toFix.length) return;
+
+  console.log(`Auto-recalculando P/L para ${toFix.length} trades...`);
+
+  const updates = toFix.map(async t => {
+    const pv     = getPointValue(t.symbol);
+    const points = t.direction === 'Short' ? t.entry - t.exit : t.exit - t.entry;
+    const pl     = points * pv * (t.contracts || 1);
+
+    // Update local
+    t.points = points;
+    t.pl     = pl;
+
+    // Update in Supabase
+    if (t._id) {
+      await _supabase
+        .from('trades')
+        .update({ pl, points })
+        .eq('id', t._id)
+        .eq('user_id', currentUser.id);
+    }
+  });
+
+  await Promise.all(updates);
+
+  if (toFix.length > 0) {
+    showToast(`✅ ${toFix.length} trade${toFix.length > 1 ? 's' : ''} recalculado${toFix.length > 1 ? 's' : ''}`, 
+      'El sistema detectó y corrigió trades con P/L pendiente.');
+    render();
+  }
+}
+
+
+/* ============================================================
    DETECCIÓN AUTOMÁTICA DE SÍMBOLO POR PRECIO
    ============================================================ */
 // Pairs: [micro, full, label]
@@ -1098,6 +1143,8 @@ async function loadTradesFromSupabase() {
   restoreEquityFilter();
   buildSourceFilters();
   render();
+  // Auto-fix trades with missing PL
+  setTimeout(autoRecalcPL, 500);
 }
 
 async function loadNotesFromSupabase() {
