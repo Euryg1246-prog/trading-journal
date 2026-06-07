@@ -588,6 +588,7 @@ async function initAuth() {
       trades = [];
       personalNotes = {};
       localStorage.removeItem("dygpro_trades_cache");
+      localStorage.removeItem("dygpro_trades_cache");
       showAuthOverlay();
     }
   });
@@ -806,6 +807,11 @@ const form  = document.getElementById("tradeForm");
 const table = document.getElementById("tradeTable");
 
 let trades = [];
+// Cargar cache local mientras Supabase trae los datos reales
+try {
+  const _cache = localStorage.getItem("dygpro_trades_cache");
+  if (_cache) trades = JSON.parse(_cache);
+} catch(e) {}
 // Cache local temporal — se sobreescribe cuando llegan datos de Supabase
 try {
   const cached = localStorage.getItem("dygpro_trades_cache");
