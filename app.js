@@ -2241,27 +2241,27 @@ function renderSetupQualityScore() {
 
         <div class="setup-metric">
           <span>Score</span>
-          <strong>${s.score.toFixed(1)}/10</strong>
+          <strong style="color:${s.score >= 7 ? 'var(--green)' : s.score >= 5 ? 'var(--gold)' : 'var(--red)'}">${s.score.toFixed(1)}/10</strong>
         </div>
 
         <div class="setup-metric">
           <span>Trades</span>
-          <strong>${s.trades}</strong>
+          <strong style="color:var(--accent)">${s.trades}</strong>
         </div>
 
         <div class="setup-metric">
           <span>Win Rate</span>
-          <strong>${s.winRate.toFixed(1)}%</strong>
+          <strong style="color:${s.winRate >= 55 ? 'var(--green)' : s.winRate >= 45 ? 'var(--gold)' : 'var(--red)'}">${s.winRate.toFixed(1)}%</strong>
         </div>
 
         <div class="setup-metric">
-          <span>PF</span>
-          <strong>${s.pf === 999 ? '∞' : s.pf.toFixed(2)}</strong>
+          <span>Profit Factor</span>
+          <strong style="color:${s.pf >= 1.5 ? 'var(--green)' : s.pf >= 1 ? 'var(--gold)' : 'var(--red)'}">${s.pf === 999 ? '∞' : s.pf.toFixed(2)}</strong>
         </div>
 
         <div class="setup-metric">
           <span>Contribución</span>
-          <strong>${totalPL !== 0 ? ((s.net/totalPL)*100).toFixed(1) : 0}%</strong>
+          <strong style="color:var(--text)">${totalPL !== 0 ? ((s.net/totalPL)*100).toFixed(1) : 0}%</strong>
         </div>
 
       </div>
