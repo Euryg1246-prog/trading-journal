@@ -1407,85 +1407,79 @@ function importGenericRows(rows) {
 function importWebullRows(rows) {
   let imported = 0, skipped = 0;
 
-  // Solo órdenes ejecutadas (Filled)
-  const filled = rows.filter(r => (r.status || r.Status || '').toLowerCase() === 'filled');
+  // rows already have normalized keys (lowercase, no spaces)
+  // placedtime, filledtime, symbol, side, status, avgprice, price, filled
 
-  // Limpiar precio (quitar @ y espacios)
   function cleanPrice(val) {
     if (!val) return 0;
     return parseFloat(String(val).replace('@','').trim()) || 0;
   }
 
-  // Extraer símbolo base (MYMM6 → MYM, MNQM6 → MNQ, ESM6 → ES)
   function extractSymbol(raw) {
-    if (!raw) return 'CUSTOM';
-    const s = String(raw).toUpperCase().trim();
-    // Remove contract month/year suffix (last 2-3 chars that are letters+numbers)
-    const base = s.replace(/[A-Z]\d{1,2}$/, '').replace(/M\d{1,2}$/, '');
-    // Known mappings
-    const map = { MYM:'MYM', MNQ:'MNQ', MES:'MES', MGC:'MGC', MCL:'MCL',
-                  NQ:'NQ', ES:'ES', YM:'YM', GC:'GC', CL:'CL' };
-    return map[base] || base || s;
+    const s = String(raw || '').toUpperCase().trim();
+    // Remove futures contract suffix: letter + 1-2 digits at end (e.g. M6, H26)
+    const base = s.replace(/[FGHJKMNQUVXZ]\d{1,2}$/, '');
+    return base || s;
   }
 
-  // Group by date+symbol to pair buy/sell orders
-  // Strategy: match chronologically — first buy then sell = Long, first sell then buy = Short
+  function parseWebullDate(dateStr) {
+    // "06/03/2026 10:16:53 EDT" → { date: "2026-06-03", time: "10:16" }
+    if (!dateStr) return { date: '', time: '09:30' };
+    const clean = dateStr.replace(' EDT','').replace(' EST','').trim();
+    const parts = clean.split(' ');
+    const dateParts = (parts[0] || '').split('/');
+    if (dateParts.length < 3) return { date: '', time: '09:30' };
+    const date = `${dateParts[2]}-${dateParts[0].padStart(2,'0')}-${dateParts[1].padStart(2,'0')}`;
+    const time = (parts[1] || '09:30').slice(0,5);
+    return { date, time };
+  }
+
+  // Only filled orders
+  const filled = rows.filter(r => (r.status || '').toLowerCase() === 'filled');
+
+  // Group by date + symbol
   const grouped = {};
   filled.forEach(r => {
-    const sym = extractSymbol(r.Symbol || r.symbol || '');
-    const dateRaw = r['Placed Time'] || r['placed time'] || r['PlacedTime'] || '';
-    const dateParts = dateRaw.split(' ');
-    const dateStr = dateParts[0] || ''; // MM/DD/YYYY
-    const key = `${sym}_${dateStr}`;
+    const sym = extractSymbol(r.symbol || '');
+    const { date } = parseWebullDate(r.placedtime || r.filledtime || '');
+    const key = sym + '_' + date;
     if (!grouped[key]) grouped[key] = [];
-    grouped[key].push({ ...r, _sym: sym, _date: dateStr });
+    grouped[key].push({ ...r, _sym: sym });
   });
 
   Object.values(grouped).forEach(orders => {
-    // Sort by placed time
-    orders.sort((a, b) => {
-      const ta = new Date((a['Placed Time'] || '').replace(' EDT','').replace(' EST',''));
-      const tb = new Date((b['Placed Time'] || '').replace(' EDT','').replace(' EST',''));
-      return ta - tb;
-    });
+    // Sort by placed time ascending
+    orders.sort((a, b) => (a.placedtime || '').localeCompare(b.placedtime || ''));
 
-    // Pair buys and sells
-    const buys  = orders.filter(o => (o.Side || o.side || '').toLowerCase() === 'buy');
-    const sells = orders.filter(o => (o.Side || o.side || '').toLowerCase() === 'sell');
-
+    const buys  = orders.filter(o => (o.side || '').toLowerCase() === 'buy');
+    const sells = orders.filter(o => (o.side || '').toLowerCase() === 'sell');
     const pairs = Math.min(buys.length, sells.length);
 
     for (let i = 0; i < pairs; i++) {
       const buy  = buys[i];
       const sell = sells[i];
 
-      const buyPrice  = cleanPrice(buy['Avg Price']  || buy['Price']);
-      const sellPrice = cleanPrice(sell['Avg Price'] || sell['Price']);
-      const contracts = parseInt(buy['Filled'] || buy.filled || 1);
+      const buyPrice  = cleanPrice(buy.avgprice  || buy.price);
+      const sellPrice = cleanPrice(sell.avgprice || sell.price);
+      const contracts = parseInt(buy.filled || buy.totalqty || 1) || 1;
       const sym = buy._sym;
 
-      // Determine direction based on which came first
-      const buyTime  = new Date((buy['Placed Time']  || '').replace(' EDT','').replace(' EST',''));
-      const sellTime = new Date((sell['Placed Time'] || '').replace(' EDT','').replace(' EST',''));
-      const direction = buyTime <= sellTime ? 'Long' : 'Short';
+      // Direction based on which was placed first
+      const buyFirst = (buy.placedtime || '') <= (sell.placedtime || '');
+      const direction = buyFirst ? 'Long' : 'Short';
 
-      const entry = direction === 'Long' ? buyPrice  : sellPrice;
-      const exit  = direction === 'Long' ? sellPrice : buyPrice;
+      const entry  = direction === 'Long' ? buyPrice  : sellPrice;
+      const exit   = direction === 'Long' ? sellPrice : buyPrice;
       const points = direction === 'Long' ? exit - entry : entry - exit;
-      const pv = getPointValue(sym);
-      const pl = points * pv * contracts;
+      const pv     = getPointValue(sym);
+      const pl     = points * pv * contracts;
 
-      // Parse date and time
       const entryOrder = direction === 'Long' ? buy : sell;
-      const dateRaw = entryOrder['Placed Time'] || entryOrder['Filled Time'] || '';
-      const parts   = dateRaw.replace(' EDT','').replace(' EST','').split(' ');
-      const [month, day, year] = (parts[0] || '').split('/');
-      const date = year && month ? `${year}-${month.padStart(2,'0')}-${day.padStart(2,'0')}` : '';
-      const time = parts[1] ? parts[1].slice(0,5) : '09:30';
+      const { date, time } = parseWebullDate(entryOrder.placedtime || entryOrder.filledtime || '');
 
-      if (!date || !entry || !exit) { skipped++; continue; }
+      if (!date || (!buyPrice && !sellPrice)) { skipped++; continue; }
 
-      const d = new Date(`${date}T${time}`);
+      const d       = new Date(`${date}T${time}`);
       const dayName = dayNames[d.getDay()];
       const insideWindow = isInsidePlanWindow(date, time);
 
@@ -1494,9 +1488,8 @@ function importWebullRows(rows) {
         entry, exit, contracts, points, pl,
         setup: 'Webull Import',
         ruleFollowed: 'yes',
-        insideWindow,
-        insidePlan: insideWindow,
-        mistake: '', notes: `Importado desde Webull. Buy: ${buyPrice} / Sell: ${sellPrice}`,
+        insideWindow, insidePlan: insideWindow,
+        mistake: '', notes: `Webull: ${sym} ${direction} — Entry: ${entry} / Exit: ${exit}`,
         emotionalState: '', lessonLearned: '',
         sessionOpen: null, sessionLow: null, sessionHigh: null,
         peakTime: '', peakBlock: '-',
