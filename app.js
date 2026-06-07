@@ -3455,3 +3455,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   renderGallery();
 });
+
+// Iniciar autenticación
+initAuth();
