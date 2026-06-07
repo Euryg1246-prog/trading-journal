@@ -1,5 +1,66 @@
 
 /* ============================================================
+   PANEL COLLAPSE — Solo ocultar/mostrar contenido
+   ============================================================ */
+function initPanelCollapse() {
+  document.querySelectorAll('.panel').forEach(panel => {
+    if (panel.dataset.collapseInit) return;
+    panel.dataset.collapseInit = "1";
+
+    const h2 = panel.querySelector('h2');
+    if (!h2) return;
+
+    // Create toggle button
+    const btn = document.createElement('button');
+    btn.innerHTML = '−';
+    btn.title = 'Ocultar / mostrar';
+    btn.style.cssText = 'background:none;border:1px solid rgba(96,165,250,0.3);color:var(--text2);border-radius:6px;width:22px;height:22px;cursor:pointer;font-size:13px;line-height:1;margin-left:auto;flex-shrink:0;font-family:monospace;';
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      const pid = panel.dataset.panelId;
+      const isHidden = panel.dataset.collapsed === '1';
+      // Toggle all children except h2
+      Array.from(panel.children).forEach(child => {
+        if (child !== h2) child.style.display = isHidden ? '' : 'none';
+      });
+      panel.dataset.collapsed = isHidden ? '0' : '1';
+      btn.innerHTML = isHidden ? '−' : '+';
+      // Save state
+      try {
+        const states = JSON.parse(localStorage.getItem('dygpro_collapsed') || '{}');
+        states[pid] = !isHidden;
+        localStorage.setItem('dygpro_collapsed', JSON.stringify(states));
+      } catch(e) {}
+    };
+
+    // Make h2 flex
+    h2.style.cssText += ';display:flex;align-items:center;';
+    h2.appendChild(btn);
+
+    // Assign panel ID
+    const pid = 'panel_' + Math.random().toString(36).slice(2,7);
+    panel.dataset.panelId = pid;
+
+    // Restore saved state
+    try {
+      const states = JSON.parse(localStorage.getItem('dygpro_collapsed') || '{}');
+      if (states[pid]) {
+        Array.from(panel.children).forEach(child => {
+          if (child !== h2) child.style.display = 'none';
+        });
+        panel.dataset.collapsed = '1';
+        btn.innerHTML = '+';
+      }
+    } catch(e) {}
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(initPanelCollapse, 600);
+});
+
+
+/* ============================================================
    FILTRO POR PLATAFORMA EN EQUITY CURVE
    ============================================================ */
 let activeSourceFilters = new Set(); // se llena dinámicamente con los sources reales
