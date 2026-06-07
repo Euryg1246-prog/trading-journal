@@ -1,5 +1,45 @@
 
 /* ============================================================
+   DETECCIÓN AUTOMÁTICA DE SÍMBOLO POR PRECIO
+   ============================================================ */
+function detectSymbolByPrice(price) {
+  if (!price || price <= 0) return null;
+
+  // Rangos aproximados de precios por instrumento
+  if (price >= 18000 && price <= 25000) return 'MNQ'; // Micro Nasdaq
+  if (price >= 18000 && price <= 25000) return 'NQ';  // Nasdaq (mismo rango, MNQ más común)
+  if (price >= 28000 && price <= 45000) return 'MYM'; // Micro Dow
+  if (price >= 28000 && price <= 45000) return 'YM';  // Dow Jones
+  if (price >= 4500  && price <= 6500)  return 'MES'; // Micro S&P
+  if (price >= 4500  && price <= 6500)  return 'ES';  // S&P 500
+  if (price >= 1800  && price <= 3000)  return 'GC';  // Gold
+  if (price >= 180   && price <= 300)   return 'MGC'; // Micro Gold
+  if (price >= 60    && price <= 120)   return 'CL';  // Crude Oil
+  if (price >= 25000 && price <= 110000) return 'BTC'; // Bitcoin
+
+  return null;
+}
+
+function autoDetectSymbol() {
+  const entryEl = document.getElementById("entry");
+  const symbolEl = document.getElementById("symbol");
+  if (!entryEl || !symbolEl) return;
+
+  const price = parseFloat(entryEl.value);
+  if (!price) return;
+
+  // Only auto-detect if symbol is not already selected
+  if (symbolEl.value && symbolEl.value !== '') return;
+
+  const detected = detectSymbolByPrice(price);
+  if (detected && symbolEl.querySelector(`option[value="${detected}"]`)) {
+    symbolEl.value = detected;
+    showToast('🎯 Símbolo detectado', `Se detectó ${detected} basado en el precio ${price.toLocaleString()}`);
+  }
+}
+
+
+/* ============================================================
    PANEL COLLAPSE — Solo ocultar/mostrar contenido
    ============================================================ */
 function initPanelCollapse() {
@@ -69,8 +109,18 @@ function buildSourceFilters() {
   // Get all unique sources from current trades
   const sources = [...new Set(trades.map(t => (t.source || 'manual').toLowerCase()))];
 
-  // Add all to active filters
-  sources.forEach(s => activeSourceFilters.add(s));
+  // Restore saved filters or activate all
+  try {
+    const saved = localStorage.getItem("dygpro_source_filters");
+    if (saved) {
+      const savedFilters = JSON.parse(saved);
+      activeSourceFilters = new Set(savedFilters);
+    } else {
+      sources.forEach(s => activeSourceFilters.add(s));
+    }
+  } catch(e) {
+    sources.forEach(s => activeSourceFilters.add(s));
+  }
 
   // Build filter buttons dynamically
   const row = document.getElementById("sourceFilterRow");
@@ -118,6 +168,9 @@ function toggleSourceFilter(source) {
       activeSourceFilters.add(source);
     }
   }
+
+  // Save active filters to localStorage
+  try { localStorage.setItem("dygpro_source_filters", JSON.stringify([...activeSourceFilters])); } catch(e) {}
 
   // Update button visual state
   document.querySelectorAll('.source-toggle').forEach(btn => {
@@ -970,6 +1023,8 @@ async function loadTradesFromSupabase() {
 
   trades = (data || []).map(dbRowToTrade);
   try { localStorage.setItem("dygpro_trades_cache", JSON.stringify(trades)); } catch(e) {}
+  // Restore filters after reload
+  restoreEquityFilter();
   buildSourceFilters();
   render();
 }
@@ -1118,11 +1173,15 @@ const pointValue = {
 };
 
 function getPointValue(symbol) {
-  if (pointValue[symbol]) return pointValue[symbol];
-  // Check custom symbols saved by user
-  const customs = JSON.parse(localStorage.getItem("dygpro_custom_symbols") || "{}");
-  if (customs[symbol]) return customs[symbol];
-  return 1; // default 1:1
+  if (!symbol) return 1;
+  const s = String(symbol).toUpperCase().trim();
+  if (pointValue[s]) return pointValue[s];
+  // Check custom symbols
+  try {
+    const customs = JSON.parse(localStorage.getItem("dygpro_custom_symbols") || "{}");
+    if (customs[s]) return customs[s];
+  } catch(e) {}
+  return 1;
 }
 const dayNames = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 
