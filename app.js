@@ -560,7 +560,9 @@ function showPage(pageId) {
 const SUPABASE_URL = "https://mcqrhjahbbcfyqujirmd.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jcXJoamFoYmJjZnlxdWppcm1kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3NDY5NzcsImV4cCI6MjA5NjMyMjk3N30.JCBC1HOFU-6LvBhw9ipoYKI4zzdKOU-t-iu4rNwzkCE";
 
-const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: { persistSession: true, autoRefreshToken: true, storage: window.localStorage }
+});
 
 /* ============================================================
    AUTH — Estado global y UI
@@ -1562,8 +1564,6 @@ document.getElementById("clearData")?.addEventListener("click", function() {
   render();
 });
 
-render();
-
 function renderDisciplineEngine() {
   let score = 100;
 
@@ -1617,8 +1617,6 @@ render = function() {
   renderDisciplineEngine();
 };
 
-render();
-
 function renderPerformanceRatios() {
   const wins = trades.filter(t => t.pl > 0);
   const losses = trades.filter(t => t.pl < 0);
@@ -1652,8 +1650,6 @@ render = function() {
   renderBeforeRatios();
   renderPerformanceRatios();
 };
-
-render();
 
 // Botón borrar todo
 document.getElementById("clearData")?.addEventListener("click", async function() {
@@ -1805,8 +1801,6 @@ render = function() {
   renderSystemScorecard();
 };
 
-render();
-
 function renderAccountSizeEngine() {
   if (!document.getElementById("accountAggressive")) return;
 
@@ -1866,8 +1860,6 @@ render = function() {
   renderBeforeAccountSize();
   renderAccountSizeEngine();
 };
-
-render();
 
 function renderRecoveryAnalytics() {
   if (!document.getElementById("recoveryFactor")) return;
@@ -1999,8 +1991,6 @@ render = function() {
   renderBeforeRecoveryAnalytics();
   renderRecoveryAnalytics();
 };
-
-render();
 
 // personalNotes se carga desde Supabase en loadNotesFromSupabase()
 
@@ -2226,8 +2216,6 @@ render = function() {
   renderSetupQualityScore();
 };
 
-render();
-
 
 function renderSystemDriftMonitor() {
   if (!document.getElementById("driftScore")) return;
@@ -2320,8 +2308,6 @@ render = function() {
   renderBeforeDriftMonitor();
   renderSystemDriftMonitor();
 };
-
-render();
 
 let equityFilterStart = null;
 let equityFilterEnd = null;
