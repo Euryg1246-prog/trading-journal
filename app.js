@@ -1142,6 +1142,8 @@ async function loadTradesFromSupabase() {
   render();
   // Auto-fix trades with missing PL
   setTimeout(autoRecalcPL, 500);
+  // Check onboarding for new users
+  setTimeout(checkOnboarding, 1000);
 }
 
 async function loadNotesFromSupabase() {
@@ -4161,3 +4163,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Iniciar autenticación
 initAuth();
+
+
+/* ============================================================
+   ONBOARDING — Primera vez del usuario
+   ============================================================ */
+function checkOnboarding() {
+  if (localStorage.getItem("dygpro_onboarding_done")) return;
+  if (!currentUser) return;
+  if (trades.length > 0) {
+    localStorage.setItem("dygpro_onboarding_done", "1");
+    return;
+  }
+  const overlay = document.getElementById("onboardingOverlay");
+  if (overlay) overlay.style.display = "flex";
+}
+
+function onboardingAction(action) {
+  const overlay = document.getElementById("onboardingOverlay");
+  if (overlay) overlay.style.display = "none";
+  localStorage.setItem("dygpro_onboarding_done", "1");
+
+  if (action === "import") {
+    document.getElementById("section-data")?.scrollIntoView({ behavior: "smooth" });
+    showToast("📥 Importar trades", "Selecciona tu archivo CSV.");
+  } else if (action === "manual") {
+    document.getElementById("section-entry")?.scrollIntoView({ behavior: "smooth" });
+    showToast("✏️ Registrar trade", "Llena el formulario con tu operación.");
+  } else {
+    showToast("👀 Explorando", "Cuando estés listo, importa o registra tus trades.");
+  }
+}
