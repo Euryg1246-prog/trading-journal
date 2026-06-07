@@ -1286,10 +1286,12 @@ function renderPLCalendar(activeTrades) {
 
   calendar.innerHTML = "";
 
+  // Group by date — track PL and sources per day
   const byDate = {};
   trades.forEach(t => {
-    if (!byDate[t.date]) byDate[t.date] = 0;
-    byDate[t.date] += t.pl;
+    if (!byDate[t.date]) byDate[t.date] = { pl: 0, sources: new Set() };
+    byDate[t.date].pl += t.pl;
+    byDate[t.date].sources.add(t.source || "manual");
   });
 
   const dates = Object.keys(byDate).sort();
@@ -1300,12 +1302,16 @@ function renderPLCalendar(activeTrades) {
   }
 
   dates.forEach(date => {
-    const pl = byDate[date];
+    const { pl, sources } = byDate[date];
     const cls = pl > 0 ? "cal-win" : pl < 0 ? "cal-loss" : "cal-flat";
+
+    // Build source badges for this day
+    const sourceBadges = [...sources].map(s => getSourceBadge(s)).join(" ");
 
     calendar.innerHTML += `
       <div class="cal-day ${cls}">
         <div class="cal-date">${date}</div>
+        <div style="margin:4px 0">${sourceBadges}</div>
         <div class="cal-pl">${money(pl)}</div>
       </div>
     `;
