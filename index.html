@@ -889,13 +889,18 @@
 
   <!-- Modal imagen -->
   <div id="imageModal" class="hidden" style="position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.85);align-items:center;justify-content:center;">
-    <div style="background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:24px;max-width:700px;width:95%;position:relative;">
-      <button onclick="closeImageModal()" style="position:absolute;top:14px;right:16px;background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;width:auto;grid-column:auto;">✕</button>
-      <img id="modalImg" src="" alt="" style="width:100%;border-radius:12px;max-height:400px;object-fit:contain;background:var(--bg)">
-      <div style="margin-top:14px">
-        <textarea id="modalNote" placeholder="Nota de esta captura..." rows="3" style="width:100%;margin-bottom:10px"></textarea>
-        <div style="display:flex;gap:10px">
-          <button class="tool-btn" onclick="saveImageNote()">Guardar nota</button>
+    <div style="background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:20px;max-width:92vw;width:92vw;position:relative;">
+      <button onclick="closeImageModal()" style="position:absolute;top:12px;right:14px;background:rgba(0,0,0,0.4);border:1px solid var(--border2);color:var(--text);font-size:18px;cursor:pointer;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;z-index:10;grid-column:auto;">✕</button>
+      <div style="overflow:hidden;border-radius:12px;background:var(--bg);margin-bottom:14px;cursor:zoom-in" id="imgZoomWrapper">
+        <img id="modalImg" src="" alt=""
+          style="width:100%;max-height:75vh;object-fit:contain;display:block;transition:transform .2s;transform-origin:center center;"
+          onwheel="zoomModalImg(event)"
+          onclick="toggleImgZoom(this)">
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <textarea id="modalNote" placeholder="Nota de esta captura..." rows="2" style="flex:1;margin:0"></textarea>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <button class="tool-btn" onclick="saveImageNote()">Guardar</button>
           <button class="tool-btn danger-btn" onclick="deleteImage()">Eliminar</button>
         </div>
       </div>

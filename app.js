@@ -1,4 +1,30 @@
 
+/* ── Zoom en imagen del modal ── */
+let _imgZoomLevel = 1;
+
+function zoomModalImg(e) {
+  e.preventDefault();
+  const img = document.getElementById("modalImg");
+  if (!img) return;
+  _imgZoomLevel += e.deltaY < 0 ? 0.15 : -0.15;
+  _imgZoomLevel = Math.min(Math.max(_imgZoomLevel, 1), 4);
+  img.style.transform = `scale(${_imgZoomLevel})`;
+  img.style.cursor = _imgZoomLevel > 1 ? "zoom-out" : "zoom-in";
+}
+
+function toggleImgZoom(img) {
+  if (_imgZoomLevel > 1) {
+    _imgZoomLevel = 1;
+    img.style.transform = "scale(1)";
+    img.style.cursor = "zoom-in";
+  } else {
+    _imgZoomLevel = 2;
+    img.style.transform = "scale(2)";
+    img.style.cursor = "zoom-out";
+  }
+}
+
+
 /* ============================================================
    TIPO DE INSTRUMENTO
    ============================================================ */
@@ -3681,11 +3707,14 @@ function renderGallery() {
 function openImageModal(index) {
   currentImageIndex = index;
   const img = tradeImages[index];
-  document.getElementById('modalImg').src = img.data;
+  const modalImg = document.getElementById('modalImg');
+  modalImg.src = img.data;
+  modalImg.style.transform = "scale(1)";
+  modalImg.style.cursor = "zoom-in";
+  _imgZoomLevel = 1;
   document.getElementById('modalNote').value = img.note || '';
   const modal = document.getElementById('imageModal');
   modal.classList.remove('hidden');
-  // Close on backdrop click
   modal.onclick = (e) => { if (e.target === modal) closeImageModal(); };
 }
 
