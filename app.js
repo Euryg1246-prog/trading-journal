@@ -2,23 +2,14 @@
 /* ============================================================
    DETECCIÓN AUTOMÁTICA DE SÍMBOLO POR PRECIO
    ============================================================ */
-function detectSymbolByPrice(price) {
-  if (!price || price <= 0) return null;
-
-  // Rangos reales de precios por instrumento (2025-2026)
-  if (price >= 25000 && price <= 40000) return 'MNQ'; // Micro Nasdaq ~21,000
-  if (price >= 25000 && price <= 40000) return 'NQ';  // Nasdaq full
-  if (price >= 40000 && price <= 60000) return 'MYM'; // Micro Dow ~42,000-45,000
-  if (price >= 40000 && price <= 60000) return 'YM';  // Dow Jones full
-  if (price >= 5000  && price <= 7000)  return 'MES'; // Micro S&P ~5,500-6,000
-  if (price >= 5000  && price <= 7000)  return 'ES';  // S&P 500 full
-  if (price >= 2500  && price <= 3500)  return 'GC';  // Gold ~3,000
-  if (price >= 250   && price <= 350)   return 'MGC'; // Micro Gold
-  if (price >= 60    && price <= 100)   return 'CL';  // Crude Oil
-  if (price >= 80000 && price <= 120000) return 'BTC'; // Bitcoin
-
-  return null;
-}
+// Pairs: [micro, full, label]
+const SYMBOL_PAIRS = [
+  ['MNQ', 'NQ',  'Nasdaq',  25000, 40000],
+  ['MYM', 'YM',  'Dow',     40000, 60000],
+  ['MES', 'ES',  'S&P 500', 5000,  7000 ],
+  ['MGC', 'GC',  'Gold',    250,   3500 ],
+  ['MCL', 'CL',  'Crude',   60,    100  ],
+];
 
 function autoDetectSymbol() {
   const entryEl = document.getElementById("entry");
@@ -31,11 +22,54 @@ function autoDetectSymbol() {
   // Only auto-detect if symbol is not already selected
   if (symbolEl.value && symbolEl.value !== '') return;
 
-  const detected = detectSymbolByPrice(price);
-  if (detected && symbolEl.querySelector(`option[value="${detected}"]`)) {
-    symbolEl.value = detected;
-    showToast('🎯 Símbolo detectado', `Se detectó ${detected} basado en el precio ${price.toLocaleString()}`);
+  // Find matching pair
+  const pair = SYMBOL_PAIRS.find(p => price >= p[3] && price <= p[4]);
+  if (!pair) return;
+
+  const [micro, full, label] = pair;
+
+  // Remove any existing symbol picker
+  const existingPicker = document.getElementById("symbolPicker");
+  if (existingPicker) existingPicker.remove();
+
+  // Point values for display
+  const pvMicro = { MNQ: 2, MYM: 0.5, MES: 5, MGC: 10, MCL: 100 }[micro] || 1;
+  const pvFull  = { NQ: 20, YM: 5, ES: 50, GC: 100, CL: 1000 }[full] || 1;
+
+  // Create inline picker below the entry field
+  const picker = document.createElement('div');
+  picker.id = 'symbolPicker';
+  picker.style.cssText = `
+    display:flex; gap:10px; margin-top:8px; flex-wrap:wrap; align-items:center;
+  `;
+  picker.innerHTML = `
+    <span style="font-size:12px;color:var(--text2)">Selecciona el instrumento:</span>
+    <button type="button" onclick="pickSymbol('${micro}')" style="
+      background:rgba(56,189,248,0.15);border:1.5px solid #38bdf8;color:#38bdf8;
+      padding:6px 14px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700;
+      font-family:DM Sans,sans-serif;">
+      ${micro} <span style="font-size:10px;opacity:.7">$${pvMicro}/pt</span>
+    </button>
+    <button type="button" onclick="pickSymbol('${full}')" style="
+      background:rgba(167,139,250,0.15);border:1.5px solid #a78bfa;color:#a78bfa;
+      padding:6px 14px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700;
+      font-family:DM Sans,sans-serif;">
+      ${full} <span style="font-size:10px;opacity:.7">$${pvFull}/pt</span>
+    </button>
+  `;
+
+  entryEl.closest('label').appendChild(picker);
+}
+
+function pickSymbol(sym) {
+  const symbolEl = document.getElementById("symbol");
+  if (symbolEl && symbolEl.querySelector(`option[value="${sym}"]`)) {
+    symbolEl.value = sym;
   }
+  // Remove picker
+  const picker = document.getElementById("symbolPicker");
+  if (picker) picker.remove();
+  showToast('✅ Símbolo seleccionado', sym);
 }
 
 
