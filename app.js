@@ -152,6 +152,19 @@ function getSelectedSymbol() {
 const DAY_NAMES_FULL = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
 const DAY_NAMES_SHORT = ["Dom","Lun","Mar","Mie","Jue","Vie","Sab"];
 
+function restoreEquityFilter() {
+  const start = localStorage.getItem("dygpro_filter_start");
+  const end   = localStorage.getItem("dygpro_filter_end");
+  if (start) {
+    const el = document.getElementById("equityStartDate");
+    if (el) el.value = start;
+  }
+  if (end) {
+    const el = document.getElementById("equityEndDate");
+    if (el) el.value = end;
+  }
+}
+
 function initSystemConfigUI() {
   const cfg = systemConfig;
 
@@ -248,6 +261,7 @@ function updateSystemDisplay() {
 // Init on load
 document.addEventListener("DOMContentLoaded", () => {
   initSystemConfigUI();
+  restoreEquityFilter();
 });
 
 
@@ -980,7 +994,8 @@ function renderHistory(activeTrades) {
   });
 }
 
-function renderDashboard() {
+function renderDashboard(activeTrades) {
+  const trades = activeTrades || window.trades;
   const total = trades.length;
   const wins = trades.filter(t => t.pl > 0);
   const planTrades = trades.filter(t => t.insidePlan);
@@ -1049,7 +1064,8 @@ function renderChart() {
   });
 }
 
-function renderResearchCenter() {
+function renderResearchCenter(activeTrades) {
+  const trades = activeTrades || window.trades;
   const box = document.getElementById("researchBox");
   if (!box) return;
 
@@ -1091,7 +1107,8 @@ function renderResearchCenter() {
   `).join("");
 }
 
-function renderPeakDistribution() {
+function renderPeakDistribution(activeTrades) {
+  const trades = activeTrades || window.trades;
   const container = document.getElementById("peakDistribution");
   if (!container) return;
 
@@ -1113,7 +1130,8 @@ function renderPeakDistribution() {
   }).join("");
 }
 
-function renderSessionDatabase() {
+function renderSessionDatabase(activeTrades) {
+  const trades = activeTrades || window.trades;
   const sessionTable = document.getElementById("sessionTable");
   if (!sessionTable) return;
 
@@ -1137,7 +1155,8 @@ function renderSessionDatabase() {
   });
 }
 
-function renderPLCalendar() {
+function renderPLCalendar(activeTrades) {
+  const trades = activeTrades || window.trades;
   const calendar = document.getElementById("plCalendar");
   if (!calendar) return;
 
@@ -2353,8 +2372,8 @@ render = function() {
   renderSystemDriftMonitor();
 };
 
-let equityFilterStart = null;
-let equityFilterEnd = null;
+let equityFilterStart = localStorage.getItem("dygpro_filter_start") || null;
+let equityFilterEnd   = localStorage.getItem("dygpro_filter_end")   || null;
 
 function getEquityFilteredTrades() {
   let list = [...trades];
@@ -2473,6 +2492,8 @@ function initEquityCurveControls() {
   applyBtn.addEventListener("click", function() {
     equityFilterStart = document.getElementById("equityStartDate").value || null;
     equityFilterEnd = document.getElementById("equityEndDate").value || null;
+    localStorage.setItem("dygpro_filter_start", equityFilterStart || "");
+    localStorage.setItem("dygpro_filter_end", equityFilterEnd || "");
     render();
     renderChart();
   });
@@ -2480,7 +2501,8 @@ function initEquityCurveControls() {
   resetBtn.addEventListener("click", function() {
     equityFilterStart = null;
     equityFilterEnd = null;
-
+    localStorage.removeItem("dygpro_filter_start");
+    localStorage.removeItem("dygpro_filter_end");
     document.getElementById("equityStartDate").value = "";
     document.getElementById("equityEndDate").value = "";
     render();
