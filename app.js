@@ -114,6 +114,11 @@ function togglePanel(pid, panel, btn) {
     btn.title = 'Colapsar panel';
     if (!panelStates[pid]) panelStates[pid] = {};
     panelStates[pid].collapsed = false;
+    // Re-render charts after expand so they don't distort
+    setTimeout(() => {
+      renderChart();
+      if (equityChart) equityChart.resize();
+    }, 50);
   } else {
     // Collapse to just header
     const h2 = panel.querySelector('h2, h3');
