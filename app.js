@@ -1894,6 +1894,7 @@ function importTradingViewRows(rows, filename) {
       date, time, day: dayNames[d.getDay()], symbol, direction,
       entry, exit, contracts, points, pl,
       setup: "TradingView Strategy",
+      source: "tradingview",
       ruleFollowed: "yes",
       insideWindow,
       insidePlan: insideWindow,
