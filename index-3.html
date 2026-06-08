@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <title>DYGPRO Trading Journal</title>
-  <link rel="stylesheet" href="style.css?v=2">
+  <link rel="stylesheet" href="style.css?v=3">
   <style>
-    /* ── Auth overlay ── */
     #auth-overlay {
       position: fixed; inset: 0; z-index: 9999;
       background: radial-gradient(circle at top, #123b8a, #020617 55%);
@@ -41,7 +40,6 @@
     .auth-tab { display: flex; gap: 0; margin-bottom: 24px; border-radius: 12px; overflow: hidden; border: 1px solid #334155; }
     .auth-tab button { flex: 1; padding: 10px; background: transparent; border: none; color: #94a3b8; cursor: pointer; font-size: 14px; }
     .auth-tab button.active { background: #1e3a8a; color: white; font-weight: bold; }
-    /* ── User bar ── */
     #user-bar {
       display: none; align-items: center; justify-content: flex-end;
       gap: 14px; padding: 10px 0 0; margin-bottom: 10px;
@@ -66,7 +64,6 @@
 </head>
 <body>
 
-<!-- Auth overlay -->
 <div id="auth-overlay" class="hidden">
   <div class="auth-box">
     <div class="auth-logo">
@@ -78,10 +75,10 @@
       <button onclick="showTab('register')">Registrarse</button>
     </div>
     <div id="auth-error" class="auth-error"></div>
-    <input type="email"    id="auth-email"    placeholder="Email" autocomplete="email">
+    <input type="email" id="auth-email" placeholder="Email" autocomplete="email">
     <input type="password" id="auth-password" placeholder="Contraseña" autocomplete="current-password">
-    <button class="btn-primary"   id="auth-submit"  onclick="submitAuth()">Entrar</button>
-    <button class="btn-secondary" id="auth-reset"   onclick="resetPassword()">¿Olvidaste tu contraseña?</button>
+    <button class="btn-primary" id="auth-submit" onclick="submitAuth()">Entrar</button>
+    <button class="btn-secondary" id="auth-reset" onclick="resetPassword()">¿Olvidaste tu contraseña?</button>
   </div>
 </div>
 
@@ -104,14 +101,19 @@
         </button>
       </div>
       <div class="user-chip">
-        <div class="user-avatar-sm" id="user-avatar-initials">U</div>
-        <span id="user-email-label"></span><span id="plan-badge" style="font-size:11px;padding:3px 8px;border-radius:999px;font-weight:700;display:none;"></span>
+        <div class="user-avatar-sm" id="user-avatar-initials" style="overflow:hidden;cursor:pointer;" onclick="showSidebarSection('section-profile');setView('sidebar');" title="Mi Perfil">
+          <img id="topbar-avatar-img" src="" style="display:none;width:100%;height:100%;object-fit:cover;" alt="">
+          <span id="topbar-avatar-initials">U</span>
+        </div>
+        <span id="topbar-trader-name" style="font-size:12px;color:var(--text);font-weight:600;display:none;cursor:pointer;" onclick="showSidebarSection('section-profile');setView('sidebar');"></span>
+        <span id="user-email-label"></span>
+        <span id="plan-badge" style="font-size:11px;padding:3px 8px;border-radius:999px;font-weight:700;display:none;"></span>
         <button id="logout-btn" onclick="signOut()">Salir</button>
       </div>
     </div>
   </div>
 
-  <!-- Sidebar (hidden by default) -->
+  <!-- Sidebar -->
   <div id="sidebar-overlay" class="hidden" onclick="setView('scroll')"></div>
   <nav id="sidebar" class="hidden">
     <div class="sidebar-logo">
@@ -142,19 +144,20 @@
       <a class="nav-item" href="#" onclick="showSidebarSection('section-data');return false;"><i class="ti ti-upload"></i> Importar CSV</a>
       <a class="nav-item" href="#" onclick="showSidebarSection('section-config');return false;"><i class="ti ti-settings"></i> Mi Sistema</a>
       <a class="nav-item" href="#" onclick="showSidebarSection('section-gallery');return false;"><i class="ti ti-photo"></i> Galería</a>
+      <a class="nav-item" href="#" onclick="showSidebarSection('section-profile');return false;"><i class="ti ti-user-circle"></i> Mi Perfil</a>
     </div>
   </nav>
 
-      <button id="btn-show-sidebar" onclick="expandSidebar()" title="Mostrar menú"
-        style="display:none;position:fixed;top:70px;left:0;z-index:200;
-               background:var(--surface2);border:1px solid var(--border2);
-               border-left:none;border-radius:0 8px 8px 0;
-               padding:10px 10px 10px 8px;cursor:pointer;
-               align-items:center;gap:6px;color:var(--accent);
-               font-size:13px;font-family:DM Sans,sans-serif;
-               box-shadow:2px 0 12px rgba(0,0,0,0.3);">
-        ☰
-      </button>
+  <button id="btn-show-sidebar" onclick="expandSidebar()" title="Mostrar menú"
+    style="display:none;position:fixed;top:70px;left:0;z-index:200;
+           background:var(--surface2);border:1px solid var(--border2);
+           border-left:none;border-radius:0 8px 8px 0;
+           padding:10px 10px 10px 8px;cursor:pointer;
+           align-items:center;gap:6px;color:var(--accent);
+           font-size:13px;font-family:DM Sans,sans-serif;
+           box-shadow:2px 0 12px rgba(0,0,0,0.3);">
+    ☰
+  </button>
 
   <!-- PRO UPGRADE BANNER -->
   <div id="upgrade-banner" style="display:none;background:linear-gradient(90deg,#1a2f5a,#0d1e3d);border-bottom:1px solid rgba(56,189,248,0.3);padding:10px 40px;display:flex;align-items:center;justify-content:space-between;gap:16px;">
@@ -173,20 +176,12 @@
     <section class="grid-main">
     <div class="panel chart-panel">
       <h2>Equity Curve Pro</h2>
-
       <div class="equity-controls">
-        <label>
-          Desde
-          <input type="date" id="equityStartDate">
-        </label>
-        <label>
-          Hasta
-          <input type="date" id="equityEndDate">
-        </label>
+        <label>Desde<input type="date" id="equityStartDate"></label>
+        <label>Hasta<input type="date" id="equityEndDate"></label>
         <button type="button" class="tool-btn" id="applyEquityFilter">Aplicar</button>
         <button type="button" class="tool-btn danger-btn" id="resetEquityFilter">Reset</button>
       </div>
-
       <div id="sourceFilterRow" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center">
         <span style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap">Ver:</span>
         <button class="source-toggle" data-source="all" onclick="toggleSourceFilter('all')"
@@ -194,29 +189,17 @@
           ✦ Todas
         </button>
       </div>
-
       <canvas id="equityChart"></canvas>
-
       <div class="trader-manifesto">
         <p>Mi trabajo no es ganar hoy.<br>Mi trabajo es ejecutar el plan.</p>
         <p>Una buena operación puede perder.<br>Una mala operación puede ganar.<br>La disciplina siempre gana.</p>
       </div>
     </div>
-
     <div class="panel system-panel">
       <h2>Estado del Sistema</h2>
-      <div class="system-box good">
-        <span>Ventana de trading</span>
-        <strong id="systemWindowDisplay">—</strong>
-      </div>
-      <div class="system-box">
-        <span>Días activos</span>
-        <strong id="systemDaysDisplay">—</strong>
-      </div>
-      <div class="system-box danger">
-        <span>Fuera del plan</span>
-        <strong id="outPlanTrades">0 trades</strong>
-      </div>
+      <div class="system-box good"><span>Ventana de trading</span><strong id="systemWindowDisplay">—</strong></div>
+      <div class="system-box"><span>Días activos</span><strong id="systemDaysDisplay">—</strong></div>
+      <div class="system-box danger"><span>Fuera del plan</span><strong id="outPlanTrades">0 trades</strong></div>
       <div class="clock-section">
         <canvas id="analogClock" width="160" height="160"></canvas>
         <div class="clock-time-digital" id="clockDigital">00:00:00</div>
@@ -253,7 +236,6 @@
     <div class="card"><span>Win Rate</span><strong id="winRate">0%</strong></div>
     <div class="card"><span>Max Drawdown</span><strong id="maxDD">$0.00</strong></div>
   </section>
-
   <section class="dashboard">
     <div class="card"><span>Profit Factor</span><strong id="profitFactor">0.00</strong></div>
     <div class="card"><span>Payoff Ratio</span><strong id="payoffRatio">0.00</strong></div>
@@ -405,16 +387,16 @@
       </div>
       <div id="optionsFields" style="display:none;grid-column:1/-1">
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">
-          <label>Prima de Entrada<input type="number" step="0.01" id="optionEntry" placeholder="Ej: 2.50"><small>Precio de la prima al comprar/vender.</small></label>
-          <label>Prima de Salida<input type="number" step="0.01" id="optionExit" placeholder="Ej: 4.80"><small>Precio de la prima al cerrar.</small></label>
-          <label>Contratos / Acciones<input type="number" id="optionContracts" placeholder="Ej: 1" value="1"><small>1 contrato = 100 acciones en opciones.</small></label>
-          <label>P/L Total ($)<input type="number" step="0.01" id="directPL" placeholder="Ej: 250.00"><small>Si ya conoces el P/L, ingrésalo directamente.</small></label>
-          <label>Strike Price<input type="number" step="0.01" id="strikePrice" placeholder="Ej: 450.00"><small>Precio de ejercicio de la opción.</small></label>
-          <label>Tipo<select id="optionType"><option value="call">Call (derecho a comprar)</option><option value="put">Put (derecho a vender)</option><option value="stock">Acción</option><option value="other">Otro</option></select></label>
+          <label>Prima de Entrada<input type="number" step="0.01" id="optionEntry" placeholder="Ej: 2.50"></label>
+          <label>Prima de Salida<input type="number" step="0.01" id="optionExit" placeholder="Ej: 4.80"></label>
+          <label>Contratos / Acciones<input type="number" id="optionContracts" placeholder="Ej: 1" value="1"></label>
+          <label>P/L Total ($)<input type="number" step="0.01" id="directPL" placeholder="Ej: 250.00"></label>
+          <label>Strike Price<input type="number" step="0.01" id="strikePrice" placeholder="Ej: 450.00"></label>
+          <label>Tipo<select id="optionType"><option value="call">Call</option><option value="put">Put</option><option value="stock">Acción</option><option value="other">Otro</option></select></label>
         </div>
       </div>
-      <label>Fecha del Trade<input type="date" id="date" required><small>Día en que se abrió la operación.</small></label>
-      <label>Hora de Entrada<input type="time" id="time"><small>Hora exacta donde entraste al trade.</small></label>
+      <label>Fecha del Trade<input type="date" id="date" required></label>
+      <label>Hora de Entrada<input type="time" id="time"></label>
       <div style="grid-column:1/-1;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:4px">
         <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="toggleMarketsPanel()">
           <span style="font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;font-weight:600">📊 Mis Mercados — agregar símbolo personalizado</span>
@@ -451,20 +433,20 @@
         </div>
         <small>Instrumento operado.</small>
       </label>
-      <label>Dirección<select id="direction"><option value="">Seleccionar dirección</option><option value="Long">Long</option><option value="Short">Short</option></select><small>Long = compra. Short = venta.</small></label>
+      <label>Dirección<select id="direction"><option value="">Seleccionar dirección</option><option value="Long">Long</option><option value="Short">Short</option></select></label>
       <div class="form-section-title">Datos de la Sesión</div>
-      <label>Precio de Apertura de Sesión<input type="number" step="0.25" id="sessionOpen" placeholder="Precio apertura"><small>Precio donde abrió la sesión principal del sistema.</small></label>
-      <label>Precio Más Bajo de la Sesión<input type="number" step="0.25" id="sessionLow" placeholder="Low sesión"><small>El punto más bajo alcanzado después de la apertura.</small></label>
-      <label>Precio Más Alto de la Sesión<input type="number" step="0.25" id="sessionHigh" placeholder="High sesión"><small>El punto más alto alcanzado durante la sesión.</small></label>
-      <label>Hora del Pico Más Alto<input type="time" id="peakTime"><small>Hora donde el precio alcanzó su máximo recorrido favorable.</small></label>
+      <label>Precio de Apertura de Sesión<input type="number" step="0.25" id="sessionOpen" placeholder="Precio apertura"></label>
+      <label>Precio Más Bajo de la Sesión<input type="number" step="0.25" id="sessionLow" placeholder="Low sesión"></label>
+      <label>Precio Más Alto de la Sesión<input type="number" step="0.25" id="sessionHigh" placeholder="High sesión"></label>
+      <label>Hora del Pico Más Alto<input type="time" id="peakTime"></label>
       <div class="form-section-title">Clasificación del Trade</div>
-      <label>Setup<select id="setup"><option value="">Seleccionar setup</option><option value="Mi Setup">Mi Setup</option><option value="Trend Continuation">Trend Continuation</option><option value="Breakout">Breakout</option><option value="Manual">Manual</option></select><small>Tipo de operación registrada.</small></label>
-      <label>¿Cumplió las Reglas?<select id="ruleFollowed"><option value="">Seleccionar</option><option value="yes">Sí, dentro del plan</option><option value="no">No, fuera del plan</option></select><small>Marca si el trade respetó tu sistema.</small></label>
-      <label>Error Principal<select id="mistake"><option value="">Ninguno</option><option value="Entrada impulsiva">Entrada impulsiva</option><option value="Salida temprana">Salida temprana</option><option value="Gestión incorrecta">Gestión incorrecta</option><option value="Fuera del plan">Fuera del plan</option><option value="Sobreoperar">Sobreoperar</option><option value="Otro">Otro</option></select><small>Selecciona el error más importante, si hubo alguno.</small></label>
+      <label>Setup<select id="setup"><option value="">Seleccionar setup</option><option value="Mi Setup">Mi Setup</option><option value="Trend Continuation">Trend Continuation</option><option value="Breakout">Breakout</option><option value="Manual">Manual</option></select></label>
+      <label>¿Cumplió las Reglas?<select id="ruleFollowed"><option value="">Seleccionar</option><option value="yes">Sí, dentro del plan</option><option value="no">No, fuera del plan</option></select></label>
+      <label>Error Principal<select id="mistake"><option value="">Ninguno</option><option value="Entrada impulsiva">Entrada impulsiva</option><option value="Salida temprana">Salida temprana</option><option value="Gestión incorrecta">Gestión incorrecta</option><option value="Fuera del plan">Fuera del plan</option><option value="Sobreoperar">Sobreoperar</option><option value="Otro">Otro</option></select></label>
       <div class="form-section-title">Reflexión del Trade</div>
-      <label>Nota del Trade<textarea id="notes" placeholder="¿Qué ocurrió durante esta operación?"></textarea><small>Describe lo que pasó de forma clara y honesta.</small></label>
-      <label>Estado Emocional<select id="emotionalState"><option value="">Seleccionar estado</option><option value="Tranquilo">Tranquilo</option><option value="Confiado">Confiado</option><option value="Ansioso">Ansioso</option><option value="Impaciente">Impaciente</option><option value="Frustrado">Frustrado</option><option value="Eufórico">Eufórico</option></select><small>Cómo te sentías durante o después del trade.</small></label>
-      <label>Lección Aprendida<textarea id="lessonLearned" placeholder="¿Qué te enseñó este trade?"></textarea><small>Una frase corta sobre lo que debes recordar.</small></label>
+      <label>Nota del Trade<textarea id="notes" placeholder="¿Qué ocurrió durante esta operación?"></textarea></label>
+      <label>Estado Emocional<select id="emotionalState"><option value="">Seleccionar estado</option><option value="Tranquilo">Tranquilo</option><option value="Confiado">Confiado</option><option value="Ansioso">Ansioso</option><option value="Impaciente">Impaciente</option><option value="Frustrado">Frustrado</option><option value="Eufórico">Eufórico</option></select></label>
+      <label>Lección Aprendida<textarea id="lessonLearned" placeholder="¿Qué te enseñó este trade?"></textarea></label>
       <button type="submit">Guardar Registro</button>
     </form>
   </section>
@@ -501,7 +483,7 @@
     </table>
   </section>
 
-</div>
+</div><!-- /main-scroll -->
 
   <section class="panel" id="section-gallery">
     <h2>📸 Galería de Trades</h2>
@@ -514,6 +496,92 @@
     </div>
     <input type="text" id="gallerySearch" placeholder="Buscar por nota o fecha..." oninput="renderGallery()" style="max-width:300px;margin-bottom:14px">
     <div id="tradeGallery" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px"></div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════
+       MI PERFIL DE TRADER
+  ══════════════════════════════════════════════ -->
+  <section class="panel" id="section-profile">
+    <h2>👤 Mi Perfil de Trader</h2>
+    <p>Tu identidad como trader. Estos datos personalizan tu experiencia y aparecen en el dashboard.</p>
+
+    <div class="profile-layout">
+
+      <!-- Foto -->
+      <div class="profile-photo-col">
+        <div class="profile-avatar-wrap" id="profileAvatarPreview" onclick="document.getElementById('profilePhotoInput').click()" title="Cambiar foto">
+          <img id="profileAvatarImg" src="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="foto">
+          <span id="profileAvatarInitials">?</span>
+          <div class="profile-avatar-overlay"><i class="ti ti-camera"></i></div>
+        </div>
+        <input type="file" id="profilePhotoInput" accept="image/*" style="display:none" onchange="handleProfilePhoto(event)">
+        <button class="tool-btn" onclick="document.getElementById('profilePhotoInput').click()" style="font-size:12px;padding:7px 16px;margin-top:10px;">📷 Cambiar foto</button>
+      </div>
+
+      <!-- Datos -->
+      <div class="profile-fields">
+        <label class="profile-label">Nombre completo<input type="text" id="profileName" placeholder="Ej: Jorge García"></label>
+        <label class="profile-label">Apodo de trading<input type="text" id="profileNickname" placeholder="Ej: El Scalper"></label>
+        <label class="profile-label">Capital inicial ($)<input type="number" id="profileCapital" placeholder="Ej: 25000"></label>
+        <label class="profile-label">Broker principal
+          <select id="profileBroker">
+            <option value="">Seleccionar broker</option>
+            <option value="Tradovate">Tradovate</option>
+            <option value="Webull">Webull</option>
+            <option value="NinjaTrader">NinjaTrader</option>
+            <option value="TradingView">TradingView</option>
+            <option value="Interactive Brokers">Interactive Brokers</option>
+            <option value="TD Ameritrade">TD Ameritrade</option>
+            <option value="Otro">Otro</option>
+          </select>
+        </label>
+        <label class="profile-label" style="grid-column:1/-1;">Instrumento principal
+          <select id="profileInstrument">
+            <option value="">Seleccionar instrumento</option>
+            <option value="MNQ">MNQ — Micro Nasdaq</option>
+            <option value="NQ">NQ — Nasdaq Full</option>
+            <option value="MES">MES — Micro S&amp;P</option>
+            <option value="ES">ES — S&amp;P 500</option>
+            <option value="MYM">MYM — Micro Dow</option>
+            <option value="YM">YM — Dow Jones</option>
+            <option value="Acciones">Acciones</option>
+            <option value="Forex">Forex</option>
+            <option value="Crypto">Crypto</option>
+          </select>
+        </label>
+        <label class="profile-label" style="grid-column:1/-1;">Frase motivacional
+          <input type="text" id="profileMotto" placeholder="Ej: La disciplina siempre gana">
+        </label>
+      </div>
+    </div>
+
+    <div style="margin-top:24px;display:flex;gap:12px;align-items:center;">
+      <button class="tool-btn" onclick="saveProfile()" style="background:var(--accent);color:#000;border-color:var(--accent);font-weight:700;font-size:14px;padding:12px 28px;">
+        Guardar Perfil
+      </button>
+      <span id="profileSaveMsg" style="font-size:13px;color:var(--green);display:none;">✅ Perfil guardado</span>
+    </div>
+
+    <!-- Preview card -->
+    <div id="profilePreviewCard" class="profile-preview-card" style="display:none;">
+      <div style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;">Vista previa en el dashboard</div>
+      <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;">
+        <div class="profile-preview-avatar">
+          <img id="previewImg" src="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="">
+          <span id="previewInitials">?</span>
+        </div>
+        <div>
+          <div id="previewName" style="font-size:20px;font-weight:700;color:var(--text);">—</div>
+          <div id="previewNickname" style="font-size:13px;color:var(--accent);margin-top:2px;font-style:italic;"></div>
+          <div style="display:flex;gap:16px;margin-top:8px;flex-wrap:wrap;">
+            <span id="previewCapital" style="font-size:13px;color:var(--text2);"></span>
+            <span id="previewBroker" style="font-size:13px;color:var(--text2);"></span>
+            <span id="previewInstrument" style="font-size:13px;color:var(--text2);"></span>
+          </div>
+          <div id="previewMotto" style="font-size:13px;color:var(--gold);font-style:italic;margin-top:6px;"></div>
+        </div>
+      </div>
+    </div>
   </section>
 
   <div id="imageModal" class="hidden" style="position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.85);align-items:center;justify-content:center;">
