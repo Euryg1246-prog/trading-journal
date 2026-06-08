@@ -1257,3 +1257,251 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover,
 input[type="time"]::-webkit-calendar-picker-indicator:hover {
   opacity: 1;
 }
+/* ============================================================
+   DYGPRO — MOBILE RESPONSIVE PATCH
+   Agregar al final de style.css
+   Breakpoints: 480px (phone), 700px (ya existente, ampliado)
+   ============================================================ */
+
+/* ── TOP BAR MOBILE ── */
+@media (max-width: 700px) {
+  .top-bar {
+    padding: 0 14px;
+    height: 56px;
+    gap: 8px;
+  }
+
+  .top-logo {
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .logo-main { font-size: 22px; letter-spacing: 2px; }
+  .logo-sub  { display: none; }
+
+  .top-actions {
+    gap: 8px;
+    flex: 1;
+    justify-content: flex-end;
+    min-width: 0;
+  }
+
+  /* Ocultar texto de los botones de vista, solo mostrar ícono */
+  .view-btn span { display: none; }
+  .view-btn { padding: 7px 10px; }
+
+  /* Email oculto, solo avatar + badge + salir */
+  #user-email-label { display: none; }
+
+  /* Badge de plan más compacto */
+  #plan-badge { font-size: 10px !important; padding: 2px 6px !important; }
+
+  /* Botón Salir más pequeño */
+  #logout-btn { padding: 5px 9px; font-size: 11px; }
+
+  /* Sidebar top debe bajar 56px (nuevo alto del top bar) */
+  #sidebar { top: 56px; height: calc(100vh - 56px); }
+}
+
+/* ── PLAN BANNER ── */
+@media (max-width: 700px) {
+  .plan-banner {
+    font-size: 12px;
+    padding: 8px 14px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .upgrade-btn {
+    font-size: 12px !important;
+    padding: 6px 12px !important;
+    white-space: nowrap;
+  }
+}
+
+/* ── MAIN SCROLL PADDING ── */
+@media (max-width: 700px) {
+  #main-scroll { padding: 12px 10px 24px; }
+  .page-section { padding: 16px 12px; }
+}
+
+/* ── GRID PRINCIPAL (Equity + Estado del Sistema) ── */
+/* En desktop: 2fr 1fr side by side */
+/* En mobile: stack vertical */
+@media (max-width: 700px) {
+  .grid-main {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+}
+
+/* ── EQUITY CURVE PANEL ── */
+@media (max-width: 700px) {
+  .equity-controls {
+    gap: 8px;
+  }
+  .equity-controls input {
+    min-width: 110px;
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+  /* Los source-toggle buttons (TODAS, TRADINGVIEW, WEBULL, TRADOVATE) */
+  .source-toggle {
+    font-size: 10px;
+    padding: 4px 9px;
+  }
+  canvas { height: 220px !important; }
+  .trader-manifesto p { font-size: 13px; }
+  .trader-manifesto p:first-child { font-size: 14px; }
+}
+
+/* ── MÉTRICAS DASHBOARD (6 columnas → 2 columnas en mobile) ── */
+@media (max-width: 700px) {
+  .dashboard {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .card {
+    padding: 14px 12px;
+    border-radius: 12px;
+  }
+  .card span { font-size: 10px; margin-bottom: 6px; }
+  .card strong { font-size: 18px; }
+}
+
+/* ── SETUP QUALITY SCORE (5 columnas → 2-3 en mobile) ── */
+@media (max-width: 700px) {
+  .setup-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .setup-metric { padding: 9px 6px; }
+  .setup-metric span { font-size: 9px; }
+  .setup-metric strong { font-size: 16px; }
+  .setup-card { padding: 16px; }
+  .setup-card h3 { font-size: 14px; margin-bottom: 12px; }
+}
+
+@media (max-width: 400px) {
+  .setup-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ── SYSTEM BOXES (Estado del Sistema) ── */
+@media (max-width: 700px) {
+  .system-box { padding: 12px 14px; }
+  .system-box strong { font-size: 15px; }
+}
+
+/* ── CLOCK + ALARMAS ── */
+@media (max-width: 700px) {
+  #analogClock {
+    width: 130px !important;
+    height: 130px !important;
+    min-width: 130px;
+    min-height: 130px;
+    max-width: 130px;
+    max-height: 130px;
+  }
+  .clock-time-digital { font-size: 17px; }
+}
+
+/* ── ACCOUNT SIZE ENGINE (4 columnas → 2 en mobile) ── */
+/* (ya existe a 900px, reforzamos 480px) */
+@media (max-width: 480px) {
+  .account-grid { grid-template-columns: 1fr !important; }
+}
+
+/* ── RECOVERY GRID (3 → 1 en mobile) ── */
+@media (max-width: 700px) {
+  .recovery-grid { grid-template-columns: 1fr; }
+}
+
+/* ── DRIFT GRID (4 → 2 en mobile) ── */
+@media (max-width: 700px) {
+  .drift-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* ── SCORECARD GRID ── */
+@media (max-width: 700px) {
+  .scorecard-grid { grid-template-columns: 1fr; }
+}
+
+/* ── NOTES PRO GRID ── */
+@media (max-width: 700px) {
+  .notes-pro-grid { grid-template-columns: 1fr; }
+}
+
+/* ── TABLA DE TRADES ── */
+@media (max-width: 700px) {
+  .history-scroll-box, .session-scroll-box {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  th, td { font-size: 11px; padding: 8px 7px; }
+}
+
+/* ── CALENDARIO ── */
+@media (max-width: 480px) {
+  .cal-day { min-height: 60px; padding: 6px; }
+  .cal-pl  { font-size: 13px; margin-top: 8px; }
+  .cal-date { font-size: 10px; }
+}
+
+/* ── PANEL GENÉRICO ── */
+@media (max-width: 700px) {
+  .panel { padding: 18px 14px; border-radius: 14px; margin-bottom: 14px; }
+  .panel h2 { font-size: 18px; }
+}
+
+/* ── PAGE HEADER ── */
+@media (max-width: 700px) {
+  .page-header h2 { font-size: 24px; }
+  .page-header { margin-bottom: 18px; }
+}
+
+/* ── TOOLS BAR (botones de importar, etc.) ── */
+@media (max-width: 700px) {
+  .tools { gap: 8px; }
+  .tool-btn, .file-label {
+    font-size: 12px;
+    padding: 8px 12px;
+  }
+}
+
+/* ── TRADE FORM ── */
+@media (max-width: 480px) {
+  .trade-form-v2 {
+    grid-template-columns: 1fr !important;
+  }
+  .trade-form-v2 label:has(#notes),
+  .trade-form-v2 label:has(#lessonLearned) {
+    grid-column: 1 / -1 !important;
+  }
+  .trade-form-v2 button[type="submit"] {
+    max-width: 100%;
+    justify-self: stretch;
+  }
+}
+
+/* ── TOAST DE DISCIPLINA ── */
+@media (max-width: 700px) {
+  .discipline-toast {
+    top: 66px;
+    right: 10px;
+    left: 10px;
+    max-width: none;
+  }
+}
+
+/* ── GALERÍA ── */
+@media (max-width: 700px) {
+  .trade-gallery-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .gallery-upload-area { padding: 24px 16px; }
+}
+
+@media (max-width: 400px) {
+  .trade-gallery-grid { grid-template-columns: 1fr; }
+}
