@@ -1,4 +1,3 @@
-
 /* ============================================================
    AUTO-RECÁLCULO DE P/L
    Detecta trades con PL=0 que tienen entry+exit y los corrige
