@@ -914,7 +914,7 @@ const ALL_SECTIONS = [
   'section-setup','section-drift','section-recovery',
   'section-account','section-scorecard-wrapper','section-entry',
   'section-history','section-sessions','section-notes',
-  'section-data','section-config','section-gallery'
+  'section-data','section-config','section-gallery','section-profile'
 ];
 
 let activeSidebarSection = localStorage.getItem('dygpro_active_section') || 'section-dashboard';
@@ -4201,3 +4201,135 @@ function onboardingAction(action) {
     showToast("👀 Explorando","Importa o registra tus trades cuando estés listo.");
   }
 }
+
+/* ============================================================
+   MI PERFIL DE TRADER
+   ============================================================ */
+let traderProfile = {};
+
+function loadProfile() {
+  try {
+    const saved = localStorage.getItem('dygpro_profile');
+    if (saved) {
+      traderProfile = JSON.parse(saved);
+      applyProfileToUI();
+    }
+  } catch(e) {}
+}
+
+function saveProfile() {
+  const name       = document.getElementById('profileName')?.value.trim() || '';
+  const nickname   = document.getElementById('profileNickname')?.value.trim() || '';
+  const capital    = document.getElementById('profileCapital')?.value || '';
+  const broker     = document.getElementById('profileBroker')?.value || '';
+  const instrument = document.getElementById('profileInstrument')?.value || '';
+  const motto      = document.getElementById('profileMotto')?.value.trim() || '';
+  const photo      = traderProfile.photo || '';
+
+  traderProfile = { name, nickname, capital, broker, instrument, motto, photo };
+
+  try { localStorage.setItem('dygpro_profile', JSON.stringify(traderProfile)); } catch(e) {}
+
+  if (currentUser) {
+    _supabase.from('profiles').upsert({
+      id: currentUser.id,
+      trader_name: name,
+      nickname,
+      capital: parseFloat(capital) || 0,
+      broker,
+      instrument,
+      motto
+    }, { onConflict: 'id' }).catch(e => console.log('Profile:', e.message));
+  }
+
+  applyProfileToUI();
+
+  const msg = document.getElementById('profileSaveMsg');
+  if (msg) { msg.style.display = 'inline'; setTimeout(() => msg.style.display = 'none', 2500); }
+
+  const displayName = nickname || name || '';
+  showToast('✅ Perfil guardado', displayName ? `Bienvenido, ${displayName}!` : 'Tu perfil fue actualizado.');
+}
+
+function applyProfileToUI() {
+  const { name, nickname, capital, broker, instrument, motto, photo } = traderProfile;
+
+  // Llenar formulario
+  const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+  setVal('profileName', name);
+  setVal('profileNickname', nickname);
+  setVal('profileCapital', capital);
+  setVal('profileBroker', broker);
+  setVal('profileInstrument', instrument);
+  setVal('profileMotto', motto);
+
+  const displayName = nickname || name || '';
+  const initials = name ? name.slice(0,2).toUpperCase() : (displayName ? displayName.slice(0,2).toUpperCase() : 'U');
+
+  // Avatar grande (sección perfil)
+  const bigImg      = document.getElementById('profileAvatarImg');
+  const bigInitials = document.getElementById('profileAvatarInitials');
+  if (bigImg && bigInitials) {
+    if (photo) { bigImg.src = photo; bigImg.style.display = 'block'; bigInitials.style.display = 'none'; }
+    else { bigImg.style.display = 'none'; bigInitials.style.display = 'block'; bigInitials.textContent = initials; }
+  }
+
+  // Avatar top bar
+  const tbImg      = document.getElementById('topbar-avatar-img');
+  const tbInitials = document.getElementById('topbar-avatar-initials');
+  const tbName     = document.getElementById('topbar-trader-name');
+  if (tbImg && tbInitials) {
+    if (photo) { tbImg.src = photo; tbImg.style.display = 'block'; tbInitials.style.display = 'none'; }
+    else { tbImg.style.display = 'none'; tbInitials.style.display = 'block'; tbInitials.textContent = initials; }
+  }
+  if (tbName) { tbName.textContent = displayName; tbName.style.display = displayName ? 'inline' : 'none'; }
+
+  // También actualizar el avatar original del sistema auth
+  const authInitials = document.getElementById('user-avatar-initials');
+  if (authInitials && !photo) authInitials.textContent = initials;
+
+  // Preview card
+  const card = document.getElementById('profilePreviewCard');
+  if (card && (name || nickname || capital || broker)) {
+    card.style.display = 'block';
+    const pvImg      = document.getElementById('previewImg');
+    const pvInitials = document.getElementById('previewInitials');
+    if (pvImg && pvInitials) {
+      if (photo) { pvImg.src = photo; pvImg.style.display = 'block'; pvInitials.style.display = 'none'; }
+      else { pvImg.style.display = 'none'; pvInitials.style.display = 'block'; pvInitials.textContent = initials; }
+    }
+    const el = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
+    el('previewName',       name || nickname || '—');
+    el('previewNickname',   nickname ? `"${nickname}"` : '');
+    el('previewCapital',    capital  ? `💰 $${Number(capital).toLocaleString()}` : '');
+    el('previewBroker',     broker   ? `📊 ${broker}` : '');
+    el('previewInstrument', instrument ? `⚡ ${instrument}` : '');
+    el('previewMotto',      motto ? `"${motto}"` : '');
+  }
+}
+
+function handleProfilePhoto(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  if (file.size > 2 * 1024 * 1024) {
+    showToast('⚠️ Imagen muy grande', 'Máximo 2MB para foto de perfil.'); return;
+  }
+  const reader = new FileReader();
+  reader.onload = e => {
+    traderProfile.photo = e.target.result;
+    applyProfileToUI();
+    showToast('📷 Foto cargada', 'Presiona Guardar Perfil para confirmar.');
+  };
+  reader.readAsDataURL(file);
+  event.target.value = '';
+}
+
+// Cargar perfil al iniciar
+document.addEventListener('DOMContentLoaded', () => { loadProfile(); });
+
+// Cargar perfil también después del login
+const __origShowApp = showApp;
+showApp = function() {
+  __origShowApp();
+  setTimeout(loadProfile, 600);
+};
