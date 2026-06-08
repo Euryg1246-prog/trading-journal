@@ -1505,3 +1505,91 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
 @media (max-width: 400px) {
   .trade-gallery-grid { grid-template-columns: 1fr; }
 }
+
+/* ============================================================
+   MI PERFIL DE TRADER
+   ============================================================ */
+.profile-layout {
+  display: flex;
+  gap: 36px;
+  margin-top: 28px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.profile-photo-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.profile-avatar-wrap {
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  background: var(--surface2);
+  border: 3px solid var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 44px; color: var(--accent);
+  overflow: hidden; cursor: pointer;
+  position: relative;
+  transition: border-color .2s, box-shadow .2s;
+}
+.profile-avatar-wrap:hover {
+  border-color: var(--gold);
+  box-shadow: 0 0 24px rgba(251,191,36,0.25);
+}
+.profile-avatar-overlay {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity .2s;
+  font-size: 24px; color: #fff;
+  border-radius: 50%;
+}
+.profile-avatar-wrap:hover .profile-avatar-overlay { opacity: 1; }
+
+.profile-fields {
+  flex: 1;
+  min-width: 260px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.profile-label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text2);
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  font-weight: 500;
+}
+
+.profile-preview-card {
+  margin-top: 28px;
+  padding: 22px 26px;
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: 16px;
+}
+
+.profile-preview-avatar {
+  width: 60px; height: 60px;
+  border-radius: 50%;
+  background: var(--surface2);
+  border: 2px solid var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; color: var(--accent);
+  overflow: hidden; flex-shrink: 0;
+}
+
+/* Responsive perfil */
+@media (max-width: 700px) {
+  .profile-layout { flex-direction: column; align-items: center; }
+  .profile-fields { grid-template-columns: 1fr; }
+  .profile-label[style*="grid-column"] { grid-column: 1 !important; }
+}
