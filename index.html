@@ -251,8 +251,14 @@
     <div class="panel chart-panel">
       <h2>Equity Curve Pro</h2>
       <div class="equity-controls">
-        <label>Desde<input type="date" id="equityStartDate"></label>
-        <label>Hasta<input type="date" id="equityEndDate"></label>
+        <label>Desde<div style="display:flex;gap:6px;align-items:center">
+            <input type="date" id="equityStartDate">
+            <button type="button" onclick="document.getElementById('equityStartDate').showPicker?document.getElementById('equityStartDate').showPicker():document.getElementById('equityStartDate').click()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--accent);border-radius:8px;padding:6px 8px;cursor:pointer;font-size:13px;white-space:nowrap;width:auto;grid-column:auto;font-family:'DM Sans',sans-serif;">📅</button>
+          </div></label>
+        <label>Hasta<div style="display:flex;gap:6px;align-items:center">
+            <input type="date" id="equityEndDate">
+            <button type="button" onclick="document.getElementById('equityEndDate').showPicker?document.getElementById('equityEndDate').showPicker():document.getElementById('equityEndDate').click()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--accent);border-radius:8px;padding:6px 8px;cursor:pointer;font-size:13px;white-space:nowrap;width:auto;grid-column:auto;font-family:'DM Sans',sans-serif;">📅</button>
+          </div></label>
         <button type="button" class="tool-btn" id="applyEquityFilter">Aplicar</button>
         <button type="button" class="tool-btn danger-btn" id="resetEquityFilter">Reset</button>
       </div>
@@ -353,7 +359,10 @@
     <div class="notes-pro-grid">
       <div class="notes-editor">
         <label>Fecha de la nota</label>
-        <input type="date" id="noteDate">
+        <div style="display:flex;gap:6px;align-items:center">
+            <input type="date" id="noteDate">
+            <button type="button" onclick="document.getElementById('noteDate').showPicker?document.getElementById('noteDate').showPicker():document.getElementById('noteDate').click()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--accent);border-radius:8px;padding:6px 8px;cursor:pointer;font-size:13px;white-space:nowrap;width:auto;grid-column:auto;font-family:'DM Sans',sans-serif;">📅</button>
+          </div>
         <textarea id="personalNoteText" placeholder="Escribe tu nota personal aquí..."></textarea>
         <div class="tools">
           <button type="button" class="tool-btn" id="savePersonalNote">Guardar Nota</button>
@@ -363,7 +372,10 @@
       <div class="notes-calendar-box">
         <div class="notes-calendar-header">
           <button type="button" class="tool-btn" id="prevNotesMonth">◀</button>
-          <input type="month" id="notesMonth">
+          <div style="display:flex;gap:6px;align-items:center">
+            <input type="month" id="notesMonth">
+            <button type="button" onclick="document.getElementById('notesMonth').showPicker?document.getElementById('notesMonth').showPicker():document.getElementById('notesMonth').click()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--accent);border-radius:8px;padding:6px 8px;cursor:pointer;font-size:13px;white-space:nowrap;width:auto;grid-column:auto;font-family:'DM Sans',sans-serif;">📅</button>
+          </div>
           <button type="button" class="tool-btn" id="nextNotesMonth">▶</button>
         </div>
         <div class="notes-weekdays">
@@ -491,7 +503,10 @@
           <label>Tipo<select id="optionType"><option value="call">Call</option><option value="put">Put</option><option value="stock">Acción</option><option value="other">Otro</option></select></label>
         </div>
       </div>
-      <label>Fecha del Trade<input type="date" id="date" required></label>
+      <label>Fecha del Trade<div style="display:flex;gap:6px;align-items:center">
+            <input type="date" id="date" required>
+            <button type="button" onclick="document.getElementById('date').showPicker?document.getElementById('date').showPicker():document.getElementById('date').click()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--accent);border-radius:8px;padding:6px 8px;cursor:pointer;font-size:13px;white-space:nowrap;width:auto;grid-column:auto;font-family:'DM Sans',sans-serif;">📅</button>
+          </div></label>
       <label>Hora de Entrada
         <div class="time-picker-wrap" id="wrap-time">
           <div style="display:flex;gap:6px;align-items:center">
@@ -745,6 +760,42 @@
         </div>
       </div>
       <p style="font-size:12px;color:#475569">Configura tu sistema en <strong style="color:#38bdf8">⚙️ Mi Sistema</strong> cuando estés listo</p>
+    </div>
+  </div>
+
+  <!-- ── BUZÓN DE SUGERENCIAS ── -->
+  <button id="suggestionBtn" onclick="openSuggestionModal()"
+    style="position:fixed;bottom:28px;left:28px;z-index:1000;
+           width:48px;height:48px;border-radius:50%;
+           background:var(--surface2);border:1px solid var(--border2);
+           color:var(--accent);font-size:22px;cursor:pointer;
+           box-shadow:0 4px 20px rgba(0,0,0,0.4);
+           display:flex;align-items:center;justify-content:center;
+           transition:all .2s;" 
+    title="Sugerencias y soporte"
+    onmouseover="this.style.background='var(--accent)';this.style.color='#000';"
+    onmouseout="this.style.background='var(--surface2)';this.style.color='var(--accent)';">
+    💬
+  </button>
+
+  <div id="suggestionModal" style="display:none;position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0.7);align-items:center;justify-content:center;">
+    <div style="background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:32px;max-width:460px;width:90%;position:relative;">
+      <button onclick="closeSuggestionModal()" style="position:absolute;top:14px;right:16px;background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;width:auto;grid-column:auto;">✕</button>
+      <h2 style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1.5px;color:var(--accent);margin-bottom:4px;">💬 Sugerencias & Soporte</h2>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:20px;">¿Tienes una idea o necesitas ayuda? Escríbenos.</p>
+      <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:12px;">
+        Asunto (opcional)
+        <input type="text" id="suggestionSubject" placeholder="Ej: Nueva función, Bug, Pregunta...">
+      </label>
+      <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:20px;">
+        Mensaje
+        <textarea id="suggestionMessage" placeholder="Cuéntanos..." rows="4" style="resize:vertical;"></textarea>
+      </label>
+      <button onclick="sendSuggestion()" id="suggestionSendBtn"
+        style="width:100%;padding:13px;border-radius:10px;border:none;background:var(--accent);color:#000;font-weight:700;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif;">
+        Enviar mensaje
+      </button>
+      <p style="font-size:11px;color:var(--text3);text-align:center;margin-top:12px;">También puedes escribirnos a <strong style="color:var(--text2)">soporte1@dygpro.com</strong></p>
     </div>
   </div>
 </body>

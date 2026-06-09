@@ -4690,3 +4690,56 @@ function searchTVSymbol() {
     }
   });
 })();
+
+/* ============================================================
+   BUZÓN DE SUGERENCIAS
+   ============================================================ */
+function openSuggestionModal() {
+  const modal = document.getElementById('suggestionModal');
+  if (modal) modal.style.display = 'flex';
+}
+
+function closeSuggestionModal() {
+  const modal = document.getElementById('suggestionModal');
+  if (modal) modal.style.display = 'none';
+  const subj = document.getElementById('suggestionSubject');
+  const msg  = document.getElementById('suggestionMessage');
+  if (subj) subj.value = '';
+  if (msg)  msg.value  = '';
+}
+
+async function sendSuggestion() {
+  const subject = document.getElementById('suggestionSubject')?.value.trim();
+  const message = document.getElementById('suggestionMessage')?.value.trim();
+  const btn     = document.getElementById('suggestionSendBtn');
+
+  if (!message) {
+    showToast('⚠️ Mensaje vacío', 'Escribe tu mensaje antes de enviar.');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Enviando...';
+
+  try {
+    await _supabase.functions.invoke('send-suggestion', {
+      body: {
+        subject,
+        message,
+        userEmail: currentUser?.email || 'Anónimo'
+      }
+    });
+    closeSuggestionModal();
+    showToast('✅ Mensaje enviado', 'Gracias por tu sugerencia. Te responderemos pronto.');
+  } catch(e) {
+    showToast('⚠️ Error', 'No se pudo enviar. Intenta de nuevo o escribe a soporte1@dygpro.com');
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Enviar mensaje';
+}
+
+// Cerrar con Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeSuggestionModal();
+});
