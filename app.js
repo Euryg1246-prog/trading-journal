@@ -1862,21 +1862,16 @@ function importCSV(event) {
       formatName = "CSV Universal";
     }
 
-    // Guardar cada trade nuevo en Supabase
-    const newTrades = trades.slice(-(result.imported));
     event.target.value = "";
+    try { localStorage.setItem("dygpro_trades_cache", JSON.stringify(trades)); } catch(e) {}
+    try { render(); } catch(e) {}
+    showToast("✅ " + formatName + " importado", result.imported + " trades importados · " + result.skipped + " ignorados");
 
+    const newTrades = trades.slice(-(result.imported));
     if (currentUser && newTrades.length > 0) {
       Promise.all(newTrades.map(t => saveTradeToSupabase(t)))
         .then(() => loadTradesFromSupabase())
-        .then(() => alert(`${formatName} importado.\nImportados: ${result.imported}\nIgnorados: ${result.skipped}`))
-        .catch(e => {
-          console.error("Error guardando en Supabase:", e);
-          // Reload anyway in case some trades saved
-          loadTradesFromSupabase();
-        });
-    } else {
-      alert(`${formatName} importado.\nImportados: ${result.imported}\nIgnorados: ${result.skipped}`);
+        .catch(e => console.log("Supabase import:", e.message));
     }
   };
 
