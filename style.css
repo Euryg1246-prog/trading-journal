@@ -780,7 +780,7 @@ button[type="submit"]:hover { opacity: .88; }
 
 /* Sidebar fullscreen en mobile */
 @media (max-width: 768px) {
-  #sidebar {
+  #sidebar:not(.hidden) {
     width: 100vw !important;
     z-index: 500 !important;
     top: 48px !important;
