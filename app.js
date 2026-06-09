@@ -796,7 +796,7 @@ function checkTradeLimit() {
 }
 
 async function startCheckout() {
-  if (!currentUser) { alert('Debes iniciar sesión primero.'); return; }
+  if (!currentUser) { showToast('⚠️ Sesión requerida', 'Debes iniciar sesión primero.'); return; }
 
   showToast('⏳ Preparando checkout...', 'Conectando con Stripe...');
 
@@ -1331,7 +1331,7 @@ form.addEventListener("submit", async function(e) {
   const ruleFollowed   = val("ruleFollowed") || "yes";
 
   // Solo la fecha es obligatoria
-  if (!date) { alert("La fecha es el único campo obligatorio."); return; }
+  if (!date) { showToast('⚠️ Campo requerido', 'La fecha es obligatoria.'); return; }
   const mistake        = val("mistake");
   const notes          = val("notes");
   const emotionalState = val("emotionalState");
@@ -1373,26 +1373,31 @@ form.addEventListener("submit", async function(e) {
   const submitBtn = form.querySelector("button[type='submit']");
   if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = "Guardando..."; }
 
-  try {
-    await Promise.race([
-      (async () => {
-        await saveTradeToSupabase(trade);
-        await loadTradesFromSupabase();
-      })(),
-      new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 8000))
-    ]);
-  } catch(e) {
-    console.log('Save trade error:', e.message);
-    // Guardar localmente aunque falle Supabase
-    trades.push(trade);
-    saveTrades();
-    render();
-    showToast('⚠️ Guardado local', 'El trade se guardó localmente. Verifica tu conexión.');
-  }
-
+  // Guardar local INMEDIATO
+  trades.push(trade);
+  try { localStorage.setItem("dygpro_trades_cache", JSON.stringify(trades)); } catch(e) {}
+  try { render(); } catch(e) { console.log('render:', e); }
   form.reset();
-  if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = "Guardar Registro"; }
-  showToast('✅ Trade guardado', `${trade.symbol} ${trade.direction} · ${trade.date}`);
+
+  // Botón regresa SIEMPRE
+  submitBtn.disabled = false;
+  submitBtn.textContent = "✅ Guardado";
+  submitBtn.style.background = "var(--green)";
+  submitBtn.style.color = "#000";
+  setTimeout(() => {
+    submitBtn.textContent = "Guardar Registro";
+    submitBtn.style.background = "";
+    submitBtn.style.color = "";
+  }, 2500);
+
+  showToast("✅ Trade guardado", trade.symbol + " " + trade.direction + " · " + trade.date + " · $" + trade.pl.toFixed(2));
+
+  // Supabase en segundo plano
+  if (currentUser) {
+    saveTradeToSupabase(trade)
+      .then(() => loadTradesFromSupabase())
+      .catch(e => console.log("Supabase:", e.message));
+  }
 });
 
 function val(id) { return document.getElementById(id)?.value || ""; }
@@ -1827,7 +1832,7 @@ function importCSV(event) {
     const rows = parseSmartCSV(text);
 
     if (!rows.length) {
-      alert("CSV vacío o no reconocido.");
+      showToast('⚠️ CSV inválido', 'El archivo está vacío o no es reconocido.');
       return;
     }
 
@@ -2235,7 +2240,7 @@ function importUniversalRows(rows, headers) {
 document.getElementById("csvFile")?.addEventListener("change", importCSV);
 document.getElementById("exportCSV")?.addEventListener("click", function() {
   if (!trades.length) {
-    alert("No hay trades para exportar.");
+    showToast('⚠️ Sin trades', 'No hay trades para exportar.');
     return;
   }
 
@@ -2375,7 +2380,7 @@ document.getElementById("clearData")?.addEventListener("click", async function()
     await _supabase.from("trades").delete().eq("user_id", currentUser.id);
   }
   render();
-  alert("Todos los trades fueron borrados.");
+  showToast('🗑️ Borrado', 'Todos los trades fueron eliminados.');
 });
 
 document.getElementById("historyExportBtn")?.addEventListener("click", function() {
@@ -2395,7 +2400,7 @@ document.getElementById("historyClearBtn")?.addEventListener("click", async func
     await _supabase.from("trades").delete().eq("user_id", currentUser.id);
   }
   render();
-  alert("Historial eliminado.");
+  showToast('🗑️ Historial eliminado', 'El historial fue borrado.');
 });
 
 function renderSystemScorecard(activeTrades) {
@@ -2731,26 +2736,26 @@ function initPersonalNotes() {
     const text = noteText.value.trim();
 
     if (!date) {
-      alert("Selecciona una fecha.");
+      showToast('⚠️ Falta fecha', 'Selecciona una fecha.');
       return;
     }
 
     if (!text) {
-      alert("La nota está vacía.");
+      showToast('⚠️ Nota vacía', 'Escribe algo antes de guardar.');
       return;
     }
 
     personalNotes[date] = text;
     await saveNoteToSupabase(date, text);
     renderNotesCalendar();
-    alert("Nota guardada.");
+    showToast('✅ Nota guardada', 'Tu nota fue guardada.');
   });
 
   document.getElementById("deletePersonalNote")?.addEventListener("click", async function() {
     const date = noteDate.value;
 
     if (!personalNotes[date]) {
-      alert("No hay nota para borrar en esa fecha.");
+      showToast('⚠️ Sin nota', 'No hay nota en esa fecha.');
       return;
     }
 
@@ -2761,7 +2766,7 @@ function initPersonalNotes() {
     await deleteNoteFromSupabase(date);
     noteText.value = "";
     renderNotesCalendar();
-    alert("Nota borrada.");
+    showToast('🗑️ Nota borrada', 'La nota fue eliminada.');
   });
 
   renderNotesCalendar();
@@ -3258,7 +3263,7 @@ renderChart = function() {
     options: {
       responsive: true,
       devicePixelRatio: dpr,
-      interaction: { mode: "index", intersect: false },
+      interaction: { mode: window.innerWidth <= 768 ? "nearest" : "index", intersect: window.innerWidth <= 768 },
       plugins: {
         legend: {
           labels: {
@@ -3374,12 +3379,12 @@ function initPersonalNotesProRestore() {
     const text = noteText.value.trim();
 
     if (!date) {
-      alert("Selecciona una fecha.");
+      showToast('⚠️ Falta fecha', 'Selecciona una fecha.');
       return;
     }
 
     if (!text) {
-      alert("La nota está vacía.");
+      showToast('⚠️ Nota vacía', 'Escribe algo antes de guardar.');
       return;
     }
 
@@ -3389,14 +3394,14 @@ function initPersonalNotesProRestore() {
     monthInput.value = notesVisibleMonth;
 
     renderNotesCalendarProRestore();
-    alert("Nota guardada.");
+    showToast('✅ Nota guardada', 'Tu nota fue guardada.');
   };
 
   document.getElementById("deletePersonalNote").onclick = async function() {
     const date = noteDate.value;
 
     if (!personalNotes[date]) {
-      alert("No hay nota para borrar en esa fecha.");
+      showToast('⚠️ Sin nota', 'No hay nota en esa fecha.');
       return;
     }
 
@@ -3407,7 +3412,7 @@ function initPersonalNotesProRestore() {
     await deleteNoteFromSupabase(date);
     noteText.value = "";
     renderNotesCalendarProRestore();
-    alert("Nota borrada.");
+    showToast('🗑️ Nota borrada', 'La nota fue eliminada.');
   };
 
   renderNotesCalendarProRestore();
@@ -4738,3 +4743,48 @@ async function sendSuggestion() {
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') closeSuggestionModal();
 });
+
+/* ============================================================
+   BORRADO SELECTIVO POR FUENTE
+   ============================================================ */
+const SOURCE_DELETE_CONFIG = {
+  tradingview: { label: 'TradingView', color: '#34d399' },
+  webull:      { label: 'Webull',      color: '#fb923c' },
+  tradovate:   { label: 'Tradovate',   color: '#a78bfa' },
+  manual:      { label: 'Manual',      color: '#38bdf8' },
+  universal:   { label: 'CSV Import',  color: '#94a3b8' },
+  ninjatrader: { label: 'NinjaTrader', color: '#f472b6' },
+};
+
+async function deleteTradesBySource(source) {
+  const sourceLabel = SOURCE_DELETE_CONFIG[source]?.label || source;
+  const count = trades.filter(t => (t.source || 'manual').toLowerCase() === source).length;
+  if (count === 0) { showToast('⚠️ Sin trades', 'No hay trades de ' + sourceLabel + ' para borrar.'); return; }
+  const ok = confirm('¿Borrar los ' + count + ' trades de ' + sourceLabel + '? Esta acción no se puede deshacer.');
+  if (!ok) return;
+  if (currentUser) {
+    await _supabase.from('trades').delete().eq('user_id', currentUser.id).eq('source', source);
+  }
+  trades = trades.filter(t => (t.source || 'manual').toLowerCase() !== source);
+  try { localStorage.setItem("dygpro_trades_cache", JSON.stringify(trades)); } catch(e) {}
+  render();
+  showToast('🗑️ ' + sourceLabel + ' eliminado', count + ' trades borrados.');
+}
+
+function renderDeleteBySourceButtons(containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  const sourcesInTrades = [...new Set(trades.map(t => (t.source || 'manual').toLowerCase()))];
+  if (!sourcesInTrades.length) { container.innerHTML = ''; return; }
+  container.innerHTML = sourcesInTrades.map(src => {
+    const cfg = SOURCE_DELETE_CONFIG[src] || { label: src, color: '#94a3b8' };
+    return '<button onclick="deleteTradesBySource('' + src + '')" style="background:' + cfg.color + '18;border:1px solid ' + cfg.color + '66;color:' + cfg.color + ';padding:8px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif;white-space:nowrap;width:auto;grid-column:auto;">🗑️ Borrar ' + cfg.label + '</button>';
+  }).join('');
+}
+
+const _origRenderForDeleteBtns = render;
+render = function() {
+  _origRenderForDeleteBtns();
+  renderDeleteBySourceButtons('deleteBySourceData');
+  renderDeleteBySourceButtons('deleteBySourceHistory');
+};
