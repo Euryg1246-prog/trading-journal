@@ -3274,12 +3274,12 @@ renderChart = function() {
         },
         zoom: {
           pan: {
-            enabled: true,
+            enabled: window.innerWidth > 768,
             mode: 'x'
           },
           zoom: {
             wheel: { enabled: true, modifierKey: 'ctrl' },
-            pinch: { enabled: true },
+            pinch: { enabled: false },
             mode: 'x'
           }
         },
