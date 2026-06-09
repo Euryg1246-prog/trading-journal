@@ -1862,16 +1862,21 @@ function importCSV(event) {
       formatName = "CSV Universal";
     }
 
-    event.target.value = "";
-    try { localStorage.setItem("dygpro_trades_cache", JSON.stringify(trades)); } catch(e) {}
-    try { render(); } catch(e) {}
-    showToast("\u2705 " + formatName + " importado", result.imported + " trades importados \u00b7 " + result.skipped + " ignorados");
-
+    // Guardar cada trade nuevo en Supabase
     const newTrades = trades.slice(-(result.imported));
+    event.target.value = "";
+
     if (currentUser && newTrades.length > 0) {
       Promise.all(newTrades.map(t => saveTradeToSupabase(t)))
         .then(() => loadTradesFromSupabase())
-        .catch(e => console.log("Supabase import:", e.message));
+        .then(() => alert(`${formatName} importado.\nImportados: ${result.imported}\nIgnorados: ${result.skipped}`))
+        .catch(e => {
+          console.error("Error guardando en Supabase:", e);
+          // Reload anyway in case some trades saved
+          loadTradesFromSupabase();
+        });
+    } else {
+      alert(`${formatName} importado.\nImportados: ${result.imported}\nIgnorados: ${result.skipped}`);
     }
   };
 
@@ -4573,3 +4578,115 @@ function searchTVSymbol() {
 
   input.value = '';
 }
+
+/* ============================================================
+   TIME PICKER PERSONALIZADO — clic en reloj o botón Elegir
+   ============================================================ */
+(function initTimePicker() {
+  const _openPickers = new Set();
+  const _pickerState = {};
+
+  window.openTimePicker = function(fieldId) {
+    const dropdown = document.getElementById('picker-' + fieldId);
+    if (!dropdown) return;
+
+    if (dropdown.classList.contains('open')) {
+      dropdown.classList.remove('open');
+      _openPickers.delete(fieldId);
+      return;
+    }
+
+    _openPickers.forEach(id => {
+      const d = document.getElementById('picker-' + id);
+      if (d) d.classList.remove('open');
+    });
+    _openPickers.clear();
+
+    const input = document.getElementById(fieldId);
+    const current = input ? input.value : '';
+    const curH = current ? parseInt(current.split(':')[0]) : 9;
+    const curM = current ? parseInt(current.split(':')[1]) : 0;
+    _pickerState[fieldId] = { h: curH, m: Math.round(curM / 5) * 5 };
+
+    const hours   = Array.from({length: 24}, (_, i) => i);
+    const minutes = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
+
+    dropdown.innerHTML = `
+      <div style="text-align:center;font-size:26px;font-family:'DM Mono',monospace;color:var(--accent);letter-spacing:2px;margin-bottom:12px" id="tp-preview-${fieldId}">
+        ${String(curH).padStart(2,'0')}:${String(Math.round(curM/5)*5).padStart(2,'0')}
+      </div>
+      <div style="display:flex;gap:8px;align-items:flex-start">
+        <div style="flex:1">
+          <div style="font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;text-align:center;margin-bottom:6px">Hora</div>
+          <div style="max-height:180px;overflow-y:auto;display:flex;flex-direction:column;gap:3px" id="tp-hours-${fieldId}">
+            ${hours.map(h => `<div class="time-slot${h === curH ? ' selected' : ''}" onclick="window._tpSelectH('${fieldId}',${h})">${String(h).padStart(2,'0')}</div>`).join('')}
+          </div>
+        </div>
+        <div style="font-size:22px;color:var(--text2);padding-top:28px">:</div>
+        <div style="flex:1">
+          <div style="font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;text-align:center;margin-bottom:6px">Min</div>
+          <div style="display:flex;flex-direction:column;gap:3px" id="tp-mins-${fieldId}">
+            ${minutes.map(m => `<div class="time-slot${m === Math.round(curM/5)*5 ? ' selected' : ''}" onclick="window._tpSelectM('${fieldId}',${m})">${String(m).padStart(2,'0')}</div>`).join('')}
+          </div>
+        </div>
+      </div>
+      <button onclick="window._tpConfirm('${fieldId}')" style="width:100%;margin-top:12px;padding:9px;border-radius:9px;background:var(--accent);border:none;color:#000;font-weight:700;cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;">✅ Confirmar</button>
+    `;
+
+    dropdown.classList.add('open');
+    _openPickers.add(fieldId);
+
+    setTimeout(() => {
+      const hoursBox = document.getElementById('tp-hours-' + fieldId);
+      if (hoursBox) {
+        const selected = hoursBox.querySelector('.selected');
+        if (selected) selected.scrollIntoView({ block: 'center' });
+      }
+    }, 50);
+  };
+
+  window._tpSelectH = function(fieldId, h) {
+    if (!_pickerState[fieldId]) _pickerState[fieldId] = { h: 9, m: 0 };
+    _pickerState[fieldId].h = h;
+    document.querySelectorAll('#tp-hours-' + fieldId + ' .time-slot').forEach(el => el.classList.remove('selected'));
+    const slots = document.querySelectorAll('#tp-hours-' + fieldId + ' .time-slot');
+    if (slots[h]) slots[h].classList.add('selected');
+    const p = document.getElementById('tp-preview-' + fieldId);
+    if (p) p.textContent = String(h).padStart(2,'0') + ':' + String(_pickerState[fieldId].m).padStart(2,'0');
+  };
+
+  window._tpSelectM = function(fieldId, m) {
+    if (!_pickerState[fieldId]) _pickerState[fieldId] = { h: 9, m: 0 };
+    _pickerState[fieldId].m = m;
+    document.querySelectorAll('#tp-mins-' + fieldId + ' .time-slot').forEach(el => el.classList.remove('selected'));
+    const minutes = [0,5,10,15,20,25,30,35,40,45,50,55];
+    const idx = minutes.indexOf(m);
+    const slots = document.querySelectorAll('#tp-mins-' + fieldId + ' .time-slot');
+    if (slots[idx]) slots[idx].classList.add('selected');
+    const p = document.getElementById('tp-preview-' + fieldId);
+    if (p) p.textContent = String(_pickerState[fieldId].h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+  };
+
+  window._tpConfirm = function(fieldId) {
+    const state = _pickerState[fieldId];
+    const input = document.getElementById(fieldId);
+    if (input && state) {
+      input.value = String(state.h).padStart(2,'0') + ':' + String(state.m).padStart(2,'0');
+      input.dispatchEvent(new Event('input'));
+      input.dispatchEvent(new Event('change'));
+    }
+    const dropdown = document.getElementById('picker-' + fieldId);
+    if (dropdown) dropdown.classList.remove('open');
+    _openPickers.delete(fieldId);
+  };
+
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.time-picker-wrap') && !e.target.closest('#analogClock')) {
+      _openPickers.forEach(id => {
+        const d = document.getElementById('picker-' + id);
+        if (d) d.classList.remove('open');
+      });
+      _openPickers.clear();
+    }
+  });
+})();
