@@ -778,7 +778,7 @@
     💬
   </button>
 
-  <div id="suggestionModal" style="display:none;position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0.7);align-items:center;justify-content:center;">
+  <div id="suggestionModal" style="display:none;position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0.7);align-items:center;justify-content:center;" onclick="if(event.target===this)closeSuggestionModal()">
     <div style="background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:32px;max-width:460px;width:90%;position:relative;">
       <button onclick="closeSuggestionModal()" style="position:absolute;top:14px;right:16px;background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;width:auto;grid-column:auto;">✕</button>
       <h2 style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1.5px;color:var(--accent);margin-bottom:4px;">💬 Sugerencias & Soporte</h2>
