@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manual de Uso — DYGPRO</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:#020617; --bg2:#0f172a; --bg3:#1e293b;
+      --accent:#38bdf8; --accent2:#2563eb;
+      --text:#e2e8f0; --muted:#94a3b8; --border:rgba(96,165,250,.18);
+      --green:#22c55e; --red:#ef4444; --yellow:#fbbf24;
+      --radius:16px;
+    }
+    body { background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; font-size:15px; line-height:1.7; }
+
+    nav {
+      position:sticky; top:0; z-index:100;
+      background:rgba(2,6,23,.9); backdrop-filter:blur(12px);
+      border-bottom:1px solid var(--border);
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px 32px;
+    }
+    .nav-logo { font-size:20px; font-weight:800; background:linear-gradient(90deg,var(--accent),var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; text-decoration:none; }
+    .nav-back { color:var(--muted); text-decoration:none; font-size:13px; display:flex; align-items:center; gap:6px; transition:color .2s; }
+    .nav-back:hover { color:var(--accent); }
+
+    .hero { text-align:center; padding:60px 24px 36px; background:radial-gradient(ellipse at top,rgba(56,189,248,.08) 0%,transparent 60%); }
+    .hero h1 { font-size:clamp(26px,5vw,42px); font-weight:800; margin-bottom:10px; background:linear-gradient(135deg,#e2e8f0,var(--accent)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .hero p { color:var(--muted); max-width:540px; margin:0 auto; font-size:15px; }
+
+    .quick-nav { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; padding:28px 24px; }
+    .quick-nav a { background:var(--bg2); border:1px solid var(--border); border-radius:20px; padding:8px 16px; color:var(--accent); text-decoration:none; font-size:13px; font-weight:600; transition:background .2s,border-color .2s; }
+    .quick-nav a:hover { background:var(--bg3); border-color:var(--accent); }
+
+    main { max-width:820px; margin:0 auto; padding:0 24px 80px; }
+
+    .help-section { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:36px 40px; margin-bottom:24px; scroll-margin-top:80px; }
+    .section-badge { display:inline-flex; align-items:center; gap:8px; background:rgba(56,189,248,.1); border:1px solid var(--border); border-radius:20px; padding:5px 14px; font-size:12px; font-weight:700; color:var(--accent); letter-spacing:.05em; text-transform:uppercase; margin-bottom:14px; }
+    .help-section h2 { font-size:22px; font-weight:800; margin-bottom:6px; }
+    .help-section .subtitle { color:var(--muted); font-size:14px; margin-bottom:24px; padding-bottom:18px; border-bottom:1px solid var(--border); }
+    .help-section h3 { font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--accent); margin:24px 0 10px; }
+    .help-section p { color:var(--muted); margin-bottom:10px; }
+    .help-section ul { list-style:none; margin:0 0 12px; padding:0; }
+    .help-section ul li { color:var(--muted); padding:7px 0 7px 22px; position:relative; border-bottom:1px solid rgba(255,255,255,.04); }
+    .help-section ul li:last-child { border-bottom:none; }
+    .help-section ul li::before { content:'→'; position:absolute; left:0; color:var(--accent); font-size:12px; }
+    .help-section strong { color:var(--text); }
+
+    .field-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:16px 0; }
+    .field-card { background:var(--bg3); border:1px solid var(--border); border-radius:12px; padding:14px 16px; }
+    .field-card .field-name { font-size:12px; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:.04em; margin-bottom:6px; }
+    .field-card p { font-size:13px; color:var(--muted); margin:0; }
+
+    .callout { border-radius:12px; padding:16px 20px; margin:16px 0; display:flex; gap:14px; align-items:flex-start; }
+    .callout-icon { font-size:20px; flex-shrink:0; margin-top:2px; }
+    .callout-body { flex:1; }
+    .callout-body strong { display:block; margin-bottom:4px; font-size:14px; }
+    .callout-body p { font-size:13px; margin:0; color:var(--muted); }
+    .callout.info { background:rgba(56,189,248,.08); border:1px solid rgba(56,189,248,.2); }
+    .callout.info .callout-body strong { color:var(--accent); }
+    .callout.tip { background:rgba(34,197,94,.07); border:1px solid rgba(34,197,94,.2); }
+    .callout.tip .callout-body strong { color:var(--green); }
+    .callout.warn { background:rgba(251,191,36,.07); border:1px solid rgba(251,191,36,.2); }
+    .callout.warn .callout-body strong { color:var(--yellow); }
+
+    .step { display:flex; gap:16px; margin-bottom:16px; align-items:flex-start; }
+    .step-num { width:30px; height:30px; border-radius:50%; background:linear-gradient(135deg,var(--accent2),var(--accent)); color:#fff; font-weight:800; font-size:14px; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:2px; }
+    .step-body strong { display:block; color:var(--text); margin-bottom:4px; }
+    .step-body p { color:var(--muted); font-size:14px; margin:0; }
+
+    .metric-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:16px 0; }
+    .metric-card { background:var(--bg3); border:1px solid var(--border); border-radius:12px; padding:14px; text-align:center; }
+    .metric-card .m-icon { font-size:22px; margin-bottom:6px; }
+    .metric-card .m-name { font-size:11px; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:.04em; margin-bottom:4px; }
+    .metric-card .m-desc { font-size:12px; color:var(--muted); }
+
+    .contact-box { background:linear-gradient(135deg,rgba(37,99,235,.15),rgba(56,189,248,.1)); border:1px solid var(--border); border-radius:var(--radius); padding:32px; text-align:center; margin-top:36px; }
+    .contact-box h3 { font-size:20px; margin-bottom:8px; }
+    .contact-box p { color:var(--muted); margin-bottom:18px; font-size:14px; }
+    .contact-box a { display:inline-block; background:linear-gradient(90deg,var(--accent2),var(--accent)); color:white; text-decoration:none; padding:12px 28px; border-radius:10px; font-weight:700; font-size:14px; transition:opacity .2s; }
+    .contact-box a:hover { opacity:.85; }
+
+    footer { border-top:1px solid var(--border); padding:24px 32px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+    footer p { color:var(--muted); font-size:13px; }
+    footer a { color:var(--accent); text-decoration:none; }
+
+    @media (max-width:600px) {
+      nav { padding:12px 16px; }
+      .help-section { padding:24px 18px; }
+      .field-grid { grid-template-columns:1fr; }
+      .metric-grid { grid-template-columns:1fr 1fr; }
+      footer { flex-direction:column; text-align:center; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">⚡ DYGPRO</a>
+  <a href="/" class="nav-back">← Volver al app</a>
+</nav>
+
+<div class="hero">
+  <h1>📖 Manual de Uso</h1>
+  <p>Todo lo que necesitas saber para sacarle el máximo provecho a DYGPRO. Directo, sin rodeos.</p>
+</div>
+
+<div class="quick-nav">
+  <a href="#inicio">🚀 Primeros Pasos</a>
+  <a href="#registro">📝 Registrar Trades</a>
+  <a href="#importar">📥 Importar CSV</a>
+  <a href="#dashboard">📊 Dashboard</a>
+  <a href="#historial">📋 Historial</a>
+  <a href="#galeria">🖼️ Galería</a>
+  <a href="#alarmas">⏰ Alarmas</a>
+  <a href="#notas">📓 Notas</a>
+  <a href="#sistema">⚙️ Mi Sistema</a>
+</div>
+
+<main>
+
+  <!-- PRIMEROS PASOS -->
+  <div class="help-section" id="inicio">
+    <div class="section-badge">🚀 Sección 1</div>
+    <h2>Primeros Pasos</h2>
+    <p class="subtitle">Desde que creas tu cuenta hasta que registras tu primer trade — en menos de 5 minutos.</p>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <strong>Crea tu cuenta</strong>
+        <p>Entra a dygpro.com, ingresa tu email y contraseña. Recibirás un email de bienvenida con acceso inmediato.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <strong>Configura tu perfil</strong>
+        <p>Ve a <strong>Mi Perfil</strong> en el menú lateral. Agrega tu nombre, broker, capital inicial y una foto. Esta información aparece en tu dashboard.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <strong>Configura tu sistema</strong>
+        <p>Ve a <strong>Mi Sistema</strong> y define el nombre de tu sistema, el horario de tu sesión de trading y los días que operas. Esto calibra las métricas de disciplina.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <strong>Registra tu primer trade</strong>
+        <p>Ve a la sección principal y completa el formulario. Solo la fecha es obligatoria — el resto lo puedes completar después.</p>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <span class="callout-icon">💡</span>
+      <div class="callout-body">
+        <strong>Tu cuenta viaja contigo</strong>
+        <p>Todos tus trades, configuración y perfil se sincronizan en la nube. Puedes abrir DYGPRO en cualquier dispositivo y todo estará ahí.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- REGISTRAR TRADES -->
+  <div class="help-section" id="registro">
+    <div class="section-badge">📝 Sección 2</div>
+    <h2>Registrar Trades Manualmente</h2>
+    <p class="subtitle">El formulario está diseñado para ser rápido. Completa lo que sabes y sigue adelante.</p>
+
+    <h3>Campos principales</h3>
+    <div class="field-grid">
+      <div class="field-card">
+        <div class="field-name">Tipo de Instrumento</div>
+        <p>Futuros, Opciones o Acciones. Esto cambia los campos disponibles según el instrumento.</p>
+      </div>
+      <div class="field-card">
+        <div class="field-name">Símbolo</div>
+        <p>El instrumento que operaste. MNQ, MYM, ES, NQ o cualquier símbolo personalizado.</p>
+      </div>
+      <div class="field-card">
+        <div class="field-name">Precio de Entrada</div>
+        <p>El precio exacto donde abriste la operación según tu broker.</p>
+      </div>
+      <div class="field-card">
+        <div class="field-name">Precio de Salida</div>
+        <p>El precio donde cerraste. Si tuviste múltiples salidas, usa el promedio.</p>
+      </div>
+      <div class="field-card">
+        <div class="field-name">Contratos</div>
+        <p>Cuántos contratos operaste. El P/L se calcula automáticamente.</p>
+      </div>
+      <div class="field-card">
+        <div class="field-name">Dirección</div>
+        <p><strong>Long</strong> si compraste. <strong>Short</strong> si vendiste en corto.</p>
+      </div>
+    </div>
+
+    <h3>Campos de contexto de mercado</h3>
+    <div class="field-grid">
+      <div class="field-card">
+        <div class="field-name">Apertura de Sesión</div>
+        <p>El precio de apertura del día — generalmente el Open de las 9:30 AM ET.</p>
+      </div>
+      <div class="field-card">
+        <div class="field-name">Low de la Sesión</div>
+        <p>El precio mínimo de <strong>todo el día</strong>, no solo de tu trade. Contexto del rango del mercado.</p>
+      </div>
+      <div class="field-card">
+        <div class="field-name">High de la Sesión</div>
+        <p>El precio máximo de <strong>todo el día</strong>. Ves qué tan lejos estuvo el precio del extremo.</p>
+      </div>
+      <div class="field-card">
+        <div class="field-name">Hora del Pico</div>
+        <p>La hora exacta en que el mercado alcanzó su punto más alto del día.</p>
+      </div>
+    </div>
+
+    <h3>Campos de análisis personal</h3>
+    <div class="field-grid">
+      <div class="field-card">
+        <div class="field-name">Setup</div>
+        <p>El patrón que usaste. Documentarlo te ayuda a identificar tus setups más rentables.</p>
+      </div>
+      <div class="field-card">
+        <div class="field-name">¿Cumplió las Reglas?</div>
+        <p>¿El trade estuvo dentro de tu plan? Sé honesto — es para tu propio beneficio.</p>
+      </div>
+      <div class="field-card">
+        <div class="field-name">Error Principal</div>
+        <p>Si cometiste un error, identifícalo. Registrarlo consistentemente es la forma más rápida de eliminarlo.</p>
+      </div>
+      <div class="field-card">
+        <div class="field-name">Estado Emocional</div>
+        <p>¿Cómo te sentiste? El estado emocional impacta directamente las decisiones de trading.</p>
+      </div>
+      <div class="field-card">
+        <div class="field-name">Nota del Trade</div>
+        <p>Describe qué ocurrió. Cuanto más detallado, más útil será para revisarlo después.</p>
+      </div>
+      <div class="field-card">
+        <div class="field-name">Lección Aprendida</div>
+        <p>¿Qué te enseñó este trade? Aunque haya salido bien — siempre hay algo que aprender.</p>
+      </div>
+    </div>
+
+    <div class="callout info">
+      <span class="callout-icon">⚡</span>
+      <div class="callout-body">
+        <strong>El P/L se calcula automáticamente</strong>
+        <p>Ingresa entrada, salida y contratos — DYGPRO calcula el P/L en dólares según el valor por punto del símbolo seleccionado.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- IMPORTAR CSV -->
+  <div class="help-section" id="importar">
+    <div class="section-badge">📥 Sección 3</div>
+    <h2>Importar desde CSV</h2>
+    <p class="subtitle">Si ya tienes historial en TradingView, Webull o Tradovate, puedes importarlo en segundos.</p>
+
+    <h3>Plataformas compatibles</h3>
+    <ul>
+      <li><strong>TradingView</strong> — Exporta desde tu historial de operaciones en formato CSV.</li>
+      <li><strong>Webull</strong> — Descarga el reporte de órdenes ejecutadas desde la app web.</li>
+      <li><strong>Tradovate</strong> — Exporta el <strong>Position History</strong> desde tu cuenta.</li>
+    </ul>
+
+    <h3>Cómo importar</h3>
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body"><strong>Descarga el CSV de tu plataforma</strong><p>Cada plataforma tiene su propia sección de reportes o historial de trades.</p></div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body"><strong>Haz click en "Importar CSV"</strong><p>Está en la sección principal de DYGPRO, en la barra de herramientas.</p></div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body"><strong>Selecciona el archivo</strong><p>DYGPRO detecta automáticamente el formato y etiqueta cada trade con su plataforma de origen.</p></div>
+    </div>
+
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <div class="callout-body">
+        <strong>Evita importar el mismo archivo dos veces</strong>
+        <p>DYGPRO no deduplica automáticamente — si importas el mismo CSV dos veces tendrás trades duplicados. Usa "Borrar por fuente" si necesitas reimportar.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="help-section" id="dashboard">
+    <div class="section-badge">📊 Sección 4</div>
+    <h2>Dashboard y Métricas</h2>
+    <p class="subtitle">El dashboard se actualiza en tiempo real cada vez que guardas o eliminas un trade.</p>
+
+    <div class="metric-grid">
+      <div class="metric-card"><div class="m-icon">💰</div><div class="m-name">P/L Total</div><div class="m-desc">Ganancia o pérdida acumulada de todos tus trades.</div></div>
+      <div class="metric-card"><div class="m-icon">🎯</div><div class="m-name">Win Rate</div><div class="m-desc">Porcentaje de trades que cerraste en positivo.</div></div>
+      <div class="metric-card"><div class="m-icon">⚡</div><div class="m-name">Profit Factor</div><div class="m-desc">Relación entre ganancias totales y pérdidas totales. Mayor a 1.5 es sólido.</div></div>
+      <div class="metric-card"><div class="m-icon">📉</div><div class="m-name">Max Drawdown</div><div class="m-desc">La caída máxima desde un pico de equity hasta el siguiente valle.</div></div>
+      <div class="metric-card"><div class="m-icon">🔥</div><div class="m-name">Racha Actual</div><div class="m-desc">Cuántos trades consecutivos has ganado o perdido.</div></div>
+      <div class="metric-card"><div class="m-icon">📈</div><div class="m-name">Curva de Equity</div><div class="m-desc">Gráfica de cómo ha evolucionado tu cuenta en el tiempo.</div></div>
+    </div>
+
+    <h3>Filtros</h3>
+    <p>Puedes filtrar el dashboard por fuente (TradingView, Webull, Tradovate, Manual) para analizar el rendimiento de cada plataforma por separado. El botón <strong>Reset</strong> vuelve a mostrar todos.</p>
+  </div>
+
+  <!-- HISTORIAL -->
+  <div class="help-section" id="historial">
+    <div class="section-badge">📋 Sección 5</div>
+    <h2>Historial de Trades</h2>
+    <p class="subtitle">Revisa, filtra y gestiona todo tu historial de operaciones.</p>
+
+    <ul>
+      <li>Filtra por fuente usando los botones de plataforma en la parte superior.</li>
+      <li>El botón <strong>X</strong> al lado de cada trade lo elimina de forma permanente.</li>
+      <li>Usa <strong>Borrar por fuente</strong> para eliminar todos los trades de una plataforma de una vez.</li>
+      <li>Exporta tu historial completo en CSV con el botón <strong>Exportar CSV</strong>.</li>
+    </ul>
+
+    <div class="callout info">
+      <span class="callout-icon">🔍</span>
+      <div class="callout-body">
+        <strong>Los filtros respetan tu selección</strong>
+        <p>Si estás viendo solo tus trades manuales y borras uno, la vista se mantiene — no se resetean los filtros.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- GALERÍA -->
+  <div class="help-section" id="galeria">
+    <div class="section-badge">🖼️ Sección 6</div>
+    <h2>Galería de Capturas</h2>
+    <p class="subtitle">Sube screenshots de tus charts y adjunta notas a cada imagen.</p>
+
+    <ul>
+      <li>Arrastra y suelta imágenes directamente en la zona de carga, o haz click para seleccionarlas.</li>
+      <li>Haz click en cualquier imagen para abrirla en pantalla completa.</li>
+      <li>Desde el modal puedes escribir una nota y guardarla — el modal se cierra automáticamente al guardar.</li>
+      <li>Usa la barra de búsqueda para encontrar imágenes por nota o fecha.</li>
+      <li>El botón <strong>Eliminar</strong> dentro del modal borra la imagen permanentemente.</li>
+    </ul>
+
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <div class="callout-body">
+        <strong>Las imágenes se guardan localmente por ahora</strong>
+        <p>Las capturas de la galería se almacenan en tu navegador actual. Si cambias de dispositivo o limpias el caché del navegador, las imágenes no estarán disponibles. Estamos trabajando en sincronización en la nube para imágenes.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ALARMAS -->
+  <div class="help-section" id="alarmas">
+    <div class="section-badge">⏰ Sección 7</div>
+    <h2>Sistema de Alarmas</h2>
+    <p class="subtitle">Recordatorios automáticos para mantener tu disciplina de trading.</p>
+
+    <ul>
+      <li>Configura alarmas a horas fijas — por ejemplo, 30 minutos antes de tu sesión.</li>
+      <li>Las alarmas reproducen un sonido y muestran un mensaje de disciplina en pantalla.</li>
+      <li>Puedes activar o desactivar cada alarma individualmente con el toggle.</li>
+      <li>Las alarmas solo funcionan mientras DYGPRO está abierto en tu navegador.</li>
+    </ul>
+
+    <div class="callout tip">
+      <span class="callout-icon">💡</span>
+      <div class="callout-body">
+        <strong>Úsalas para reforzar tus reglas</strong>
+        <p>Configura una alarma al inicio de sesión que te recuerde tu límite de pérdida diaria o tu regla de no operar en las primeras 15 minutos del mercado.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTAS -->
+  <div class="help-section" id="notas">
+    <div class="section-badge">📓 Sección 8</div>
+    <h2>Notas y Journal</h2>
+    <p class="subtitle">Tu diario de trading integrado, organizado por fecha en un calendario.</p>
+
+    <ul>
+      <li>Selecciona cualquier día en el calendario para escribir tu nota de ese día.</li>
+      <li>Documenta tu estado mental, el contexto del mercado, tu plan del día o cualquier reflexión.</li>
+      <li>Las notas se guardan automáticamente vinculadas a la fecha seleccionada.</li>
+      <li>Los días con notas aparecen marcados en el calendario para fácil referencia.</li>
+    </ul>
+  </div>
+
+  <!-- MI SISTEMA -->
+  <div class="help-section" id="sistema">
+    <div class="section-badge">⚙️ Sección 9</div>
+    <h2>Mi Sistema</h2>
+    <p class="subtitle">Personaliza DYGPRO para que se adapte exactamente a tu forma de operar.</p>
+
+    <div class="field-grid">
+      <div class="field-card">
+        <div class="field-name">Nombre del Sistema</div>
+        <p>El nombre de tu estrategia o metodología de trading. Aparece en el dashboard.</p>
+      </div>
+      <div class="field-card">
+        <div class="field-name">Horario de Sesión</div>
+        <p>Define el inicio y fin de tu sesión. DYGPRO usa esto para calcular métricas de disciplina.</p>
+      </div>
+      <div class="field-card">
+        <div class="field-name">Días de Trading</div>
+        <p>Selecciona qué días de la semana operas. Los demás días no cuentan en las métricas de sesión.</p>
+      </div>
+      <div class="field-card">
+        <div class="field-name">Restablecer por Defecto</div>
+        <p>Vuelve la configuración a los valores originales. Útil si algo no funciona como esperas.</p>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <span class="callout-icon">☁️</span>
+      <div class="callout-body">
+        <strong>La configuración viaja contigo</strong>
+        <p>Tu configuración del sistema se sincroniza en la nube. Al iniciar sesión en cualquier dispositivo, todo queda igual.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTACTO -->
+  <div class="contact-box">
+    <h3>¿Tienes alguna duda?</h3>
+    <p>Si algo no está claro o encuentras algún problema, escríbenos. Respondemos rápido.</p>
+    <a href="mailto:soporte1@dygpro.com">✉️ soporte1@dygpro.com</a>
+  </div>
+
+</main>
+
+<footer>
+  <p>© 2026 DYGPRO. Todos los derechos reservados.</p>
+  <p><a href="/legal.html">Términos & Privacidad</a> · <a href="/">Volver al app</a></p>
+</footer>
+
+</body>
+</html>
