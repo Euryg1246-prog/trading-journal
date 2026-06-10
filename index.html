@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DYGPRO Trading Journal</title>
+  <link rel="stylesheet" href="style.css?v=3">
+  <style>
+    #auth-overlay {
+      position: fixed; inset: 0; z-index: 9999;
+      background: radial-gradient(circle at top, #123b8a, #020617 55%);
+      display: flex; align-items: center; justify-content: center;
+    }
+    #auth-overlay.hidden { display: none; }
+    .auth-box {
+      background: rgba(15,23,42,.95);
+      border: 1px solid rgba(96,165,250,.3);
+      border-radius: 24px; padding: 40px; width: 100%; max-width: 400px;
+      box-shadow: 0 0 60px rgba(0,0,0,.5);
+    }
+    .auth-box h2 { color: #38bdf8; margin: 0 0 6px; font-size: 26px; text-align: center; }
+    .auth-box p  { color: #94a3b8; text-align: center; margin: 0 0 28px; font-size: 14px; }
+    .auth-box input {
+      width: 100%; padding: 13px; border-radius: 12px;
+      border: 1px solid #334155; background: #020617;
+      color: white; outline: none; margin-bottom: 14px; font-size: 14px;
+    }
+    .auth-box input:focus { border-color: #38bdf8; }
+    .auth-box .btn-primary {
+      width: 100%; padding: 14px; border-radius: 12px; border: none;
+      background: linear-gradient(90deg, #2563eb, #06b6d4);
+      color: white; font-weight: bold; cursor: pointer; font-size: 15px; margin-bottom: 10px;
+    }
+    .auth-box .btn-secondary {
+      width: 100%; padding: 12px; border-radius: 12px;
+      border: 1px solid #334155; background: transparent;
+      color: #94a3b8; cursor: pointer; font-size: 14px;
+    }
+    .auth-box .btn-secondary:hover { border-color: #38bdf8; color: #38bdf8; }
+    .auth-box .auth-error { color: #ef4444; font-size: 13px; margin-bottom: 12px; text-align: center; min-height: 18px; }
+    .auth-tab { display: flex; gap: 0; margin-bottom: 24px; border-radius: 12px; overflow: hidden; border: 1px solid #334155; }
+    .auth-tab button { flex: 1; padding: 10px; background: transparent; border: none; color: #94a3b8; cursor: pointer; font-size: 14px; }
+    .auth-tab button.active { background: #1e3a8a; color: white; font-weight: bold; }
+    #user-bar {
+      display: none; align-items: center; justify-content: flex-end;
+      gap: 14px; padding: 10px 0 0; margin-bottom: 10px;
+    }
+    #user-bar.visible { display: flex; }
+    #user-bar span { color: #94a3b8; font-size: 13px; }
+    #logout-btn {
+      padding: 8px 16px; border-radius: 10px; border: 1px solid #334155;
+      background: transparent; color: #ef4444; cursor: pointer; font-size: 13px;
+    }
+    #logout-btn:hover { border-color: #ef4444; }
+  </style>
+  <style>
+  /* ── MOBILE OVERRIDE CRÍTICO ── */
+  @media (max-width: 800px) {
+    .grid-main { grid-template-columns: 1fr !important; gap: 14px !important; }
+    .dashboard { grid-template-columns: repeat(2, 1fr) !important; }
+    .setup-grid { grid-template-columns: repeat(3, 1fr) !important; }
+    .drift-grid { grid-template-columns: 1fr 1fr !important; }
+    .scorecard-grid { grid-template-columns: 1fr !important; }
+    .recovery-grid { grid-template-columns: 1fr !important; }
+    .notes-pro-grid { grid-template-columns: 1fr !important; }
+    .account-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    .trade-form-v2 { grid-template-columns: 1fr 1fr !important; }
+    #main-scroll { padding: 12px 10px !important; }
+    .panel { padding: 16px 12px !important; margin-bottom: 14px !important; }
+    .card strong { font-size: 16px !important; }
+    /* Calendario de notas más compacto */
+    .note-cell { min-height: 44px !important; }
+    /* Tabla con scroll horizontal */
+    .history-scroll-box, .session-scroll-box { overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; }
+    /* Profile layout */
+    .profile-layout { flex-direction: column !important; align-items: center !important; }
+    .profile-fields { grid-template-columns: 1fr !important; }
+  }
+  @media (max-width: 480px) {
+    .trade-form-v2 { grid-template-columns: 1fr !important; }
+    .account-grid { grid-template-columns: 1fr !important; }
+    .setup-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  }
+  </style>
+
+  <style>
+    /* ── TOOLTIPS ── */
+    .tip {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 15px; height: 15px; border-radius: 50%;
+      background: rgba(56,189,248,.15); border: 1px solid rgba(56,189,248,.3);
+      color: var(--accent); font-size: 10px; font-weight: 700;
+      cursor: help; margin-left: 5px; flex-shrink: 0;
+      position: relative; vertical-align: middle;
+      transition: background .2s;
+    }
+    .tip:hover { background: rgba(56,189,248,.3); }
+    .tip::after {
+      content: attr(data-tip);
+      position: absolute; bottom: calc(100% + 8px); left: 50%;
+      transform: translateX(-50%);
+      background: #0f172a; border: 1px solid rgba(56,189,248,.25);
+      color: #e2e8f0; font-size: 12px; font-weight: 400;
+      line-height: 1.5; padding: 10px 14px;
+      border-radius: 10px; width: 220px; text-align: left;
+      white-space: normal; pointer-events: none;
+      opacity: 0; transition: opacity .2s;
+      z-index: 9999;
+      box-shadow: 0 8px 24px rgba(0,0,0,.4);
+    }
+    .tip::before {
+      content: '';
+      position: absolute; bottom: calc(100% + 2px); left: 50%;
+      transform: translateX(-50%);
+      border: 6px solid transparent;
+      border-top-color: rgba(56,189,248,.25);
+      pointer-events: none; opacity: 0; transition: opacity .2s;
+      z-index: 9999;
+    }
+    .tip:hover::after, .tip:hover::before { opacity: 1; }
+    /* Si el tooltip está muy a la izquierda */
+    .tip.tip-right::after { left: 0; transform: none; }
+    /* Mobile: mostrar como bloque */
+    @media (max-width: 600px) {
+      .tip::after { width: 180px; font-size: 11px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="auth-overlay" class="hidden">
+  <div class="auth-box">
+    <div class="auth-logo">
+      <h1>DYGPRO</h1>
+      <span>Trading Journal</span>
+    </div>
+    <div class="auth-tab">
+      <button class="active" onclick="showTab('login')">Iniciar sesión</button>
+      <button onclick="showTab('register')">Registrarse</button>
+    </div>
+    <div id="auth-error" class="auth-error"></div>
+    <input type="email" id="auth-email" placeholder="Email" autocomplete="email">
+    <input type="password" id="auth-password" placeholder="Contraseña" autocomplete="current-password">
+    <button class="btn-primary" id="auth-submit" onclick="submitAuth()">Entrar</button>
+    <button class="btn-secondary" id="auth-reset" onclick="resetPassword()">¿Olvidaste tu contraseña?</button>
+  </div>
+</div>
+
+<div id="app-layout">
+  <div class="app">
+
+  <!-- Top Bar -->
+  <div class="top-bar" style="padding-left: var(--main-pad, 32px); padding-right: var(--main-pad, 32px);">
+    <div class="top-logo">
+      <span class="logo-main">DYGPRO</span>
+      <span class="logo-sub">Trading Journal</span>
+    </div>
+    <div class="top-actions">
+      <div class="view-toggle">
+        <button class="view-btn active" id="btn-scroll" onclick="setView('scroll')">
+          <i class="ti ti-layout-list"></i> Vista Completa
+        </button>
+        <button class="view-btn" id="btn-sidebar" onclick="setView('sidebar')">
+          <i class="ti ti-layout-sidebar"></i> Vista por Secciones
+        </button>
+      </div>
+      <div class="user-chip">
+        <div class="user-avatar-sm" id="user-avatar-initials" style="overflow:hidden;cursor:pointer;" onclick="showSidebarSection('section-profile');" title="Mi Perfil">
+          <img id="topbar-avatar-img" src="" style="display:none;width:100%;height:100%;object-fit:cover;" alt="">
+          <span id="topbar-avatar-initials">U</span>
+        </div>
+        <span id="topbar-trader-name" style="font-size:12px;color:var(--text);font-weight:600;display:none;cursor:pointer;" onclick="showSidebarSection('section-profile');"></span>
+        <span id="user-email-label"></span>
+        <span id="plan-badge" style="font-size:11px;padding:3px 8px;border-radius:999px;font-weight:700;display:none;"></span>
+        <button id="logout-btn" onclick="signOut()">Salir</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <div id="sidebar-overlay" class="hidden" onclick="setView('scroll')"></div>
+  <nav id="sidebar" class="hidden">
+    <div class="sidebar-logo">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <h1>DYGPRO</h1>
+          <span>Trading Journal</span>
+        </div>
+        <button onclick="collapseSidebar()" title="Ocultar menú" style="background:none;border:none;color:var(--text2);cursor:pointer;font-size:20px;padding:4px;width:auto;grid-column:auto;line-height:1;">✕</button>
+      </div>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-section">Dashboard</div>
+      <a class="nav-item" href="#" onclick="showSidebarSection('section-dashboard');return false;"><i class="ti ti-chart-line"></i> Equity + Ratios</a>
+      <a class="nav-item" href="#" onclick="showSidebarSection('section-calendar');return false;"><i class="ti ti-calendar-stats"></i> Calendario P/L</a>
+      <a class="nav-item" href="#" onclick="showSidebarSection('section-research');return false;"><i class="ti ti-chart-bar"></i> Research</a>
+      <div class="nav-section">Análisis</div>
+      <a class="nav-item" href="#" onclick="showSidebarSection('section-setup');return false;"><i class="ti ti-star"></i> Setup Score</a>
+      <a class="nav-item" href="#" onclick="showSidebarSection('section-scorecard-wrapper');return false;"><i class="ti ti-award"></i> Scorecard</a>
+      <a class="nav-item" href="#" onclick="showSidebarSection('section-drift');return false;"><i class="ti ti-activity"></i> Drift Monitor</a>
+      <a class="nav-item" href="#" onclick="showSidebarSection('section-recovery');return false;"><i class="ti ti-refresh-alert"></i> Recovery</a>
+      <a class="nav-item" href="#" onclick="showSidebarSection('section-account');return false;"><i class="ti ti-wallet"></i> Account Size</a>
+      <div class="nav-section">Operaciones</div>
+      <a class="nav-item" href="#" onclick="showSidebarSection('section-entry');return false;"><i class="ti ti-plus-circle"></i> Nuevo Trade</a>
+      <a class="nav-item" href="#" onclick="showSidebarSection('section-history');return false;"><i class="ti ti-list"></i> Historial</a>
+      <a class="nav-item" href="#" onclick="showSidebarSection('section-sessions');return false;"><i class="ti ti-database"></i> Sesiones</a>
+      <a class="nav-item" href="#" onclick="showSidebarSection('section-data');return false;"><i class="ti ti-upload"></i> Importar CSV</a>
+      <div class="nav-section">Personal</div>
+      <a class="nav-item" href="#" onclick="showSidebarSection('section-notes');return false;"><i class="ti ti-notes"></i> Notas</a>
+      <a class="nav-item" href="#" onclick="showSidebarSection('section-gallery');return false;"><i class="ti ti-photo"></i> Galería</a>
+      <a class="nav-item" href="#" onclick="showSidebarSection('section-profile');return false;"><i class="ti ti-user-circle"></i> Mi Perfil</a>
+      <a class="nav-item" href="#" onclick="showSidebarSection('section-config');return false;"><i class="ti ti-settings"></i> Mi Sistema</a>
+    </div>
+    <div style="padding:14px 16px;border-top:1px solid var(--border2);margin-top:auto;">
+      <a href="/help.html" target="_blank" style="display:flex;align-items:center;gap:8px;color:var(--text3);font-size:12px;text-decoration:none;opacity:.7;transition:opacity .2s;margin-bottom:6px;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.7">
+        <i class="ti ti-book-2"></i> Manual de Uso
+      </a>
+      <a href="/legal.html" target="_blank" style="display:flex;align-items:center;gap:8px;color:var(--text3);font-size:12px;text-decoration:none;opacity:.7;transition:opacity .2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.7">
+        <i class="ti ti-shield-check"></i> Términos & Privacidad
+      </a>
+    </div>
+  </nav>
+
+  <button id="btn-show-sidebar" onclick="expandSidebar()" title="Mostrar menú"
+    style="display:none;position:fixed;top:70px;left:0;z-index:200;
+           background:var(--surface2);border:1px solid var(--border2);
+           border-left:none;border-radius:0 8px 8px 0;
+           padding:10px 10px 10px 8px;cursor:pointer;
+           align-items:center;gap:6px;color:var(--accent);
+           font-size:13px;font-family:DM Sans,sans-serif;
+           box-shadow:2px 0 12px rgba(0,0,0,0.3);">
+    ☰
+  </button>
+
+  <div id="main-scroll">
+
+  <!-- PRO UPGRADE BANNER -->
+  <div id="upgrade-banner" style="display:none;background:linear-gradient(90deg,#1a2f5a,#0d1e3d);border:1px solid rgba(56,189,248,0.3);border-radius:14px;padding:12px 24px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:16px;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span style="font-size:18px">⚡</span>
+      <span style="color:var(--text2);font-size:13px;">Estás en el plan <strong style="color:var(--text)">Free</strong> — limitado a 30 trades</span>
+    </div>
+    <button onclick="startCheckout()" style="background:var(--accent);border:none;color:#000;padding:8px 20px;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px;font-family:DM Sans,sans-serif;white-space:nowrap;">
+      ⚡ Upgrade a Pro — $19/mes
+    </button>
+  </div>
+
+    <div id="section-dashboard">
+
+  <!-- WIDGET PRECIOS EN VIVO -->
+  <div class="panel" style="margin-bottom:20px;padding:12px 20px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block;animation:pulse 2s infinite;"></span>
+        <span style="font-size:13px;font-weight:600;color:var(--accent);letter-spacing:.5px;">PRECIOS EN VIVO</span>
+      </div>
+      <span style="font-size:10px;color:var(--text3);">TradingView</span>
+    </div>
+    <div class="tradingview-widget-container">
+      <div class="tradingview-widget-container__widget"></div>
+      <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+      {
+        "symbols": [
+          { "proName": "NASDAQ:NDX",      "title": "Nasdaq 100" },
+          { "proName": "SP:SPX",          "title": "S&P 500" },
+          { "proName": "DJ:DJI",          "title": "Dow Jones" },
+          { "proName": "TVC:GOLD",        "title": "Gold" },
+          { "proName": "TVC:SILVER",      "title": "Silver" },
+          { "proName": "TVC:USOIL",       "title": "Crude Oil" },
+          { "proName": "AMEX:SPY",        "title": "SPY" },
+          { "proName": "NASDAQ:QQQ",      "title": "QQQ" },
+          { "proName": "NASDAQ:AAPL",     "title": "AAPL" },
+          { "proName": "NASDAQ:MSFT",     "title": "MSFT" },
+          { "proName": "NASDAQ:NVDA",     "title": "NVDA" },
+          { "proName": "NASDAQ:TSLA",     "title": "TSLA" },
+          { "proName": "NASDAQ:META",     "title": "META" },
+          { "proName": "NASDAQ:GOOGL",    "title": "GOOGL" },
+          { "proName": "NASDAQ:AMZN",     "title": "AMZN" },
+          { "proName": "NYSE:JPM",        "title": "JPM" },
+          { "proName": "NYSE:BAC",        "title": "BAC" },
+          { "proName": "NYSE:V",          "title": "VISA" },
+          { "proName": "NYSE:WMT",        "title": "WMT" },
+          { "proName": "NYSE:DIS",        "title": "DIS" },
+          { "proName": "BINANCE:BTCUSDT", "title": "BTC" },
+          { "proName": "BINANCE:ETHUSDT", "title": "ETH" },
+          { "proName": "BINANCE:SOLUSDT", "title": "SOL" },
+          { "proName": "FX:EURUSD",       "title": "EUR/USD" },
+          { "proName": "FX:GBPUSD",       "title": "GBP/USD" },
+          { "proName": "FX:USDJPY",       "title": "USD/JPY" }
+        ],
+        "showSymbolLogo": true,
+        "isTransparent": true,
+        "displayMode": "adaptive",
+        "colorTheme": "dark",
+        "locale": "es"
+      }
+      </script>
+    </div>
+  </div>
+
+    <section class="grid-main">
+    <div class="panel chart-panel">
+      <h2>Equity Curve Pro</h2>
+      <div class="equity-controls">
+        <label>Desde<div style="display:flex;gap:6px;align-items:center">
+            <input type="date" id="equityStartDate">
+            <button type="button" onclick="document.getElementById('equityStartDate').showPicker?document.getElementById('equityStartDate').showPicker():document.getElementById('equityStartDate').click()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--accent);border-radius:8px;padding:6px 8px;cursor:pointer;font-size:13px;white-space:nowrap;width:auto;grid-column:auto;font-family:'DM Sans',sans-serif;">📅</button>
+          </div></label>
+        <label>Hasta<div style="display:flex;gap:6px;align-items:center">
+            <input type="date" id="equityEndDate">
+            <button type="button" onclick="document.getElementById('equityEndDate').showPicker?document.getElementById('equityEndDate').showPicker():document.getElementById('equityEndDate').click()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--accent);border-radius:8px;padding:6px 8px;cursor:pointer;font-size:13px;white-space:nowrap;width:auto;grid-column:auto;font-family:'DM Sans',sans-serif;">📅</button>
+          </div></label>
+        <button type="button" class="tool-btn" id="applyEquityFilter">Aplicar</button>
+        <button type="button" class="tool-btn danger-btn" id="resetEquityFilter">Reset</button>
+      </div>
+      <div id="sourceFilterRow" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center">
+        <span style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap">Ver:</span>
+        <button class="source-toggle" data-source="all" onclick="toggleSourceFilter('all')"
+          style="background:rgba(148,163,184,0.2);border:2px solid rgba(148,163,184,0.5);color:#e2e8f0;padding:8px 16px;font-size:12px">
+          ✦ Todas
+        </button>
+      </div>
+      <canvas id="equityChart"></canvas>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;">
+        <span style="font-size:10px;color:var(--text3);">Ctrl + Scroll para zoom · Arrastra para mover</span>
+        <button class="tool-btn" onclick="if(equityChart)equityChart.resetZoom()" style="font-size:11px;padding:4px 10px;">↺ Reset Zoom</button>
+      </div>
+      <div class="trader-manifesto">
+        <p>Mi trabajo no es ganar hoy.<br>Mi trabajo es ejecutar el plan.</p>
+        <p>Una buena operación puede perder.<br>Una mala operación puede ganar.<br>La disciplina siempre gana.</p>
+      </div>
+    </div>
+    <div class="panel system-panel">
+      <h2>Estado del Sistema</h2>
+      <div class="system-box good"><span>Ventana de trading</span><strong id="systemWindowDisplay">—</strong></div>
+      <div class="system-box"><span>Días activos</span><strong id="systemDaysDisplay">—</strong></div>
+      <div class="system-box danger"><span>Fuera del plan</span><strong id="outPlanTrades">0 trades</strong></div>
+      <div class="clock-section">
+        <canvas id="analogClock" width="160" height="160" style="cursor:pointer;" onclick="openTimePicker('time')" title="Clic para seleccionar hora de entrada"></canvas>
+        <div class="clock-time-digital" id="clockDigital">00:00:00</div>
+        <div class="discipline-msg" id="disciplineMsg">La disciplina siempre gana</div>
+      </div>
+      <div class="alarm-section">
+        <div class="alarm-title">⏰ Alarmas</div>
+        <div class="alarm-row">
+          <span>Intervalo disciplina</span>
+          <select id="alarmInterval" onchange="updateAlarmInterval()">
+            <option value="0">Apagado</option>
+            <option value="5">Cada 5 min</option>
+            <option value="10" selected>Cada 10 min</option>
+            <option value="15">Cada 15 min</option>
+            <option value="30">Cada 30 min</option>
+          </select>
+        </div>
+        <div class="alarm-row">
+          <span>Hora fija</span>
+          <div class="time-picker-wrap" style="flex:1;position:relative;">
+            <div style="display:flex;gap:6px;align-items:center">
+              <input type="time" id="alarmFixedTime" placeholder="18:00" style="flex:1">
+              <button type="button" onclick="openTimePicker('alarmFixedTime')" style="background:var(--surface2);border:1px solid var(--border2);color:var(--accent);border-radius:8px;padding:6px 8px;cursor:pointer;font-size:12px;white-space:nowrap;width:auto;grid-column:auto;font-family:'DM Sans',sans-serif;">🕐</button>
+            </div>
+            <div class="time-picker-dropdown" id="picker-alarmFixedTime"></div>
+          </div>
+          <button class="alarm-add-btn" onclick="addFixedAlarm()">+ Agregar</button>
+        </div>
+        <div id="fixedAlarmsList" class="fixed-alarms-list"></div>
+        <button class="alarm-test-btn" onclick="triggerDisciplineAlert()">🔔 Probar alerta</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="dashboard">
+    <div class="card"><span>P/L Total</span><strong id="totalPL">$0.00</strong></div>
+    <div class="card"><span>P/L Dentro Plan</span><strong id="planPL">$0.00</strong></div>
+    <div class="card"><span>P/L Fuera Plan</span><strong id="badPL">$0.00</strong></div>
+    <div class="card"><span>Disciplina</span><strong id="disciplineRate">0%</strong></div>
+    <div class="card"><span>Win Rate</span><strong id="winRate">0%</strong></div>
+    <div class="card"><span>Max Drawdown</span><strong id="maxDD">$0.00</strong></div>
+  </section>
+  <section class="dashboard">
+    <div class="card"><span>Profit Factor</span><strong id="profitFactor">0.00</strong></div>
+    <div class="card"><span>Payoff Ratio</span><strong id="payoffRatio">0.00</strong></div>
+    <div class="card"><span>Avg Win</span><strong id="avgWin">$0.00</strong></div>
+    <div class="card"><span>Avg Loss</span><strong id="avgLoss">$0.00</strong></div>
+    <div class="card"><span>Expectancy</span><strong id="expectancy">$0.00</strong></div>
+    <div class="card"><span>RR Real</span><strong id="realRR">0.00R</strong></div>
+  </section>
+  </div><!-- /section-dashboard -->
+
+  <section class="panel setup-panel" id="section-setup">
+    <h2>Setup Quality Score</h2>
+    <p>Ranking estadístico de setups según rendimiento real.</p>
+    <div id="setupRanking"></div>
+  </section>
+
+
+
+  <section class="panel notes-panel" id="section-notes">
+    <h2>Personal Notes Calendar Pro</h2>
+    <p>Notas personales por fecha. Guarda ideas, emociones, observaciones o bugs del sistema.</p>
+    <div class="notes-pro-grid">
+      <div class="notes-editor">
+        <label>Fecha de la nota</label>
+        <div style="display:flex;gap:6px;align-items:center">
+            <input type="date" id="noteDate">
+            <button type="button" onclick="document.getElementById('noteDate').showPicker?document.getElementById('noteDate').showPicker():document.getElementById('noteDate').click()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--accent);border-radius:8px;padding:6px 8px;cursor:pointer;font-size:13px;white-space:nowrap;width:auto;grid-column:auto;font-family:'DM Sans',sans-serif;">📅</button>
+          </div>
+        <textarea id="personalNoteText" placeholder="Escribe tu nota personal aquí..."></textarea>
+        <div class="tools">
+          <button type="button" class="tool-btn" id="savePersonalNote">Guardar Nota</button>
+          <button type="button" class="tool-btn danger-btn" id="deletePersonalNote">Borrar Nota</button>
+        </div>
+      </div>
+      <div class="notes-calendar-box">
+        <div class="notes-calendar-header">
+          <button type="button" class="tool-btn" id="prevNotesMonth">◀</button>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input type="month" id="notesMonth">
+            <button type="button" onclick="document.getElementById('notesMonth').showPicker?document.getElementById('notesMonth').showPicker():document.getElementById('notesMonth').click()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--accent);border-radius:8px;padding:6px 8px;cursor:pointer;font-size:13px;white-space:nowrap;width:auto;grid-column:auto;font-family:'DM Sans',sans-serif;">📅</button>
+          </div>
+          <button type="button" class="tool-btn" id="nextNotesMonth">▶</button>
+        </div>
+        <div class="notes-weekdays">
+          <span>Dom</span><span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span>
+        </div>
+        <div id="notesCalendar" class="notes-calendar-pro"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel recovery-panel" id="section-recovery">
+    <h2>Recovery Analytics</h2>
+    <p>Mide qué tan resistente es el sistema después de drawdowns y rachas negativas.</p>
+    <div class="recovery-grid">
+      <div class="recovery-box"><span>Recovery Factor</span><strong id="recoveryFactor">0.00</strong><p id="recoveryFactorStatus">Sin datos</p></div>
+      <div class="recovery-box"><span>Recovery Time</span><strong id="recoveryTime">0 trades</strong><p>Trades necesarios para recuperar el peor drawdown.</p></div>
+      <div class="recovery-box"><span>Worst Losing Streak</span><strong id="worstLosingStreak">0</strong><p id="worstLosingStreakLoss">$0.00</p></div>
+    </div>
+  </section>
+
+  <section class="panel account-panel" id="section-account">
+    <h2>Account Size Engine</h2>
+    <p>¿Cuánto capital necesitas para operar este sistema? Basado en tu peor racha real hasta ahora.</p>
+    <div class="account-grid">
+      <div class="account-box minimum"><span>🟠 Cuenta Mínima</span><strong id="accountMinimum">$0.00</strong><p class="account-tag">DD x 1</p><p class="account-explain">Puedes empezar aquí, pero un mal día puede sacarte del juego. Solo si tienes disciplina comprobada y estás dispuesto a asumir más riesgo.</p></div>
+      <div class="account-box aggressive"><span>🟡 Cuenta Recomendada</span><strong id="accountAggressive">$0.00</strong><p class="account-tag">DD x 2</p><p class="account-explain">El punto de entrada real. Aguantas tu peor racha histórica completa y sigues operando sin quedarte sin capital.</p></div>
+      <div class="account-box balanced"><span>🟢 Cuenta Cómoda</span><strong id="accountBalanced">$0.00</strong><p class="account-tag">DD x 4</p><p class="account-explain">Operas sin presión emocional. Las pérdidas no te afectan psicológicamente porque tienes colchón suficiente.</p></div>
+      <div class="account-box conservative"><span>💼 Cuenta Profesional</span><strong id="accountConservative">$0.00</strong><p class="account-tag">DD x 6</p><p class="account-explain">Para cuando quieres escalar contratos. El sistema tiene espacio para crecer sin poner en riesgo tu capital base.</p></div>
+    </div>
+    <div class="account-status-box">
+      <strong id="accountStatus">Sin datos</strong>
+      <p id="accountAdvice">Importa o registra operaciones para calcular tu capital recomendado.</p>
+    </div>
+  </section>
+
+  <div id="section-scorecard-wrapper">
+    <section class="panel scorecard-panel" id="section-scorecard">
+      <h2>System Scorecard</h2>
+      <div class="scorecard-grid">
+        <div class="system-rating-box"><span>Valoración del Sistema</span><strong id="systemRating">0.0 / 10</strong><p id="systemRatingStatus">Sin datos suficientes</p></div>
+        <div class="system-diagnosis"><h3>Diagnóstico</h3><p id="systemDiagnosis">Importa o registra operaciones para evaluar el sistema.</p></div>
+        <div class="system-improvement"><h3>Puede mejorar</h3><ul id="systemImprovements"><li>Esperando datos...</li></ul></div>
+      </div>
+    </section>
+  </div>
+
+  <section class="panel" id="section-config">
+    <h2>⚙️ Configuración de Mi Sistema</h2>
+    <p>Define tu ventana de trading. El journal validará tus operaciones según estas reglas.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px">
+      <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">Nombre de tu sistema<input type="text" id="cfgSystemName" placeholder="Ej: Mi Sistema de Trading" style="font-size:14px"></label>
+      <div></div>
+      <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">Día de inicio<select id="cfgStartDay"><option value="0">Domingo</option><option value="1">Lunes</option><option value="2">Martes</option><option value="3">Miércoles</option><option value="4">Jueves</option><option value="5">Viernes</option><option value="6">Sábado</option></select></label>
+      <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">Hora de inicio<div class="time-picker-wrap" style="position:relative;">
+          <div style="display:flex;gap:6px;align-items:center">
+            <input type="time" id="cfgStartHour" value="18:00" style="flex:1">
+            <button type="button" onclick="openTimePicker('cfgStartHour')" style="background:var(--surface2);border:1px solid var(--border2);color:var(--accent);border-radius:8px;padding:6px 8px;cursor:pointer;font-size:12px;white-space:nowrap;width:auto;grid-column:auto;font-family:'DM Sans',sans-serif;">🕐</button>
+          </div>
+          <div class="time-picker-dropdown" id="picker-cfgStartHour"></div>
+        </div></label>
+      <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">Día de fin<select id="cfgEndDay"><option value="0">Domingo</option><option value="1">Lunes</option><option value="2">Martes</option><option value="3" selected>Miércoles</option><option value="4">Jueves</option><option value="5">Viernes</option><option value="6">Sábado</option></select></label>
+      <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">Hora de fin<div class="time-picker-wrap" style="position:relative;">
+          <div style="display:flex;gap:6px;align-items:center">
+            <input type="time" id="cfgEndHour" value="16:00" style="flex:1">
+            <button type="button" onclick="openTimePicker('cfgEndHour')" style="background:var(--surface2);border:1px solid var(--border2);color:var(--accent);border-radius:8px;padding:6px 8px;cursor:pointer;font-size:12px;white-space:nowrap;width:auto;grid-column:auto;font-family:'DM Sans',sans-serif;">🕐</button>
+          </div>
+          <div class="time-picker-dropdown" id="picker-cfgEndHour"></div>
+        </div></label>
+    </div>
+    <div style="margin-top:16px">
+      <p style="font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px">Días válidos todo el día</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap" id="cfgDayCheckboxes">
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);cursor:pointer"><input type="checkbox" value="0"> Dom</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);cursor:pointer"><input type="checkbox" value="1" checked> Lun</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);cursor:pointer"><input type="checkbox" value="2" checked> Mar</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);cursor:pointer"><input type="checkbox" value="3"> Mié</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);cursor:pointer"><input type="checkbox" value="4"> Jue</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);cursor:pointer"><input type="checkbox" value="5"> Vie</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);cursor:pointer"><input type="checkbox" value="6"> Sáb</label>
+      </div>
+    </div>
+    <div style="margin-top:20px;display:flex;gap:12px;align-items:center">
+      <button class="tool-btn" onclick="saveSystemConfigUI()" style="font-size:14px;padding:12px 24px">Guardar configuración</button>
+      <button class="tool-btn danger-btn" onclick="resetSystemConfig()">Restablecer por defecto</button>
+    </div>
+    <div id="cfgPreview" style="margin-top:16px;padding:14px;background:var(--bg2);border-radius:12px;border:1px solid var(--border2);font-size:13px;color:var(--text2);display:none"></div>
+  </section>
+
+  <section class="panel" id="section-data" style="padding:10px 14px;">
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+      <span style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.6px;white-space:nowrap;">📥 Importar / Exportar</span>
+      <label class="file-label" style="margin:0">Importar CSV<input type="file" id="csvFile" accept=".csv"></label>
+      <button type="button" class="tool-btn" id="exportCSV">Exportar CSV</button>
+      <button type="button" class="tool-btn danger-btn" id="clearData">🗑️ Borrar Todo</button>
+      <span style="width:1px;height:20px;background:var(--border2);display:inline-block;margin:0 4px;"></span>
+      <span style="font-size:11px;color:var(--text3);white-space:nowrap;">Borrar:</span>
+      <button type="button" class="tool-btn danger-btn" onclick="deleteBySource('tradingview')">🗑️ TradingView</button>
+      <button type="button" class="tool-btn danger-btn" onclick="deleteBySource('webull')">🗑️ Webull</button>
+      <button type="button" class="tool-btn danger-btn" onclick="deleteBySource('tradovate')">🗑️ Tradovate</button>
+      <button type="button" class="tool-btn danger-btn" onclick="deleteBySource('manual')">🗑️ Manuales</button>
+    </div>
+  </section>
+
+  <section class="panel trade-entry-panel" id="section-entry">
+    <h2>Registrar Trade / Sesión</h2>
+    <p class="panel-subtitle">Formulario claro para registrar operaciones sin confusión. Cada campo explica exactamente qué dato debes ingresar.</p>
+    <form id="tradeForm" class="trade-form-v2">
+      <div class="form-section-title">Información Principal</div>
+      <label style="grid-column:1/-1">Tipo de Instrumento
+        <select id="instrumentType" onchange="handleInstrumentType(this.value)">
+          <option value="futures">📈 Futuros (MNQ, ES, MYM...)</option>
+          <option value="options">🎯 Opciones (Calls / Puts)</option>
+          <option value="stocks">📊 Acciones</option>
+          <option value="forex">💱 Forex</option>
+          <option value="crypto">₿ Crypto</option>
+        </select>
+      </label>
+      <div id="futuresFields" style="display:contents">
+        <label>Precio de Entrada <span class="tip" data-tip="El precio al que abriste la operación. En futuros, usa el precio exacto de ejecución de tu broker.">?</span><input type="number" step="0.25" id="entry" placeholder="Ej: 19025.50" onblur="autoDetectSymbol()"><small>Precio donde abriste la operación.</small></label>
+        <label>Precio de Salida <span class="tip" data-tip="El precio al que cerraste la operación. Si tuviste múltiples salidas, usa el precio promedio.">?</span><input type="number" step="0.25" id="exit" placeholder="Ej: 19150.25"><small>Precio donde cerraste la operación.</small></label>
+        <label>Contratos <span class="tip" data-tip="Número de contratos que operaste. Para MNQ o MYM generalmente es 1, pero puedes escalar.">?</span><input type="number" id="contracts" placeholder="Ej: 1" value="1"><small>Cantidad de contratos.</small></label>
+      </div>
+      <div id="optionsFields" style="display:none;grid-column:1/-1">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">
+          <label>Prima de Entrada<input type="number" step="0.01" id="optionEntry" placeholder="Ej: 2.50"></label>
+          <label>Prima de Salida<input type="number" step="0.01" id="optionExit" placeholder="Ej: 4.80"></label>
+          <label>Contratos / Acciones<input type="number" id="optionContracts" placeholder="Ej: 1" value="1"></label>
+          <label>P/L Total ($)<input type="number" step="0.01" id="directPL" placeholder="Ej: 250.00"></label>
+          <label>Strike Price<input type="number" step="0.01" id="strikePrice" placeholder="Ej: 450.00"></label>
+          <label>Tipo<select id="optionType"><option value="call">Call</option><option value="put">Put</option><option value="stock">Acción</option><option value="other">Otro</option></select></label>
+        </div>
+      </div>
+      <label>Fecha del Trade<div style="display:flex;gap:6px;align-items:center">
+            <input type="date" id="date" required>
+            <button type="button" onclick="document.getElementById('date').showPicker?document.getElementById('date').showPicker():document.getElementById('date').click()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--accent);border-radius:8px;padding:6px 8px;cursor:pointer;font-size:13px;white-space:nowrap;width:auto;grid-column:auto;font-family:'DM Sans',sans-serif;">📅</button>
+          </div></label>
+      <label>Hora de Entrada
+        <div class="time-picker-wrap" id="wrap-time">
+          <div style="display:flex;gap:6px;align-items:center">
+            <input type="time" id="time" style="flex:1">
+            <button type="button" onclick="openTimePicker('time')" style="background:var(--surface2);border:1px solid var(--border2);color:var(--accent);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:13px;white-space:nowrap;width:auto;grid-column:auto;font-family:'DM Sans',sans-serif;">🕐 Elegir</button>
+          </div>
+          <div class="time-picker-dropdown" id="picker-time"></div>
+        </div>
+      </label>
+      <div style="grid-column:1/-1;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:4px">
+        <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="toggleMarketsPanel()">
+          <span style="font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;font-weight:600">📊 Mis Mercados — agregar símbolo personalizado</span>
+          <span id="marketsPanelArrow" style="color:var(--text2);font-size:14px">▼</span>
+        </div>
+        <div id="marketsPanelContent" style="display:none;margin-top:12px">
+          <div style="display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap">
+            <input type="text" id="newSymbolName" placeholder="Símbolo (ej: BTC)" style="max-width:140px;margin:0">
+            <input type="number" id="newSymbolPoint" placeholder="Valor punto USD" step="0.01" style="max-width:160px;margin:0">
+            <button class="tool-btn" onclick="addCustomMarket()" style="padding:10px 16px">+ Agregar</button>
+          </div>
+          <div id="customMarketsList" style="display:flex;flex-direction:column;gap:6px"></div>
+        </div>
+      </div>
+      <label>Símbolo
+        <select id="symbol" onchange="handleSymbolChange(this)">
+          <option value="">Seleccionar símbolo</option>
+          <option value="MNQ">MNQ — Micro Nasdaq ($2/pt)</option>
+          <option value="NQ">NQ — Nasdaq ($20/pt)</option>
+          <option value="MES">MES — Micro S&amp;P ($5/pt)</option>
+          <option value="ES">ES — S&amp;P 500 ($50/pt)</option>
+          <option value="MYM">MYM — Micro Dow ($0.50/pt)</option>
+          <option value="YM">YM — Dow Jones ($5/pt)</option>
+          <option value="MGC">MGC — Micro Gold ($10/pt)</option>
+          <option value="GC">GC — Gold ($100/pt)</option>
+          <option value="CL">CL — Crude Oil ($1000/pt)</option>
+          <option value="MCL">MCL — Micro Crude ($100/pt)</option>
+          <option value="custom">✏️ Otro símbolo...</option>
+        </select>
+        <div id="customSymbolBox" style="display:none;margin-top:8px">
+          <input type="text" id="customSymbolName" placeholder="Símbolo (ej: BTC)" style="margin-bottom:6px">
+          <input type="number" id="customSymbolPoint" placeholder="Valor por punto (ej: 1)" step="0.01">
+          <small style="color:var(--text2);font-size:11px">Ingresa el símbolo y cuánto vale cada punto en USD</small>
+        </div>
+        <small>Instrumento operado.</small>
+      </label>
+      <label>Dirección <span class="tip" data-tip="Long si compraste esperando que suba el precio. Short si vendiste esperando que baje.">?</span><select id="direction"><option value="">Seleccionar dirección</option><option value="Long">Long</option><option value="Short">Short</option></select></label>
+      <div class="form-section-title">Datos de la Sesión</div>
+      <label>Precio de Apertura de Sesión <span class="tip" data-tip="El precio de apertura de la sesión del día — generalmente el Open de las 9:30 AM ET o el Globex según tu estrategia.">?</span><input type="number" step="0.25" id="sessionOpen" placeholder="Precio apertura"></label>
+      <label>Precio Más Bajo de la Sesión <span class="tip" data-tip="El low más bajo que alcanzó el instrumento durante toda la sesión del día, no solo durante tu trade. Sirve como contexto del rango del mercado.">?</span><input type="number" step="0.25" id="sessionLow" placeholder="Low sesión"></label>
+      <label>Precio Más Alto de la Sesión <span class="tip" data-tip="El high más alto que alcanzó el instrumento durante toda la sesión del día. Sirve para entender qué tan cerca estuvo el precio del extremo superior.">?</span><input type="number" step="0.25" id="sessionHigh" placeholder="High sesión"></label>
+      <label>Hora del Pico Más Alto <span class="tip" data-tip="La hora exacta en que el precio alcanzó su punto más alto durante la sesión. Útil para identificar patrones de timing en el mercado.">?</span>
+        <div class="time-picker-wrap" id="wrap-peakTime">
+          <div style="display:flex;gap:6px;align-items:center">
+            <input type="time" id="peakTime" style="flex:1">
+            <button type="button" onclick="openTimePicker('peakTime')" style="background:var(--surface2);border:1px solid var(--border2);color:var(--accent);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:13px;white-space:nowrap;width:auto;grid-column:auto;font-family:'DM Sans',sans-serif;">🕐 Elegir</button>
+          </div>
+          <div class="time-picker-dropdown" id="picker-peakTime"></div>
+        </div>
+      </label>
+      <div class="form-section-title">Clasificación del Trade</div>
+      <label>Setup <span class="tip" data-tip="El patrón o estrategia que usaste para entrar al trade. Documentar esto te ayuda a identificar cuáles setups son más rentables para ti.">?</span><select id="setup"><option value="">Seleccionar setup</option><option value="Mi Setup">Mi Setup</option><option value="Trend Continuation">Trend Continuation</option><option value="Breakout">Breakout</option><option value="Manual">Manual</option></select></label>
+      <label>¿Cumplió las Reglas? <span class="tip" data-tip="¿Este trade estuvo dentro de tu plan de trading? Ser honesto aquí es clave para mejorar tu disciplina con el tiempo.">?</span><select id="ruleFollowed"><option value="">Seleccionar</option><option value="yes">Sí, dentro del plan</option><option value="no">No, fuera del plan</option></select></label>
+      <label>Error Principal <span class="tip" data-tip="Si cometiste un error, identifícalo aquí. Registrar errores de forma consistente es la forma más rápida de eliminarlos.">?</span><select id="mistake"><option value="">Ninguno</option><option value="Entrada impulsiva">Entrada impulsiva</option><option value="Salida temprana">Salida temprana</option><option value="Gestión incorrecta">Gestión incorrecta</option><option value="Fuera del plan">Fuera del plan</option><option value="Sobreoperar">Sobreoperar</option><option value="Otro">Otro</option></select></label>
+      <div class="form-section-title">Reflexión del Trade</div>
+      <label>Nota del Trade<textarea id="notes" placeholder="¿Qué ocurrió durante esta operación?"></textarea></label>
+      <label>Estado Emocional <span class="tip" data-tip="¿Cómo te sentiste durante este trade? El estado emocional tiene un impacto enorme en la toma de decisiones. Documentarlo revela patrones.">?</span><select id="emotionalState"><option value="">Seleccionar estado</option><option value="Tranquilo">Tranquilo</option><option value="Confiado">Confiado</option><option value="Ansioso">Ansioso</option><option value="Impaciente">Impaciente</option><option value="Frustrado">Frustrado</option><option value="Eufórico">Eufórico</option></select></label>
+      <label>Lección Aprendida <span class="tip" data-tip="¿Qué aprendiste con este trade? Aunque haya salido bien. Un trade ganador ejecutado mal también es una lección.">?</span><textarea id="lessonLearned" placeholder="¿Qué te enseñó este trade?"></textarea></label>
+      <button type="submit">Guardar Registro</button>
+    </form>
+  </section>
+
+  <section class="grid-main" id="section-research">
+    <div class="panel"><h2>Research Center</h2><div id="researchBox" class="research-box"></div></div>
+    <div class="panel"><h2>Distribución Hora Pico</h2><div id="peakDistribution" class="distribution"></div></div>
+  </section>
+
+  <section class="panel drift-panel" id="section-drift">
+    <h2>System Drift Monitor</h2>
+    <p>Compara los últimos 20 trades contra el comportamiento histórico del sistema.</p>
+    <div class="drift-grid" style="grid-template-columns:repeat(4,1fr)">
+      <div class="drift-box main-drift"><span>Drift Score</span><strong id="driftScore">100/100</strong><p id="driftStatus">🟢 Sistema alineado</p></div>
+      <div class="drift-box"><span>Expectancy Histórica</span><strong id="driftHistExpectancy">$0.00</strong><p>Promedio por trade total.</p></div>
+      <div class="drift-box"><span>Expectancy Reciente</span><strong id="driftRecentExpectancy">$0.00</strong><p>Últimos 20 trades.</p></div>
+      <div class="drift-box"><span>Win Rate Reciente</span><strong id="driftRecentWinRate">0%</strong><p id="driftComment">Esperando datos...</p></div>
+    </div>
+  </section>
+
+  <section class="panel" id="section-calendar">
+    <h2>Calendario P/L Diario</h2>
+    <p>Cada día se colorea según el resultado acumulado.</p>
+    <div id="plCalendar" class="calendar"></div>
+  </section>
+
+  <section class="panel" id="section-sessions">
+    <h2>Session Database</h2>
+    <p>Base de datos de sesiones registradas.</p>
+    <table>
+      <thead><tr><th>Fecha</th><th>Día</th><th>Entrada</th><th>Salida</th><th>Open Sesión</th><th>Pullback</th><th>Max Alta</th><th>Hora Pico</th><th>Recovery %</th><th>Dev Max</th><th>Resultado</th><th>Plan</th></tr></thead>
+      <tbody id="sessionTable"></tbody>
+    </table>
+  </section>
+
+  <section class="panel" id="section-history">
+    <h2>Historial</h2>
+    <div style="margin-bottom:15px;">
+      <button id="historyExportBtn" class="tool-btn">Exportar CSV</button>
+      <button id="historyClearBtn" class="tool-btn danger-btn" style="margin-left:10px;">Borrar Todo</button>
+    </div>
+    <table>
+      <thead><tr><th>Fecha</th><th>Hora</th><th>Día</th><th>Símbolo</th><th>Dir</th><th>Entrada</th><th>Salida</th><th>Puntos</th><th>P/L</th><th>Plan</th><th>Error</th><th>X</th></tr></thead>
+      <tbody id="tradeTable"></tbody>
+    </table>
+  </section>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;align-items:start">
+  <section class="panel" id="section-profile" style="margin-bottom:0">
+    <h2>👤 Mi Perfil de Trader</h2>
+    <p>Tu identidad como trader. Estos datos personalizan tu experiencia y aparecen en el dashboard.</p>
+
+    <div class="profile-layout">
+
+      <!-- Foto -->
+      <div class="profile-photo-col">
+        <div class="profile-avatar-wrap" id="profileAvatarPreview" onclick="document.getElementById('profilePhotoInput').click()" title="Cambiar foto">
+          <img id="profileAvatarImg" src="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="foto">
+          <span id="profileAvatarInitials">?</span>
+          <div class="profile-avatar-overlay"><i class="ti ti-camera"></i></div>
+        </div>
+        <input type="file" id="profilePhotoInput" accept="image/*" style="display:none" onchange="handleProfilePhoto(event)">
+        <button class="tool-btn" onclick="document.getElementById('profilePhotoInput').click()" style="font-size:12px;padding:7px 16px;margin-top:10px;">📷 Cambiar foto</button>
+      </div>
+
+      <!-- Datos -->
+      <div class="profile-fields">
+        <label class="profile-label">Nombre completo<input type="text" id="profileName" placeholder="Ej: Jorge García"></label>
+        <label class="profile-label">Apodo de trading<input type="text" id="profileNickname" placeholder="Ej: El Scalper"></label>
+        <label class="profile-label">Capital inicial ($)<input type="number" id="profileCapital" placeholder="Ej: 25000"></label>
+        <label class="profile-label">Broker principal
+          <select id="profileBroker">
+            <option value="">Seleccionar broker</option>
+            <option value="Tradovate">Tradovate</option>
+            <option value="Webull">Webull</option>
+            <option value="NinjaTrader">NinjaTrader</option>
+            <option value="TradingView">TradingView</option>
+            <option value="Interactive Brokers">Interactive Brokers</option>
+            <option value="TD Ameritrade">TD Ameritrade</option>
+            <option value="Otro">Otro</option>
+          </select>
+        </label>
+        <label class="profile-label" style="grid-column:1/-1;">Instrumento principal
+          <select id="profileInstrument">
+            <option value="">Seleccionar instrumento</option>
+            <option value="MNQ">MNQ — Micro Nasdaq</option>
+            <option value="NQ">NQ — Nasdaq Full</option>
+            <option value="MES">MES — Micro S&amp;P</option>
+            <option value="ES">ES — S&amp;P 500</option>
+            <option value="MYM">MYM — Micro Dow</option>
+            <option value="YM">YM — Dow Jones</option>
+            <option value="Acciones">Acciones</option>
+            <option value="Forex">Forex</option>
+            <option value="Crypto">Crypto</option>
+          </select>
+        </label>
+        <label class="profile-label" style="grid-column:1/-1;">Frase motivacional
+          <input type="text" id="profileMotto" placeholder="Ej: La disciplina siempre gana">
+        </label>
+      </div>
+    </div>
+
+    <div style="margin-top:24px;display:flex;gap:12px;align-items:center;">
+      <button class="tool-btn" onclick="saveProfile()" style="background:var(--accent);color:#000;border-color:var(--accent);font-weight:700;font-size:14px;padding:12px 28px;">
+        Guardar Perfil
+      </button>
+      <span id="profileSaveMsg" style="font-size:13px;color:var(--green);display:none;">✅ Perfil guardado</span>
+    </div>
+
+    <!-- Preview card -->
+    <div id="profilePreviewCard" class="profile-preview-card" style="display:none;">
+      <div style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;">Vista previa en el dashboard</div>
+      <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;">
+        <div class="profile-preview-avatar">
+          <img id="previewImg" src="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="">
+          <span id="previewInitials">?</span>
+        </div>
+        <div>
+          <div id="previewName" style="font-size:20px;font-weight:700;color:var(--text);">—</div>
+          <div id="previewNickname" style="font-size:13px;color:var(--accent);margin-top:2px;font-style:italic;"></div>
+          <div style="display:flex;gap:16px;margin-top:8px;flex-wrap:wrap;">
+            <span id="previewCapital" style="font-size:13px;color:var(--text2);"></span>
+            <span id="previewBroker" style="font-size:13px;color:var(--text2);"></span>
+            <span id="previewInstrument" style="font-size:13px;color:var(--text2);"></span>
+          </div>
+          <div id="previewMotto" style="font-size:13px;color:var(--gold);font-style:italic;margin-top:6px;"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="panel" id="section-gallery" style="margin-bottom:0">
+    <h2>📸 Galería de Trades</h2>
+    <p>Sube capturas de tus operaciones. Añade notas y aprende viendo tus trades.</p>
+    <div class="gallery-upload-area" onclick="document.getElementById('tradeImageInput').click()">
+      <div style="font-size:40px;color:var(--text2);margin-bottom:8px">📷</div>
+      <div style="color:var(--text2);font-size:14px">Haz clic aquí o arrastra una imagen</div>
+      <div style="color:var(--text3);font-size:12px;margin-top:4px">PNG, JPG — máx 5MB</div>
+      <input type="file" id="tradeImageInput" accept="image/*" multiple style="display:none" onchange="handleImageUpload(event)">
+    </div>
+    <input type="text" id="gallerySearch" placeholder="Buscar por nota o fecha..." oninput="renderGallery()" style="max-width:300px;margin-bottom:14px">
+    <div id="tradeGallery" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px"></div>
+  </section>
+  </div>
+
+</div><!-- /main-scroll -->
+
+  <div id="imageModal" class="hidden" style="position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.85);align-items:center;justify-content:center;">
+    <div style="background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:20px;max-width:92vw;width:92vw;position:relative;">
+      <button onclick="closeImageModal()" style="position:absolute;top:12px;right:14px;background:rgba(0,0,0,0.4);border:1px solid var(--border2);color:var(--text);font-size:18px;cursor:pointer;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;z-index:10;grid-column:auto;">✕</button>
+      <div style="overflow:hidden;border-radius:12px;background:var(--bg);margin-bottom:14px;cursor:zoom-in" id="imgZoomWrapper">
+        <img id="modalImg" src="" alt="" style="width:100%;max-height:75vh;object-fit:contain;display:block;transition:transform .2s;transform-origin:center center;" onwheel="zoomModalImg(event)" onclick="toggleImgZoom(this)">
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <textarea id="modalNote" placeholder="Nota de esta captura..." rows="2" style="flex:1;margin:0"></textarea>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <button class="tool-btn" onclick="saveImageNote()">Guardar</button>
+          <button class="tool-btn danger-btn" onclick="deleteImage()">Eliminar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="app.js"></script>
+    </div>
+  </div>
+
+  <button class="reset-layout-btn" id="resetLayoutBtn" onclick="resetPanelLayout()" title="Restablecer layout">↩ Reset Layout</button>
+
+  <div id="onboardingOverlay" style="display:none;position:fixed;inset:0;z-index:8000;background:rgba(6,13,26,0.96);align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(8px);">
+    <div style="background:#0a1628;border:1px solid rgba(56,189,248,0.3);border-radius:24px;padding:48px;max-width:540px;width:100%;text-align:center">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:3px;color:#38bdf8;margin-bottom:8px">BIENVENIDO A DYGPRO</div>
+      <p style="color:#94a3b8;font-size:15px;margin-bottom:36px">Tu journal está listo. ¿Cómo quieres empezar?</p>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:32px;text-align:left">
+        <div onclick="onboardingAction('import')" style="background:#122040;border:1.5px solid rgba(56,189,248,0.2);border-radius:14px;padding:18px 20px;cursor:pointer;display:flex;align-items:center;gap:14px" onmouseover="this.style.borderColor='#38bdf8'" onmouseout="this.style.borderColor='rgba(56,189,248,0.2)'">
+          <span style="font-size:28px">📥</span>
+          <div><div style="font-weight:700;color:#e2e8f0;margin-bottom:3px">Importar mis trades</div><div style="color:#94a3b8;font-size:13px">Tengo un CSV de Webull, Tradovate u otro broker</div></div>
+          <span style="margin-left:auto;color:#38bdf8">→</span>
+        </div>
+        <div onclick="onboardingAction('manual')" style="background:#122040;border:1.5px solid rgba(56,189,248,0.2);border-radius:14px;padding:18px 20px;cursor:pointer;display:flex;align-items:center;gap:14px" onmouseover="this.style.borderColor='#38bdf8'" onmouseout="this.style.borderColor='rgba(56,189,248,0.2)'">
+          <span style="font-size:28px">✏️</span>
+          <div><div style="font-weight:700;color:#e2e8f0;margin-bottom:3px">Registrar manualmente</div><div style="color:#94a3b8;font-size:13px">Ingreso mis trades uno por uno</div></div>
+          <span style="margin-left:auto;color:#38bdf8">→</span>
+        </div>
+        <div onclick="onboardingAction('explore')" style="background:#122040;border:1.5px solid rgba(56,189,248,0.2);border-radius:14px;padding:18px 20px;cursor:pointer;display:flex;align-items:center;gap:14px" onmouseover="this.style.borderColor='#94a3b8'" onmouseout="this.style.borderColor='rgba(56,189,248,0.2)'">
+          <span style="font-size:28px">👀</span>
+          <div><div style="font-weight:700;color:#e2e8f0;margin-bottom:3px">Explorar primero</div><div style="color:#94a3b8;font-size:13px">Quiero ver cómo funciona antes de agregar datos</div></div>
+          <span style="margin-left:auto;color:#94a3b8">→</span>
+        </div>
+      </div>
+      <p style="font-size:12px;color:#475569">Configura tu sistema en <strong style="color:#38bdf8">⚙️ Mi Sistema</strong> cuando estés listo</p>
+    </div>
+  </div>
+
+  <!-- ── BUZÓN DE SUGERENCIAS ── -->
+  <button id="suggestionBtn" onclick="openSuggestionModal()"
+    style="position:fixed;bottom:72px;left:28px;z-index:1000;
+           width:48px;height:48px;border-radius:50%;
+           background:var(--surface2);border:1px solid var(--border2);
+           color:var(--accent);font-size:22px;cursor:pointer;
+           box-shadow:0 4px 20px rgba(0,0,0,0.4);
+           display:flex;align-items:center;justify-content:center;
+           transition:all .2s;" 
+    title="Sugerencias y soporte"
+    onmouseover="this.style.background='var(--accent)';this.style.color='#000';"
+    onmouseout="this.style.background='var(--surface2)';this.style.color='var(--accent)';">
+    💬
+  </button>
+
+  <div id="suggestionModal" style="display:none;position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0.7);align-items:center;justify-content:center;" onclick="if(event.target===this)closeSuggestionModal()">
+    <div style="background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:32px;max-width:460px;width:90%;position:relative;">
+      <button onclick="closeSuggestionModal()" style="position:absolute;top:14px;right:16px;background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;width:auto;grid-column:auto;">✕</button>
+      <h2 style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1.5px;color:var(--accent);margin-bottom:4px;">💬 Sugerencias & Soporte</h2>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:20px;">¿Tienes una idea o necesitas ayuda? Escríbenos.</p>
+      <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:12px;">
+        Asunto (opcional)
+        <input type="text" id="suggestionSubject" placeholder="Ej: Nueva función, Bug, Pregunta...">
+      </label>
+      <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:20px;">
+        Mensaje
+        <textarea id="suggestionMessage" placeholder="Cuéntanos..." rows="4" style="resize:vertical;"></textarea>
+      </label>
+      <button onclick="sendSuggestion()" id="suggestionSendBtn"
+        style="width:100%;padding:13px;border-radius:10px;border:none;background:var(--accent);color:#000;font-weight:700;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif;">
+        Enviar mensaje
+      </button>
+      <p style="font-size:11px;color:var(--text3);text-align:center;margin-top:12px;">También puedes escribirnos a <strong style="color:var(--text2)">soporte1@dygpro.com</strong></p>
+    </div>
+  </div>
+</body>
+</html>
