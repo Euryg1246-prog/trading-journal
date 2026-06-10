@@ -125,41 +125,6 @@
       .tip::after { width: 180px; font-size: 11px; }
     }
   </style>
-
-<style id="dygpro-clock-visual-fix">
-  /* FIX: reloj visible estilo imagen 2 */
-  .clock-section{
-    min-height:220px;
-    display:flex!important;
-    flex-direction:column!important;
-    align-items:center!important;
-    justify-content:center!important;
-    margin-top:16px!important;
-    padding-top:18px!important;
-  }
-  #analogClock{
-    display:block!important;
-    width:160px!important;
-    height:160px!important;
-    min-width:160px!important;
-    min-height:160px!important;
-    filter:drop-shadow(0 0 18px rgba(56,189,248,.55))!important;
-  }
-  .clock-time-digital{
-    font-family:'DM Mono',monospace!important;
-    font-size:20px!important;
-    color:#e2e8f0!important;
-    margin-top:6px!important;
-    letter-spacing:1px!important;
-    text-shadow:0 0 12px rgba(56,189,248,.45)!important;
-  }
-  .discipline-msg{
-    color:var(--gold)!important;
-    font-size:11px!important;
-    font-weight:700!important;
-    letter-spacing:.3px!important;
-  }
-</style>
 </head>
 <body>
 
@@ -370,8 +335,7 @@
       <div class="system-box good"><span>Ventana de trading</span><strong id="systemWindowDisplay">—</strong></div>
       <div class="system-box"><span>Días activos</span><strong id="systemDaysDisplay">—</strong></div>
       <div class="system-box danger"><span>Fuera del plan</span><strong id="outPlanTrades">0 trades</strong></div>
-      <div class="clock-section">
-        <canvas id="analogClock" width="160" height="160" style="cursor:pointer;" onclick="openTimePicker('time')" title="Clic para seleccionar hora de entrada"></canvas>
+      <div class="clock-section clock-digital-only">
         <div class="clock-time-digital" id="clockDigital">00:00:00</div>
         <div class="discipline-msg" id="disciplineMsg">La disciplina siempre gana</div>
       </div>
@@ -826,81 +790,6 @@
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="app.js"></script>
-<script id="dygpro-clock-fallback">
-(function(){
-  function pad(n){ return String(n).padStart(2,'0'); }
-  function drawDygproClock(){
-    const canvas=document.getElementById('analogClock');
-    if(!canvas) return;
-    const dpr=window.devicePixelRatio||1;
-    const size=160, cx=80, cy=80, r=68;
-    canvas.style.width=size+'px'; canvas.style.height=size+'px';
-    canvas.width=size*dpr; canvas.height=size*dpr;
-    const ctx=canvas.getContext('2d');
-    ctx.setTransform(dpr,0,0,dpr,0,0);
-    const now=new Date();
-    const h=now.getHours()%12, m=now.getMinutes(), s=now.getSeconds();
-    ctx.clearRect(0,0,size,size);
-
-    // Glow exterior
-    for(let i=0;i<3;i++){
-      ctx.beginPath(); ctx.arc(cx,cy,r+i*4,0,Math.PI*2);
-      ctx.strokeStyle=`rgba(56,189,248,${0.16-i*0.04})`;
-      ctx.lineWidth=8; ctx.stroke();
-    }
-
-    // Cara
-    const grad=ctx.createRadialGradient(cx,cy,10,cx,cy,r);
-    grad.addColorStop(0,'#0b1f35');
-    grad.addColorStop(1,'#020617');
-    ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2);
-    ctx.fillStyle=grad; ctx.fill();
-    ctx.strokeStyle='rgba(56,189,248,.85)'; ctx.lineWidth=2; ctx.stroke();
-
-    // Marcas
-    for(let i=0;i<60;i++){
-      const a=i*Math.PI/30; const major=i%5===0;
-      const outer=r-5, inner=major?r-18:r-10;
-      ctx.beginPath();
-      ctx.moveTo(cx+Math.sin(a)*outer, cy-Math.cos(a)*outer);
-      ctx.lineTo(cx+Math.sin(a)*inner, cy-Math.cos(a)*inner);
-      ctx.strokeStyle=major?'rgba(248,250,252,.9)':'rgba(148,163,184,.28)';
-      ctx.lineWidth=major?2:1; ctx.stroke();
-    }
-
-    ctx.lineCap='round';
-    function hand(angle,len,width,color,back=8){
-      ctx.beginPath();
-      ctx.moveTo(cx-Math.sin(angle)*back, cy+Math.cos(angle)*back);
-      ctx.lineTo(cx+Math.sin(angle)*len, cy-Math.cos(angle)*len);
-      ctx.strokeStyle=color; ctx.lineWidth=width; ctx.stroke();
-    }
-    hand(((h+m/60)*Math.PI)/6, 38, 5, '#e2e8f0', 7);
-    hand(((m+s/60)*Math.PI)/30, 54, 3, '#e2e8f0', 9);
-    hand((s*Math.PI)/30, 60, 1.5, '#fbbf24', 10);
-
-    ctx.beginPath(); ctx.arc(cx,cy,5,0,Math.PI*2); ctx.fillStyle='#38bdf8'; ctx.fill();
-    ctx.beginPath(); ctx.arc(cx,cy,2.2,0,Math.PI*2); ctx.fillStyle='#020617'; ctx.fill();
-
-    const dig=document.getElementById('clockDigital');
-    if(dig){
-      let hr=now.getHours()%12 || 12;
-      const ampm=now.getHours()>=12?'PM':'AM';
-      dig.textContent=`${hr}:${pad(now.getMinutes())}:${pad(now.getSeconds())} ${ampm}`;
-    }
-    const msg=document.getElementById('disciplineMsg');
-    if(msg){
-      const symbol=(document.getElementById('symbol')?.value||'MNQ').toUpperCase();
-      const direction=(document.getElementById('direction')?.value||'Long');
-      msg.textContent=`${symbol} ${direction} · ${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
-    }
-  }
-  function start(){ drawDygproClock(); setInterval(drawDygproClock,1000); }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',start);
-  else start();
-})();
-</script>
-
     </div>
   </div>
 

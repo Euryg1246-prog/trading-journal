@@ -1899,3 +1899,52 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
   #equityChart { max-height: 160px; }
   .gallery-grid { grid-template-columns: repeat(2, 1fr); }
 }
+
+
+/* ============================================================
+   DYGPRO PATCH — Reloj digital solamente + más espacio Equity
+   ============================================================ */
+.chart-panel {
+  min-height: 610px !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+#equityChart {
+  height: 330px !important;
+  min-height: 330px !important;
+  max-height: none !important;
+}
+.trader-manifesto {
+  margin-top: auto !important;
+  padding: 16px 20px !important;
+}
+.clock-section.clock-digital-only {
+  margin-top: 26px !important;
+  padding: 26px 0 20px !important;
+  min-height: 135px !important;
+  justify-content: center !important;
+}
+.clock-section.clock-digital-only #analogClock,
+#analogClock {
+  display: none !important;
+}
+.clock-digital-only .clock-time-digital {
+  font-size: 42px !important;
+  line-height: 1 !important;
+  margin-top: 0 !important;
+  color: var(--accent) !important;
+  text-shadow: 0 0 18px rgba(56,189,248,.35) !important;
+  letter-spacing: 5px !important;
+  font-weight: 600 !important;
+}
+.clock-digital-only .discipline-msg {
+  font-size: 13px !important;
+  margin-top: 12px !important;
+  font-style: normal !important;
+  font-weight: 700 !important;
+}
+@media (max-width: 800px) {
+  .chart-panel { min-height: auto !important; }
+  #equityChart { height: 260px !important; min-height: 260px !important; }
+  .clock-digital-only .clock-time-digital { font-size: 30px !important; letter-spacing: 3px !important; }
+}
