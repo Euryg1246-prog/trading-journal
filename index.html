@@ -224,6 +224,8 @@
       <a class="nav-item" href="#" onclick="showSidebarSection('section-profile');return false;"><i class="ti ti-user-circle"></i> Mi Perfil</a>
       <a class="nav-item" href="#" onclick="showSidebarSection('section-gallery');return false;"><i class="ti ti-photo"></i> Galería</a>
       <a class="nav-item" href="#" onclick="showSidebarSection('section-config');return false;"><i class="ti ti-settings"></i> Mi Sistema</a>
+      <div class="nav-section" id="navSectionAdmin" style="display:none">Administración</div>
+      <a class="nav-item" id="navItemAdminStudents" href="#" onclick="showSidebarSection('section-admin-students');return false;" style="display:none"><i class="ti ti-users"></i> Mis Estudiantes</a>
     </div>
     <div style="padding:14px 16px;border-top:1px solid var(--border2);margin-top:auto;">
       <a href="/help.html" target="_blank" style="display:flex;align-items:center;gap:8px;color:var(--text3);font-size:12px;text-decoration:none;opacity:.7;transition:opacity .2s;margin-bottom:6px;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.7">
@@ -247,6 +249,12 @@
   </button>
 
   <div id="main-scroll">
+
+  <!-- ADMIN — Banner "viendo journal de estudiante" -->
+  <div id="adminViewBanner" style="display:none">
+    <div>👁️ Estás viendo el journal de <strong id="adminViewBannerEmail"></strong> — solo lectura</div>
+    <button type="button" onclick="exitStudentView()">Volver a mi panel</button>
+  </div>
 
   <!-- PRO UPGRADE BANNER -->
   <div id="upgrade-banner" style="display:none;background:linear-gradient(90deg,#1a2f5a,#0d1e3d);border:1px solid rgba(56,189,248,0.3);border-radius:14px;padding:12px 24px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:16px;">
@@ -754,6 +762,19 @@
     </table>
   </section>
   </div><!-- /dyg-block: history -->
+
+  <div class="dyg-block" data-block-id="admin-students">
+    <div class="dyg-drag-handle" draggable="true" title="Arrastrar para mover esta sección">⠿⠿</div>
+  <section class="panel dyg-resizable" id="section-admin-students">
+    <h2>Mis Estudiantes</h2>
+    <p class="panel-subtitle">Agrega el correo de tus estudiantes para revisar su journal completo en modo solo lectura, igual que si entraras a su cuenta.</p>
+    <div class="tools" style="margin-bottom:16px;">
+      <input type="email" id="newStudentEmail" placeholder="correo@estudiante.com" style="flex:1;min-width:220px;">
+      <button type="button" class="tool-btn" onclick="addStudent()">+ Agregar Estudiante</button>
+    </div>
+    <div id="adminStudentsList"></div>
+  </section>
+  </div><!-- /dyg-block: admin-students -->
 
   <div class="dyg-block" data-block-id="gallery-profile">
     <div class="dyg-drag-handle" draggable="true" title="Arrastrar para mover esta sección">⠿⠿</div>

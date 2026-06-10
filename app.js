@@ -728,6 +728,7 @@ function loadSystemConfig() {
 }
 
 function saveSystemConfig(cfg) {
+  if (viewingStudent) return;
   localStorage.setItem("dygpro_system_config", JSON.stringify(cfg));
   // Sincronizar en Supabase si hay sesión activa
   if (currentUser) {
@@ -941,7 +942,8 @@ const ALL_SECTIONS = [
   'section-setup','section-drift','section-recovery',
   'section-account','section-montecarlo','section-scorecard-wrapper','section-entry',
   'section-history','section-sessions','section-notes',
-  'section-data','section-config','section-gallery','section-profile'
+  'section-data','section-config','section-gallery','section-profile',
+  'section-admin-students'
 ];
 
 let activeSidebarSection = localStorage.getItem('dygpro_active_section') || 'section-dashboard';
@@ -1065,6 +1067,16 @@ const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
    AUTH — Estado global y UI
    ============================================================ */
 let currentUser = null;
+
+/* ============================================================
+   ADMIN — "Mis Estudiantes" (acceso de solo lectura)
+   ============================================================ */
+let isAdmin = false;
+let viewingStudent = null; // { id, email } cuando el admin está viendo a un estudiante
+
+function activeUserId() {
+  return viewingStudent ? viewingStudent.id : (currentUser ? currentUser.id : null);
+}
 
 async function initAuth() {
   const { data: { session } } = await _supabase.auth.getSession();
@@ -1190,6 +1202,108 @@ async function signOut() {
 }
 
 /* ============================================================
+   ADMIN — Panel "Mis Estudiantes"
+   ============================================================ */
+function escapeHtml(str) {
+  return String(str || '').replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+}
+
+function applyAdminUI() {
+  const navSection = document.getElementById('navSectionAdmin');
+  const navItem = document.getElementById('navItemAdminStudents');
+  if (navSection) navSection.style.display = isAdmin ? '' : 'none';
+  if (navItem) navItem.style.display = isAdmin ? '' : 'none';
+  if (isAdmin) loadAdminStudents();
+}
+
+async function loadAdminStudents() {
+  if (!currentUser || !isAdmin) return;
+  const { data, error } = await _supabase
+    .from('admin_students')
+    .select('*')
+    .eq('admin_id', currentUser.id)
+    .order('created_at', { ascending: false });
+  if (error) { console.log('Error cargando estudiantes:', error.message); return; }
+  renderAdminStudents(data || []);
+}
+
+function renderAdminStudents(students) {
+  const list = document.getElementById('adminStudentsList');
+  if (!list) return;
+  if (!students.length) {
+    list.innerHTML = `<div class="muted" style="padding:12px 0">Aún no has agregado estudiantes.</div>`;
+    return;
+  }
+  list.innerHTML = students.map(s => {
+    const linked = !!s.student_id;
+    return `
+      <div class="account-status-box" style="justify-content:space-between;margin-bottom:8px;">
+        <div>
+          <strong>${escapeHtml(s.student_email)}</strong>
+          <p>${linked ? '🟢 Registrado' : '🟡 Pendiente de registro'}</p>
+        </div>
+        ${linked
+          ? `<button type="button" class="tool-btn" onclick="viewStudentJournal('${s.student_id}','${s.student_email}')">Ver Journal</button>`
+          : `<button type="button" class="tool-btn" disabled style="opacity:.5;cursor:not-allowed">Ver Journal</button>`
+        }
+      </div>`;
+  }).join('');
+}
+
+async function addStudent() {
+  if (!isAdmin) return;
+  const input = document.getElementById('newStudentEmail');
+  const email = (input?.value || '').trim();
+  if (!email) { showToast('⚠️ Email requerido', 'Escribe el correo del estudiante.'); return; }
+
+  const { error } = await _supabase.rpc('admin_add_student', { p_email: email });
+  if (error) { showToast('⚠️ Error', error.message); return; }
+
+  if (input) input.value = '';
+  showToast('✅ Estudiante agregado', email);
+  loadAdminStudents();
+}
+
+async function viewStudentJournal(studentId, email) {
+  if (!isAdmin || !studentId || studentId === 'null') {
+    showToast('⚠️ Estudiante pendiente', 'Este estudiante aún no se ha registrado en DYGPRO.');
+    return;
+  }
+
+  viewingStudent = { id: studentId, email };
+  document.body.classList.add('admin-viewing');
+  const banner = document.getElementById('adminViewBanner');
+  const bannerEmail = document.getElementById('adminViewBannerEmail');
+  if (bannerEmail) bannerEmail.textContent = email;
+  if (banner) banner.style.display = 'flex';
+
+  await Promise.all([
+    loadTradesFromSupabase(),
+    loadNotesFromSupabase(),
+    loadGalleryFromSupabase()
+  ]);
+  loadProfileForViewing(studentId);
+  showSidebarSection('section-dashboard');
+}
+
+async function exitStudentView() {
+  viewingStudent = null;
+  document.body.classList.remove('admin-viewing');
+  const banner = document.getElementById('adminViewBanner');
+  if (banner) banner.style.display = 'none';
+
+  await Promise.all([
+    loadTradesFromSupabase(),
+    loadNotesFromSupabase(),
+    loadGalleryFromSupabase()
+  ]);
+  loadProfile();
+  showSidebarSection('section-dashboard');
+}
+
+/* ============================================================
    SUPABASE — Carga y guardado de trades
    ============================================================ */
 async function loadTradesFromSupabase() {
@@ -1197,7 +1311,7 @@ async function loadTradesFromSupabase() {
   const { data, error } = await _supabase
     .from("trades")
     .select("*")
-    .eq("user_id", currentUser.id)
+    .eq("user_id", activeUserId())
     .order("date", { ascending: true });
 
   if (error) { console.error("Error cargando trades:", error); return; }
@@ -1229,7 +1343,7 @@ async function loadNotesFromSupabase() {
   const { data, error } = await _supabase
     .from("notes")
     .select("*")
-    .eq("user_id", currentUser.id);
+    .eq("user_id", activeUserId());
 
   if (error) { console.error("Error cargando notas:", error); return; }
 
@@ -1239,19 +1353,19 @@ async function loadNotesFromSupabase() {
 }
 
 async function saveTradeToSupabase(trade) {
-  if (!currentUser) return null;
+  if (!currentUser || viewingStudent) return null;
   const { error } = await _supabase.from("trades").insert(tradeToDbRow(trade));
   if (error) { console.error("Error guardando trade:", error); return null; }
   return true;
 }
 
 async function deleteTradeFromSupabase(tradeId) {
-  if (!currentUser || !tradeId) return;
+  if (!currentUser || !tradeId || viewingStudent) return;
   await _supabase.from("trades").delete().eq("id", tradeId).eq("user_id", currentUser.id);
 }
 
 async function saveNoteToSupabase(date, content) {
-  if (!currentUser) return;
+  if (!currentUser || viewingStudent) return;
   const { error } = await _supabase.from("notes").upsert(
     { user_id: currentUser.id, note_date: date, content },
     { onConflict: "user_id,note_date" }
@@ -1260,7 +1374,7 @@ async function saveNoteToSupabase(date, content) {
 }
 
 async function deleteNoteFromSupabase(date) {
-  if (!currentUser) return;
+  if (!currentUser || viewingStudent) return;
   await _supabase.from("notes").delete()
     .eq("user_id", currentUser.id)
     .eq("note_date", date);
@@ -1384,6 +1498,7 @@ const dayNames = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 
 form.addEventListener("submit", async function(e) {
   e.preventDefault();
+  if (viewingStudent) return;
   if (!checkTradeLimit()) return;
 
   const date      = val("date");
@@ -1902,6 +2017,7 @@ function detectSymbolFromFilename(filename) {
 }
 
 function importCSV(event) {
+  if (viewingStudent) return;
   const file = event.target.files[0];
   if (!file) return;
 
@@ -2416,6 +2532,7 @@ document.getElementById("exportCSV")?.addEventListener("click", function() {
   URL.revokeObjectURL(url);
 });
 document.getElementById("clearData")?.addEventListener("click", function() {
+  if (viewingStudent) return;
   const ok = confirm("¿Seguro que quieres borrar todos los datos?");
   if (!ok) return;
   trades = [];
@@ -2504,6 +2621,7 @@ function renderPerformanceRatios(activeTrades) {
 
 // Borrar trades por fuente
 async function deleteBySource(source) {
+  if (viewingStudent) return;
   const sourceLabel = { tradingview: 'TradingView', webull: 'Webull', tradovate: 'Tradovate', manual: 'Manuales' }[source] || source;
   const count = trades.filter(t => (t.source || 'manual').toLowerCase() === source).length;
   if (count === 0) { showToast('⚠️ Sin trades', `No hay trades de ${sourceLabel} para borrar.`); return; }
@@ -2528,6 +2646,7 @@ async function deleteBySource(source) {
 
 // Botón borrar todo
 document.getElementById("clearData")?.addEventListener("click", async function() {
+  if (viewingStudent) return;
   const ok = confirm("¿Seguro que quieres borrar TODOS los trades? Esta acción no se puede deshacer.");
   if (!ok) return;
 
@@ -2544,6 +2663,7 @@ document.getElementById("historyExportBtn")?.addEventListener("click", function(
 });
 
 document.getElementById("historyClearBtn")?.addEventListener("click", async function() {
+  if (viewingStudent) return;
 
   const ok = confirm(
     "¿Seguro que deseas borrar TODAS las operaciones?"
@@ -4387,7 +4507,7 @@ async function loadGalleryFromSupabase() {
     const { data, error } = await _supabase
       .from('gallery')
       .select('*')
-      .eq('user_id', currentUser.id)
+      .eq('user_id', activeUserId())
       .order('uploaded_at', { ascending: false });
     if (error) throw error;
     tradeImages = (data || []).map(r => ({
@@ -4407,6 +4527,7 @@ async function loadGalleryFromSupabase() {
 // ── Subir imagen ──
 async function handleImageUpload(event) {
   if (!currentUser) { showToast('⚠️ Sesión requerida', 'Inicia sesión para subir imágenes.'); return; }
+  if (viewingStudent) return;
 
   const isPro = currentUser._plan === 'pro';
   const limit = isPro ? PRO_LIMIT : FREE_LIMIT;
@@ -4511,7 +4632,7 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeImage
 
 // ── Guardar nota ──
 async function saveImageNote() {
-  if (currentImageIndex === null) return;
+  if (currentImageIndex === null || viewingStudent) return;
   const img = tradeImages[currentImageIndex];
   const note = document.getElementById('modalNote').value;
   try {
@@ -4527,7 +4648,7 @@ async function saveImageNote() {
 
 // ── Borrar imagen ──
 async function deleteImage() {
-  if (currentImageIndex === null) return;
+  if (currentImageIndex === null || viewingStudent) return;
   const img = tradeImages[currentImageIndex];
   const ok = confirm('¿Eliminar esta captura?');
   if (!ok) return;
@@ -4603,9 +4724,11 @@ function loadProfile() {
 
   // Luego sincronizar desde Supabase (viaja entre dispositivos)
   if (currentUser) {
-    _supabase.from('profiles').select('trader_name,nickname,capital,broker,instrument,motto,photo,system_config').eq('id', currentUser.id).single()
+    _supabase.from('profiles').select('trader_name,nickname,capital,broker,instrument,motto,photo,system_config,is_admin').eq('id', currentUser.id).single()
       .then(({ data, error }) => {
         if (error || !data) return;
+        isAdmin = !!data.is_admin;
+        applyAdminUI();
         if (data.trader_name || data.nickname || data.photo || data.system_config) {
           traderProfile.name       = data.trader_name || traderProfile.name || '';
           traderProfile.nickname   = data.nickname    || traderProfile.nickname || '';
@@ -4629,7 +4752,39 @@ function loadProfile() {
   }
 }
 
+// Carga aislada del perfil/config de un estudiante (modo "viendo journal")
+// No toca localStorage ni hace fallback a valores previos.
+function loadProfileForViewing(studentId) {
+  _supabase.from('profiles')
+    .select('trader_name,nickname,capital,broker,instrument,motto,photo,system_config,is_admin')
+    .eq('id', studentId).single()
+    .then(({ data, error }) => {
+      if (error || !data) {
+        showToast('⚠️ Error', 'No se pudo cargar el perfil del estudiante.');
+        return;
+      }
+      traderProfile = {
+        name:       data.trader_name || '',
+        nickname:   data.nickname    || '',
+        capital:    data.capital     || '',
+        broker:     data.broker      || '',
+        instrument: data.instrument  || '',
+        motto:      data.motto       || '',
+        photo:      data.photo       || ''
+      };
+      systemConfig = { ...DEFAULT_CONFIG };
+      if (data.system_config) {
+        try {
+          systemConfig = { ...DEFAULT_CONFIG, ...JSON.parse(data.system_config) };
+        } catch(e) {}
+      }
+      applyProfileToUI();
+      render();
+    });
+}
+
 function saveProfile() {
+  if (viewingStudent) return;
   const name       = document.getElementById('profileName')?.value.trim() || '';
   const nickname   = document.getElementById('profileNickname')?.value.trim() || '';
   const capital    = document.getElementById('profileCapital')?.value || '';
