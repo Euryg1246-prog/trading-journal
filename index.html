@@ -335,7 +335,8 @@
       <div class="system-box good"><span>Ventana de trading</span><strong id="systemWindowDisplay">—</strong></div>
       <div class="system-box"><span>Días activos</span><strong id="systemDaysDisplay">—</strong></div>
       <div class="system-box danger"><span>Fuera del plan</span><strong id="outPlanTrades">0 trades</strong></div>
-      <div class="clock-section clock-digital-only">
+      <div class="clock-section">
+        <canvas id="analogClock" width="160" height="160" style="cursor:pointer;" onclick="openTimePicker('time')" title="Clic para seleccionar hora de entrada"></canvas>
         <div class="clock-time-digital" id="clockDigital">00:00:00</div>
         <div class="discipline-msg" id="disciplineMsg">La disciplina siempre gana</div>
       </div>

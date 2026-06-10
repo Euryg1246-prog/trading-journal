@@ -1592,7 +1592,6 @@ function renderChart() {
     },
     options: {
       responsive: true,
-      maintainAspectRatio: false,
       plugins: { legend: { labels: { color: "white" } } },
       scales: {
         x: { ticks: { color: "#cbd5e1" }, grid: { color: "rgba(255,255,255,.08)" } },
@@ -3264,7 +3263,6 @@ renderChart = function() {
     },
     options: {
       responsive: true,
-      maintainAspectRatio: false,
       plugins: {
         legend: {
           labels: {
@@ -3407,7 +3405,6 @@ renderChart = function() {
     },
     options: {
       responsive: true,
-      maintainAspectRatio: false,
       devicePixelRatio: dpr,
       interaction: { mode: "index", intersect: false },
       plugins: {
@@ -4015,7 +4012,90 @@ initPersonalNotesProRestore();
    RELOJ ANALÓGICO
    ============================================================ */
 function drawClock() {
+  const canvas = document.getElementById('analogClock');
+  if (!canvas) return;
+
+  // Force exact square size
+  canvas.width  = 160;
+  canvas.height = 160;
+
+  const ctx = canvas.getContext('2d');
+  const cx = 80, cy = 80, r = 70;
   const now = new Date();
+  const h = now.getHours() % 12, m = now.getMinutes(), s = now.getSeconds();
+
+  ctx.clearRect(0, 0, 160, 160);
+
+  // Outer ring glow
+  ctx.beginPath();
+  ctx.arc(cx, cy, r + 2, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(0,212,255,0.15)';
+  ctx.lineWidth = 6;
+  ctx.stroke();
+
+  // Face
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.fillStyle = '#06101e';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(0,212,255,0.5)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // Hour marks
+  for (let i = 0; i < 12; i++) {
+    const a = (i * Math.PI) / 6;
+    const isMain = i % 3 === 0;
+    const outer = r - 4;
+    const inner = isMain ? r - 14 : r - 9;
+    ctx.beginPath();
+    ctx.moveTo(cx + Math.sin(a) * outer, cy - Math.cos(a) * outer);
+    ctx.lineTo(cx + Math.sin(a) * inner, cy - Math.cos(a) * inner);
+    ctx.strokeStyle = isMain ? 'rgba(0,212,255,0.9)' : 'rgba(255,255,255,0.2)';
+    ctx.lineWidth = isMain ? 2 : 1;
+    ctx.stroke();
+  }
+
+  ctx.lineCap = 'round';
+
+  // Hour hand
+  const ha = ((h + m / 60) * Math.PI) / 6;
+  ctx.beginPath();
+  ctx.moveTo(cx - Math.sin(ha) * 8, cy + Math.cos(ha) * 8);
+  ctx.lineTo(cx + Math.sin(ha) * 40, cy - Math.cos(ha) * 40);
+  ctx.strokeStyle = '#e8edf5';
+  ctx.lineWidth = 4;
+  ctx.stroke();
+
+  // Minute hand
+  const ma = ((m + s / 60) * Math.PI) / 30;
+  ctx.beginPath();
+  ctx.moveTo(cx - Math.sin(ma) * 10, cy + Math.cos(ma) * 10);
+  ctx.lineTo(cx + Math.sin(ma) * 56, cy - Math.cos(ma) * 56);
+  ctx.strokeStyle = '#38bdf8';
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+
+  // Second hand
+  const sa = (s * Math.PI) / 30;
+  ctx.beginPath();
+  ctx.moveTo(cx - Math.sin(sa) * 12, cy + Math.cos(sa) * 12);
+  ctx.lineTo(cx + Math.sin(sa) * 62, cy - Math.cos(sa) * 62);
+  ctx.strokeStyle = '#fbbf24';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // Center dot
+  ctx.beginPath();
+  ctx.arc(cx, cy, 5, 0, Math.PI * 2);
+  ctx.fillStyle = '#38bdf8';
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(cx, cy, 2.5, 0, Math.PI * 2);
+  ctx.fillStyle = '#06101e';
+  ctx.fill();
+
+  // Digital time
   const dig = document.getElementById('clockDigital');
   if (dig) dig.textContent = now.toLocaleTimeString('es', { hour12: false });
 }
