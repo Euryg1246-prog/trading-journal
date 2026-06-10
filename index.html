@@ -213,6 +213,7 @@
       <a class="nav-item" href="#" onclick="showSidebarSection('section-drift');return false;"><i class="ti ti-activity"></i> Drift Monitor</a>
       <a class="nav-item" href="#" onclick="showSidebarSection('section-recovery');return false;"><i class="ti ti-refresh-alert"></i> Recovery</a>
       <a class="nav-item" href="#" onclick="showSidebarSection('section-account');return false;"><i class="ti ti-wallet"></i> Account Size</a>
+      <a class="nav-item" href="#" onclick="showSidebarSection('section-montecarlo');return false;"><i class="ti ti-dice"></i> Monte Carlo</a>
       <div class="nav-section">Operaciones</div>
       <a class="nav-item" href="#" onclick="showSidebarSection('section-entry');return false;"><i class="ti ti-plus-circle"></i> Nuevo Trade</a>
       <a class="nav-item" href="#" onclick="showSidebarSection('section-history');return false;"><i class="ti ti-list"></i> Historial</a>
@@ -262,8 +263,21 @@
     <div class="dyg-drag-handle" draggable="true" title="Arrastrar para mover esta sección">⠿⠿</div>
     <div id="section-dashboard">
 
-  <!-- WIDGET PRECIOS EN VIVO -->
-  <div class="panel dyg-resizable" data-resize-id="live-prices" style="margin-bottom:20px;padding:12px 20px;">
+  <!-- WIDGET PRECIOS EN VIVO + PERFIL -->
+  <div style="display:flex;gap:12px;align-items:stretch;flex-wrap:wrap;margin-bottom:20px;">
+  <div class="panel" style="flex:0 0 170px;min-width:150px;margin-bottom:0;padding:8px 12px;display:flex;align-items:center;gap:8px;cursor:pointer" onclick="showSidebarSection('section-profile')" title="Mi Perfil">
+    <div class="profile-preview-avatar" id="dashProfileAvatar" style="width:36px;height:36px;font-size:14px;flex-shrink:0;">
+      <img id="dashProfileImg" src="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="">
+      <span id="dashProfileInitials">?</span>
+    </div>
+    <div style="overflow:hidden">
+      <div id="dashProfileName" style="font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Mi Perfil</div>
+      <div id="dashProfileNickname" style="font-size:10px;color:var(--accent);font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
+      <div id="dashProfileCapital" style="font-size:10px;color:var(--text2);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
+    </div>
+  </div>
+
+  <div class="panel dyg-resizable" data-resize-id="live-prices" style="flex:1;min-width:280px;margin-bottom:0;padding:12px 20px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
       <div style="display:flex;align-items:center;gap:8px;">
         <span style="width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block;animation:pulse 2s infinite;"></span>
@@ -311,6 +325,7 @@
       }
       </script>
     </div>
+  </div>
   </div>
 
     <section class="grid-main">
@@ -434,8 +449,41 @@
       </div>
     </section>
   </div>
+
+  <section class="panel dyg-resizable" id="section-montecarlo">
+    <h2>🎲 Monte Carlo</h2>
+    <p>Simula miles de escenarios alternativos reordenando tus operaciones reales para estimar el rango de resultados y el riesgo real de drawdown en tu próxima racha.</p>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px">
+      <button type="button" class="tool-btn" id="runMonteCarloBtn" onclick="runMonteCarlo()">🎲 Ejecutar Simulación (2,000 escenarios)</button>
+      <span id="mcTradeCount" style="font-size:12px;color:var(--text2)"></span>
+    </div>
+    <p id="mcEmptyState" class="muted">Registra al menos 10 operaciones para obtener una simulación representativa.</p>
+    <div id="mcResults" style="display:none">
+      <div style="position:relative;height:320px">
+        <canvas id="monteCarloChart"></canvas>
+      </div>
+      <div class="recovery-grid" style="margin-top:16px">
+        <div class="recovery-box"><span>P&amp;L Próximas Operaciones (mediana)</span><strong id="mcMedianEquity">$0.00</strong><p>Rango 5%–95%: <span id="mcEquityRange"></span></p></div>
+        <div class="recovery-box"><span>Prob. de Racha Negativa</span><strong id="mcProbLoss">0%</strong><p>Probabilidad de que tu próxima racha de operaciones cierre en pérdida neta.</p></div>
+        <div class="recovery-box"><span>Drawdown Proyectado (mediana)</span><strong id="mcMedianDD">$0.00</strong><p>Peor caso (P95): <span id="mcDD95"></span></p></div>
+      </div>
+      <div class="account-status-box" style="margin-top:12px">
+        <strong>📌 Conclusión</strong>
+        <p id="mcConclusion"></p>
+      </div>
+    </div>
+  </section>
   </div>
   </div><!-- /dyg-block: recovery-account-scorecard -->
+
+  <div class="dyg-block" data-block-id="setup">
+    <div class="dyg-drag-handle" draggable="true" title="Arrastrar para mover esta sección">⠿⠿</div>
+  <section class="panel setup-panel dyg-resizable" id="section-setup">
+    <h2>Setup Quality Score</h2>
+    <p>Ranking estadístico de setups según rendimiento real.</p>
+    <div id="setupRanking"></div>
+  </section>
+  </div><!-- /dyg-block: setup -->
 
   <div class="dyg-block" data-block-id="drift-notes">
     <div class="dyg-drag-handle" draggable="true" title="Arrastrar para mover esta sección">⠿⠿</div>
@@ -489,15 +537,6 @@
   </section>
   </div>
   </div><!-- /dyg-block: drift-notes -->
-
-  <div class="dyg-block" data-block-id="setup">
-    <div class="dyg-drag-handle" draggable="true" title="Arrastrar para mover esta sección">⠿⠿</div>
-  <section class="panel setup-panel dyg-resizable" id="section-setup">
-    <h2>Setup Quality Score</h2>
-    <p>Ranking estadístico de setups según rendimiento real.</p>
-    <div id="setupRanking"></div>
-  </section>
-  </div><!-- /dyg-block: setup -->
 
   <div class="dyg-block" data-block-id="config-data">
     <div class="dyg-drag-handle" draggable="true" title="Arrastrar para mover esta sección">⠿⠿</div>

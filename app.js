@@ -939,7 +939,7 @@ let currentView = localStorage.getItem('dygpro_view') || 'scroll';
 const ALL_SECTIONS = [
   'section-dashboard','section-research','section-calendar',
   'section-setup','section-drift','section-recovery',
-  'section-account','section-scorecard-wrapper','section-entry',
+  'section-account','section-montecarlo','section-scorecard-wrapper','section-entry',
   'section-history','section-sessions','section-notes',
   'section-data','section-config','section-gallery','section-profile'
 ];
@@ -1358,6 +1358,7 @@ try {
 } catch(e) {}
 let personalNotes = {};
 let equityChart;
+let monteCarloChart;
 
 // Valor por punto de cada instrumento en USD
 const pointValue = {
@@ -1525,6 +1526,7 @@ function render() {
   renderSystemScorecard(activeTrades);
   renderAccountSizeEngine(activeTrades);
   renderRecoveryAnalytics(activeTrades);
+  renderMonteCarloPanel(activeTrades);
   renderSetupQualityScore(activeTrades);
   renderSystemDriftMonitor(activeTrades);
 }
@@ -3157,6 +3159,142 @@ function renderSystemDriftMonitor(activeTrades) {
   setText("driftComment", comment);
 }
 
+/* ============================================================
+   MONTE CARLO
+   ============================================================ */
+function renderMonteCarloPanel(activeTrades) {
+  const list = Array.isArray(activeTrades) ? activeTrades : (Array.isArray(window.trades) ? window.trades : []);
+  const empty   = document.getElementById("mcEmptyState");
+  const results = document.getElementById("mcResults");
+  const btn     = document.getElementById("runMonteCarloBtn");
+  const countEl = document.getElementById("mcTradeCount");
+  if (!empty || !results || !btn) return;
+
+  if (countEl) countEl.textContent = list.length + " trades en el historial";
+
+  if (list.length < 10) {
+    empty.style.display = "";
+    results.style.display = "none";
+    btn.disabled = true;
+  } else {
+    empty.style.display = "none";
+    btn.disabled = false;
+  }
+}
+
+function runMonteCarlo() {
+  const list = getSourceFilteredTrades(trades).length ? getSourceFilteredTrades(trades) : trades;
+  const pnls = list.map(t => Number(t.pl) || 0);
+  const n = pnls.length;
+  if (n < 10) return;
+
+  const N_SIMS = 2000;
+  const finals = [];
+  const drawdowns = [];
+  const curves = [];
+
+  for (let s = 0; s < N_SIMS; s++) {
+    let equity = 0, peak = 0, maxDD = 0;
+    const curve = [0];
+    for (let i = 0; i < n; i++) {
+      const p = pnls[Math.floor(Math.random() * n)];
+      equity += p;
+      if (equity > peak) peak = equity;
+      const dd = peak - equity;
+      if (dd > maxDD) maxDD = dd;
+      curve.push(equity);
+    }
+    finals.push(equity);
+    drawdowns.push(maxDD);
+    curves.push(curve);
+  }
+
+  finals.sort((a, b) => a - b);
+  drawdowns.sort((a, b) => a - b);
+
+  const pct = (arr, p) => arr[Math.min(arr.length - 1, Math.floor(arr.length * p))];
+
+  const medianFinal = pct(finals, 0.50);
+  const p5Final  = pct(finals, 0.05);
+  const p95Final = pct(finals, 0.95);
+  const medianDD = pct(drawdowns, 0.50);
+  const dd95     = pct(drawdowns, 0.95);
+  const probLoss = finals.filter(f => f < 0).length / N_SIMS * 100;
+
+  const realDD = calculateMaxDrawdown(list);
+
+  // Bandas de percentiles para el "fan chart"
+  const bandP5 = [], bandP25 = [], bandP50 = [], bandP75 = [], bandP95 = [];
+  for (let step = 0; step <= n; step++) {
+    const vals = curves.map(c => c[step]).sort((a, b) => a - b);
+    bandP5.push(pct(vals, 0.05));
+    bandP25.push(pct(vals, 0.25));
+    bandP50.push(pct(vals, 0.50));
+    bandP75.push(pct(vals, 0.75));
+    bandP95.push(pct(vals, 0.95));
+  }
+
+  setText("mcMedianEquity", money(medianFinal));
+  setText("mcEquityRange", money(p5Final) + " a " + money(p95Final));
+  setText("mcProbLoss", probLoss.toFixed(1) + "%");
+  setText("mcMedianDD", money(medianDD));
+  setText("mcDD95", money(dd95));
+
+  let conclusion = `Si tu sistema mantiene el mismo comportamiento, en una racha de ${n} operaciones más es probable terminar entre ${money(p5Final)} y ${money(p95Final)} (mediana ${money(medianFinal)}). `;
+  conclusion += `Hay un ${probLoss.toFixed(1)}% de probabilidad de que esa próxima racha cierre en pérdida neta. `;
+  if (dd95 > realDD * 1.3) {
+    conclusion += `Tu drawdown histórico (${money(realDD)}) podría no ser tu peor escenario: en el 5% de los casos más adversos, el drawdown proyectado llega a ${money(dd95)}. Dimensiona tu cuenta pensando en ese número, no solo en el histórico.`;
+  } else {
+    conclusion += `Tu drawdown histórico (${money(realDD)}) está en línea con lo que muestra la simulación — buena señal de consistencia.`;
+  }
+  setText("mcConclusion", conclusion);
+
+  document.getElementById("mcResults").style.display = "";
+
+  const ctx = document.getElementById("monteCarloChart");
+  if (monteCarloChart) monteCarloChart.destroy();
+  const labels = bandP50.map((_, i) => i);
+
+  monteCarloChart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [
+        { label: "P5",      data: bandP5,  borderColor: "rgba(0,212,255,0.15)", backgroundColor: "transparent", fill: false, pointRadius: 0, borderWidth: 1 },
+        { label: "P95",     data: bandP95, borderColor: "rgba(0,212,255,0.15)", backgroundColor: "rgba(0,212,255,0.10)", fill: 0, pointRadius: 0, borderWidth: 1 },
+        { label: "P25",     data: bandP25, borderColor: "rgba(0,212,255,0.25)", backgroundColor: "transparent", fill: false, pointRadius: 0, borderWidth: 1 },
+        { label: "P75",     data: bandP75, borderColor: "rgba(0,212,255,0.25)", backgroundColor: "rgba(0,212,255,0.20)", fill: 2, pointRadius: 0, borderWidth: 1 },
+        { label: "Mediana", data: bandP50, borderColor: "#00d4ff", backgroundColor: "transparent", fill: false, pointRadius: 0, borderWidth: 2 }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
+      plugins: {
+        legend: { labels: { color: "white", font: { size: 13 }, filter: item => item.text === "Mediana" } },
+        title: { display: true, text: `Proyección Monte Carlo — próximas ${n} operaciones (P&L acumulado simulado)`, color: "#cbd5e1", font: { size: 14 } },
+        tooltip: {
+          filter: item => item.dataset.label === "Mediana" || item.dataset.label === "P5" || item.dataset.label === "P95",
+          callbacks: { label: ctx => `${ctx.dataset.label}: ${money(ctx.parsed.y)}` }
+        }
+      },
+      scales: {
+        x: {
+          title: { display: true, text: "Operación #", color: "#cbd5e1", font: { size: 13 } },
+          ticks: { color: "#cbd5e1", font: { size: 12 }, maxTicksLimit: 12, autoSkip: true },
+          grid: { color: "rgba(255,255,255,.08)" }
+        },
+        y: {
+          title: { display: true, text: "P&L acumulado (USD)", color: "#cbd5e1", font: { size: 13 } },
+          ticks: { color: "#cbd5e1", font: { size: 12 }, callback: value => money(value) },
+          grid: { color: "rgba(255,255,255,.08)" }
+        }
+      }
+    }
+  });
+}
+
 
 let equityFilterStart = localStorage.getItem("dygpro_filter_start") || null;
 let equityFilterEnd   = localStorage.getItem("dygpro_filter_end")   || null;
@@ -4585,6 +4723,20 @@ function applyProfileToUI() {
   // También actualizar el avatar original del sistema auth
   const authInitials = document.getElementById('user-avatar-initials');
   if (authInitials && !photo) authInitials.textContent = initials;
+
+  // Franja de perfil en el dashboard (junto a Precios en Vivo)
+  const dashImg      = document.getElementById('dashProfileImg');
+  const dashInitials = document.getElementById('dashProfileInitials');
+  const dashName     = document.getElementById('dashProfileName');
+  const dashNick     = document.getElementById('dashProfileNickname');
+  const dashCapital  = document.getElementById('dashProfileCapital');
+  if (dashImg && dashInitials) {
+    if (photo) { dashImg.src = photo; dashImg.style.display = 'block'; dashInitials.style.display = 'none'; }
+    else { dashImg.style.display = 'none'; dashInitials.style.display = 'block'; dashInitials.textContent = initials; }
+  }
+  if (dashName) dashName.textContent = name || nickname || 'Mi Perfil';
+  if (dashNick) dashNick.textContent = (nickname && name) ? `"${nickname}"` : '';
+  if (dashCapital) dashCapital.textContent = capital ? `💰 $${Number(capital).toLocaleString()}` : '';
 
   // Preview card
   const card = document.getElementById('profilePreviewCard');
