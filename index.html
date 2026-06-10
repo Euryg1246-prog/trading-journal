@@ -248,7 +248,7 @@
     <div id="section-dashboard">
 
   <!-- WIDGET PRECIOS EN VIVO -->
-  <div class="panel" style="margin-bottom:8px;padding:6px 12px;">
+  <div class="panel" style="margin-bottom:20px;padding:12px 20px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
       <div style="display:flex;align-items:center;gap:8px;">
         <span style="width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block;animation:pulse 2s infinite;"></span>
@@ -325,8 +325,9 @@
         <span style="font-size:10px;color:var(--text3);">Ctrl + Scroll para zoom · Arrastra para mover</span>
         <button class="tool-btn" onclick="if(equityChart)equityChart.resetZoom()" style="font-size:11px;padding:4px 10px;">↺ Reset Zoom</button>
       </div>
-      <div class="trader-manifesto" style="padding:4px 10px!important;margin-top:4px!important;border-radius:6px;">
-        <p style="font-size:9px!important;margin:0!important;color:var(--text3);line-height:1.4;">Mi trabajo no es ganar hoy · Mi trabajo es ejecutar el plan · La disciplina siempre gana.</p>
+      <div class="trader-manifesto">
+        <p>Mi trabajo no es ganar hoy.<br>Mi trabajo es ejecutar el plan.</p>
+        <p>Una buena operación puede perder.<br>Una mala operación puede ganar.<br>La disciplina siempre gana.</p>
       </div>
     </div>
     <div class="panel system-panel">
@@ -334,9 +335,10 @@
       <div class="system-box good"><span>Ventana de trading</span><strong id="systemWindowDisplay">—</strong></div>
       <div class="system-box"><span>Días activos</span><strong id="systemDaysDisplay">—</strong></div>
       <div class="system-box danger"><span>Fuera del plan</span><strong id="outPlanTrades">0 trades</strong></div>
-      <div class="clock-section" style="text-align:center;padding:6px 0 4px;">
-        <div class="clock-time-digital" id="clockDigital" style="font-size:22px;font-family:'DM Mono',monospace;color:var(--accent);letter-spacing:2px;">00:00:00</div>
-        <div class="discipline-msg" id="disciplineMsg" style="font-size:9px;color:var(--text3);margin-top:3px;">La disciplina siempre gana</div>
+      <div class="clock-section">
+        <canvas id="analogClock" width="160" height="160" style="cursor:pointer;" onclick="openTimePicker('time')" title="Clic para seleccionar hora de entrada"></canvas>
+        <div class="clock-time-digital" id="clockDigital">00:00:00</div>
+        <div class="discipline-msg" id="disciplineMsg">La disciplina siempre gana</div>
       </div>
       <div class="alarm-section">
         <div class="alarm-title">⏰ Alarmas</div>
@@ -367,21 +369,23 @@
     </div>
   </section>
 
-  <section class="dashboard" style="grid-template-columns:repeat(12,1fr);gap:4px;margin-bottom:6px;">
+  <section class="dashboard">
     <div class="card"><span>P/L Total</span><strong id="totalPL">$0.00</strong></div>
-    <div class="card"><span>P/L Plan</span><strong id="planPL">$0.00</strong></div>
-    <div class="card"><span>Fuera Plan</span><strong id="badPL">$0.00</strong></div>
+    <div class="card"><span>P/L Dentro Plan</span><strong id="planPL">$0.00</strong></div>
+    <div class="card"><span>P/L Fuera Plan</span><strong id="badPL">$0.00</strong></div>
     <div class="card"><span>Disciplina</span><strong id="disciplineRate">0%</strong></div>
     <div class="card"><span>Win Rate</span><strong id="winRate">0%</strong></div>
-    <div class="card"><span>Max DD</span><strong id="maxDD">$0.00</strong></div>
-    <div class="card"><span>Prof. Factor</span><strong id="profitFactor">0.00</strong></div>
-    <div class="card"><span>Payoff</span><strong id="payoffRatio">0.00</strong></div>
+    <div class="card"><span>Max Drawdown</span><strong id="maxDD">$0.00</strong></div>
+  </section>
+  <section class="dashboard">
+    <div class="card"><span>Profit Factor</span><strong id="profitFactor">0.00</strong></div>
+    <div class="card"><span>Payoff Ratio</span><strong id="payoffRatio">0.00</strong></div>
     <div class="card"><span>Avg Win</span><strong id="avgWin">$0.00</strong></div>
     <div class="card"><span>Avg Loss</span><strong id="avgLoss">$0.00</strong></div>
     <div class="card"><span>Expectancy</span><strong id="expectancy">$0.00</strong></div>
     <div class="card"><span>RR Real</span><strong id="realRR">0.00R</strong></div>
   </section>
-  </div>
+  </div><!-- /section-dashboard -->
 
   <section class="panel setup-panel" id="section-setup">
     <h2>Setup Quality Score</h2>
@@ -389,81 +393,84 @@
     <div id="setupRanking"></div>
   </section>
 
-  <div class="notes-drift-row">
-    <section class="panel notes-panel" id="section-notes">
-      <h2>📓 Notas</h2>
-      <div class="notes-compact-grid">
-        <div class="notes-editor-compact">
-          <div style="display:flex;gap:5px;align-items:center;margin-bottom:5px;">
-            <input type="date" id="noteDate" style="flex:1;font-size:11px;padding:4px 6px;">
-            <button type="button" onclick="document.getElementById('noteDate').showPicker?document.getElementById('noteDate').showPicker():document.getElementById('noteDate').click()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--accent);border-radius:6px;padding:4px 6px;cursor:pointer;font-size:11px;width:auto;grid-column:auto;">📅</button>
-          </div>
-          <textarea id="personalNoteText" placeholder="Escribe tu nota..." style="min-height:60px;font-size:11px;padding:5px 7px;resize:vertical;"></textarea>
-          <div style="display:flex;gap:4px;margin-top:5px;">
-            <button type="button" class="tool-btn" id="savePersonalNote" style="flex:1;font-size:10px;padding:4px;">Guardar</button>
-            <button type="button" class="tool-btn danger-btn" id="deletePersonalNote" style="flex:1;font-size:10px;padding:4px;">Borrar</button>
-          </div>
-        </div>
-        <div class="notes-calendar-box-compact">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;gap:4px;">
-            <button type="button" class="tool-btn" id="prevNotesMonth" style="padding:3px 7px;font-size:10px;">◀</button>
-            <input type="month" id="notesMonth" style="flex:1;font-size:11px;padding:3px 5px;text-align:center;">
-            <button type="button" class="tool-btn" id="nextNotesMonth" style="padding:3px 7px;font-size:10px;">▶</button>
-          </div>
-          <div class="notes-weekdays" style="font-size:8px !important;">
-            <span>D</span><span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span>
-          </div>
-          <div id="notesCalendar" class="notes-calendar-pro"></div>
-        </div>
-      </div>
-    </section>
-
-    <section class="panel drift-panel" id="section-drift">
-      <h2>📊 System Drift</h2>
-      <p style="font-size:10px;color:var(--text2);margin-bottom:8px;">Últimos 20 trades vs histórico.</p>
-      <div class="drift-grid">
-        <div class="drift-box main-drift"><span>Drift Score</span><strong id="driftScore">100/100</strong><p id="driftStatus">🟢 Alineado</p></div>
-        <div class="drift-box"><span>Expect. Hist.</span><strong id="driftHistExpectancy">$0.00</strong><p>Total</p></div>
-        <div class="drift-box"><span>Expect. Rec.</span><strong id="driftRecentExpectancy">$0.00</strong><p>Últ. 20</p></div>
-        <div class="drift-box"><span>WR Reciente</span><strong id="driftRecentWinRate">0%</strong><p id="driftComment">Esperando...</p></div>
-      </div>
-    </section>
-  </div>
-
-  <div class="analytics-row">
-    <section class="panel recovery-panel" id="section-recovery">
-      <h2>Recovery Analytics</h2>
-      <div class="recovery-grid">
-        <div class="recovery-box"><span>Recovery Factor</span><strong id="recoveryFactor">0.00</strong><p id="recoveryFactorStatus">Sin datos</p></div>
-        <div class="recovery-box"><span>Recovery Time</span><strong id="recoveryTime">0 trades</strong><p>Para recuperar el peor DD.</p></div>
-        <div class="recovery-box"><span>Worst Streak</span><strong id="worstLosingStreak">0</strong><p id="worstLosingStreakLoss">$0.00</p></div>
-      </div>
-    </section>
-
-    <section class="panel account-panel" id="section-account">
-      <h2>Account Size Engine</h2>
-      <div class="account-grid">
-        <div class="account-box minimum"><span>🟠 Mínima</span><strong id="accountMinimum">$0.00</strong><p class="account-tag">DD×1</p></div>
-        <div class="account-box aggressive"><span>🟡 Recomendada</span><strong id="accountAggressive">$0.00</strong><p class="account-tag">DD×2</p></div>
-        <div class="account-box balanced"><span>🟢 Cómoda</span><strong id="accountBalanced">$0.00</strong><p class="account-tag">DD×4</p></div>
-        <div class="account-box conservative"><span>💼 Pro</span><strong id="accountConservative">$0.00</strong><p class="account-tag">DD×6</p></div>
-      </div>
-      <div class="account-status-box" style="margin-top:5px;padding:5px 8px;">
-        <strong id="accountStatus" style="font-size:10px;">Sin datos</strong>
-        <p id="accountAdvice" style="font-size:9px;">Registra trades para calcular.</p>
-      </div>
-    </section>
-
-    <div id="section-scorecard-wrapper">
-      <section class="panel scorecard-panel" id="section-scorecard">
-        <h2>System Scorecard</h2>
-        <div class="scorecard-grid">
-          <div class="system-rating-box"><span>Valoración</span><strong id="systemRating">0.0 / 10</strong><p id="systemRatingStatus">Sin datos</p></div>
-          <div class="system-diagnosis"><h3>Diagnóstico</h3><p id="systemDiagnosis">Registra trades para evaluar.</p></div>
-          <div class="system-improvement"><h3>Mejorar</h3><ul id="systemImprovements"><li>Esperando datos...</li></ul></div>
-        </div>
-      </section>
+  <section class="panel drift-panel" id="section-drift">
+    <h2>System Drift Monitor</h2>
+    <p>Compara los últimos 20 trades contra el comportamiento histórico del sistema.</p>
+    <div class="drift-grid">
+      <div class="drift-box main-drift"><span>Drift Score</span><strong id="driftScore">100/100</strong><p id="driftStatus">🟢 Sistema alineado</p></div>
+      <div class="drift-box"><span>Expectancy Histórica</span><strong id="driftHistExpectancy">$0.00</strong><p>Promedio por trade total.</p></div>
+      <div class="drift-box"><span>Expectancy Reciente</span><strong id="driftRecentExpectancy">$0.00</strong><p>Últimos 20 trades.</p></div>
+      <div class="drift-box"><span>Win Rate Reciente</span><strong id="driftRecentWinRate">0%</strong><p id="driftComment">Esperando datos...</p></div>
     </div>
+  </section>
+
+  <section class="panel notes-panel" id="section-notes">
+    <h2>Personal Notes Calendar Pro</h2>
+    <p>Notas personales por fecha. Guarda ideas, emociones, observaciones o bugs del sistema.</p>
+    <div class="notes-pro-grid">
+      <div class="notes-editor">
+        <label>Fecha de la nota</label>
+        <div style="display:flex;gap:6px;align-items:center">
+            <input type="date" id="noteDate">
+            <button type="button" onclick="document.getElementById('noteDate').showPicker?document.getElementById('noteDate').showPicker():document.getElementById('noteDate').click()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--accent);border-radius:8px;padding:6px 8px;cursor:pointer;font-size:13px;white-space:nowrap;width:auto;grid-column:auto;font-family:'DM Sans',sans-serif;">📅</button>
+          </div>
+        <textarea id="personalNoteText" placeholder="Escribe tu nota personal aquí..."></textarea>
+        <div class="tools">
+          <button type="button" class="tool-btn" id="savePersonalNote">Guardar Nota</button>
+          <button type="button" class="tool-btn danger-btn" id="deletePersonalNote">Borrar Nota</button>
+        </div>
+      </div>
+      <div class="notes-calendar-box">
+        <div class="notes-calendar-header">
+          <button type="button" class="tool-btn" id="prevNotesMonth">◀</button>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input type="month" id="notesMonth">
+            <button type="button" onclick="document.getElementById('notesMonth').showPicker?document.getElementById('notesMonth').showPicker():document.getElementById('notesMonth').click()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--accent);border-radius:8px;padding:6px 8px;cursor:pointer;font-size:13px;white-space:nowrap;width:auto;grid-column:auto;font-family:'DM Sans',sans-serif;">📅</button>
+          </div>
+          <button type="button" class="tool-btn" id="nextNotesMonth">▶</button>
+        </div>
+        <div class="notes-weekdays">
+          <span>Dom</span><span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span>
+        </div>
+        <div id="notesCalendar" class="notes-calendar-pro"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel recovery-panel" id="section-recovery">
+    <h2>Recovery Analytics</h2>
+    <p>Mide qué tan resistente es el sistema después de drawdowns y rachas negativas.</p>
+    <div class="recovery-grid">
+      <div class="recovery-box"><span>Recovery Factor</span><strong id="recoveryFactor">0.00</strong><p id="recoveryFactorStatus">Sin datos</p></div>
+      <div class="recovery-box"><span>Recovery Time</span><strong id="recoveryTime">0 trades</strong><p>Trades necesarios para recuperar el peor drawdown.</p></div>
+      <div class="recovery-box"><span>Worst Losing Streak</span><strong id="worstLosingStreak">0</strong><p id="worstLosingStreakLoss">$0.00</p></div>
+    </div>
+  </section>
+
+  <section class="panel account-panel" id="section-account">
+    <h2>Account Size Engine</h2>
+    <p>¿Cuánto capital necesitas para operar este sistema? Basado en tu peor racha real hasta ahora.</p>
+    <div class="account-grid">
+      <div class="account-box minimum"><span>🟠 Cuenta Mínima</span><strong id="accountMinimum">$0.00</strong><p class="account-tag">DD x 1</p><p class="account-explain">Puedes empezar aquí, pero un mal día puede sacarte del juego. Solo si tienes disciplina comprobada y estás dispuesto a asumir más riesgo.</p></div>
+      <div class="account-box aggressive"><span>🟡 Cuenta Recomendada</span><strong id="accountAggressive">$0.00</strong><p class="account-tag">DD x 2</p><p class="account-explain">El punto de entrada real. Aguantas tu peor racha histórica completa y sigues operando sin quedarte sin capital.</p></div>
+      <div class="account-box balanced"><span>🟢 Cuenta Cómoda</span><strong id="accountBalanced">$0.00</strong><p class="account-tag">DD x 4</p><p class="account-explain">Operas sin presión emocional. Las pérdidas no te afectan psicológicamente porque tienes colchón suficiente.</p></div>
+      <div class="account-box conservative"><span>💼 Cuenta Profesional</span><strong id="accountConservative">$0.00</strong><p class="account-tag">DD x 6</p><p class="account-explain">Para cuando quieres escalar contratos. El sistema tiene espacio para crecer sin poner en riesgo tu capital base.</p></div>
+    </div>
+    <div class="account-status-box">
+      <strong id="accountStatus">Sin datos</strong>
+      <p id="accountAdvice">Importa o registra operaciones para calcular tu capital recomendado.</p>
+    </div>
+  </section>
+
+  <div id="section-scorecard-wrapper">
+    <section class="panel scorecard-panel" id="section-scorecard">
+      <h2>System Scorecard</h2>
+      <div class="scorecard-grid">
+        <div class="system-rating-box"><span>Valoración del Sistema</span><strong id="systemRating">0.0 / 10</strong><p id="systemRatingStatus">Sin datos suficientes</p></div>
+        <div class="system-diagnosis"><h3>Diagnóstico</h3><p id="systemDiagnosis">Importa o registra operaciones para evaluar el sistema.</p></div>
+        <div class="system-improvement"><h3>Puede mejorar</h3><ul id="systemImprovements"><li>Esperando datos...</li></ul></div>
+      </div>
+    </section>
   </div>
 
   <section class="panel" id="section-config">
@@ -508,7 +515,7 @@
     <div id="cfgPreview" style="margin-top:16px;padding:14px;background:var(--bg2);border-radius:12px;border:1px solid var(--border2);font-size:13px;color:var(--text2);display:none"></div>
   </section>
 
-  <section class="panel" id="section-data" style="display:flex;flex-direction:column;">
+  <section class="panel" id="section-data">
     <h2>Importar / Exportar Datos</h2>
     <p>Importa operaciones desde CSV o descarga un backup del journal.</p>
     <div class="tools">
@@ -629,20 +636,16 @@
     </form>
   </section>
 
-  <div class="research-calendar-row">
-    <div class="panel" id="section-research" style="min-width:0;">
-      <h2>Research Center</h2>
-      <div id="researchBox" class="research-box"></div>
-    </div>
-    <div class="panel" style="min-width:0;">
-      <h2>Dist. Hora Pico</h2>
-      <div id="peakDistribution" class="distribution"></div>
-    </div>
-    <section class="panel" id="section-calendar" style="min-width:0;">
-      <h2>Calendario P/L</h2>
-      <div id="plCalendar" class="calendar"></div>
-    </section>
-  </div>
+  <section class="grid-main" id="section-research">
+    <div class="panel"><h2>Research Center</h2><div id="researchBox" class="research-box"></div></div>
+    <div class="panel"><h2>Distribución Hora Pico</h2><div id="peakDistribution" class="distribution"></div></div>
+  </section>
+
+  <section class="panel" id="section-calendar">
+    <h2>Calendario P/L Diario</h2>
+    <p>Cada día se colorea según el resultado acumulado.</p>
+    <div id="plCalendar" class="calendar"></div>
+  </section>
 
   <section class="panel" id="section-sessions">
     <h2>Session Database</h2>

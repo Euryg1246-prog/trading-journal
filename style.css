@@ -19,7 +19,7 @@
   --text:      #f0f4fc;
   --text2:     #94a3b8;
   --text3:     #475569;
-  --sidebar-w: 190px;
+  --sidebar-w: 220px;
   --header-h:  60px;
 }
 
@@ -95,13 +95,13 @@ body {
 }
 
 .auth-error {
-  font-size: 11px; margin-bottom: 12px;
+  font-size: 13px; margin-bottom: 12px;
   text-align: center; min-height: 18px;
   color: var(--red);
 }
 
 .auth-box input {
-  width: 100%; padding: 6px 8px;
+  width: 100%; padding: 8px 10px;
   border-radius: 10px;
   border: 1px solid var(--border2);
   background: var(--bg2);
@@ -126,7 +126,7 @@ body {
 .btn-primary:hover { opacity: .88; }
 
 .btn-secondary {
-  width: 100%; padding: 5px 8px;
+  width: 100%; padding: 7px 10px;
   border-radius: 10px;
   border: 1px solid var(--border2);
   background: transparent;
@@ -160,18 +160,18 @@ body {
 }
 
 .sidebar-logo {
-  padding: 12px 14px 10px;
+  padding: 24px 20px 20px;
   border-bottom: 1px solid var(--border);
 }
 .sidebar-logo h1 {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 20px;
+  font-size: 26px;
   letter-spacing: 2px;
   color: var(--accent);
   line-height: 1;
 }
 .sidebar-logo span {
-  font-size: 9px;
+  font-size: 10px;
   color: var(--text2);
   letter-spacing: 1.5px;
   text-transform: uppercase;
@@ -179,12 +179,12 @@ body {
 
 .sidebar-nav {
   flex: 1;
-  padding: 10px 10px 4px;
+  padding: 16px 12px;
   overflow-y: auto;
 }
 
 .nav-section {
-  font-size: 9px;
+  font-size: 10px;
   color: var(--text3);
   letter-spacing: 1.5px;
   text-transform: uppercase;
@@ -194,10 +194,10 @@ body {
 
 .nav-item {
   display: flex; align-items: center; gap: 10px;
-  padding: 5px 10px;
+  padding: 9px 12px;
   border-radius: 8px;
   color: var(--text2);
-  font-size: 12px;
+  font-size: 13.5px;
   cursor: pointer;
   transition: all .15s;
   margin-bottom: 2px;
@@ -208,10 +208,10 @@ body {
 }
 .nav-item:hover { background: var(--surface); color: var(--text); }
 .nav-item.active { background: var(--surface2); color: var(--accent); }
-.nav-item i { font-size: 13px; width: 14px; }
+.nav-item i { font-size: 16px; width: 18px; }
 
 .sidebar-footer {
-  padding: 8px 10px;
+  padding: 16px 12px;
   border-top: 1px solid var(--border);
 }
 .user-info {
@@ -251,7 +251,7 @@ body {
 
 .page-section {
   display: none;
-  padding: 12px 14px;
+  padding: 18px 20px;
   animation: fadeIn .25s ease;
 }
 .page-section.active { display: block; }
@@ -262,19 +262,19 @@ body {
 }
 
 .page-header {
-  margin-bottom: 8px;
+  margin-bottom: 14px;
 }
 .page-header h2 {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 17px;
-  letter-spacing: 1px;
+  font-size: 22px;
+  letter-spacing: 1.5px;
   color: var(--text);
   line-height: 1;
 }
 .page-header p {
   color: var(--text2);
-  font-size: 11px;
-  margin-top: 2px;
+  font-size: 12px;
+  margin-top: 3px;
 }
 
 /* ============================================================
@@ -285,37 +285,37 @@ body {
 .panel {
   background: var(--surface);
   border: 1px solid var(--border2);
-  border-radius: 10px;
-  padding: 10px 12px;
-  margin-bottom: 10px;
+  border-radius: 14px;
+  padding: 16px 18px;
+  margin-bottom: 14px;
   box-shadow: 0 4px 32px rgba(0,0,0,0.4);
 }
 .panel h2 {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 12px;
-  letter-spacing: .8px;
+  font-size: 15px;
+  letter-spacing: 1px;
   color: var(--accent);
-  margin-bottom: 3px;
+  margin-bottom: 4px;
 }
 .panel > p {
   color: var(--text2);
   font-size: 12px;
-  margin-bottom: 3px;
+  margin-bottom: 5px;
 }
 
 /* Metric Cards Grid */
 .dashboard {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  gap: 6px;
-  margin-bottom: 8px;
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
 .card {
   background: var(--surface2);
   border: 1px solid var(--border2);
-  border-radius: 8px;
-  padding: 8px 10px;
+  border-radius: 10px;
+  padding: 11px 12px;
   transition: all .2s;
 }
 .card:hover { border-color: var(--accent); box-shadow: 0 0 18px rgba(56,189,248,0.12); }
@@ -331,22 +331,22 @@ body {
 }
 .card strong {
   font-family: 'DM Mono', monospace;
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 17px;
+  font-weight: 500;
   color: var(--text);
 }
 
 /* Chart Panel */
 /* Altura del canvas equity chart */
-#equityChart { min-height: 180px; }
-.chart-panel { min-height: 220px; }
-.trader-manifesto { padding: 5px 10px !important; margin-top: 5px !important; }
-.trader-manifesto p { font-size: 10px !important; margin: 1px 0 !important; }
+#equityChart { min-height: 240px; }
+.chart-panel { min-height: 300px; }
+.trader-manifesto { padding: 10px 16px !important; margin-top: 10px !important; }
+.trader-manifesto p { font-size: 12px !important; margin: 2px 0 !important; }
 
 
 canvas {
   width: 100% !important;
-  height: 180px !important;
+  height: 220px !important;
 }
 
 /* Equity controls */
@@ -393,16 +393,16 @@ canvas {
 .grid-main {
   display: grid;
   grid-template-columns: 2fr 1fr;
-  gap: 8px;
-  margin-bottom: 8px;
+  gap: 14px;
+  margin-bottom: 14px;
 }
 
 .system-box {
   background: var(--bg2);
   border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 6px 8px;
-  margin-bottom: 5px;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
 }
 .system-box span {
   display: block; color: var(--text2);
@@ -411,7 +411,7 @@ canvas {
 }
 .system-box strong {
   display: block; margin-top: 6px;
-  font-size: 12px; font-family: 'DM Mono', monospace;
+  font-size: 14px; font-family: 'DM Mono', monospace;
 }
 .system-box.good  { border-color: rgba(16,212,142,0.3); }
 .system-box.danger { border-color: rgba(255,77,109,0.3); }
@@ -520,7 +520,7 @@ tr:hover td { background: var(--surface2); }
   background: var(--bg2);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 5px 10px;
+  padding: 9px 14px;
 }
 .insight strong {
   color: var(--accent); display: block; margin-bottom: 6px;
@@ -587,7 +587,7 @@ input:focus, select:focus, textarea:focus {
 select option { background: var(--bg2); }
 
 button[type="submit"] {
-  padding: 5px 12px;
+  padding: 8px 18px;
   border-radius: 10px; border: none;
   background: var(--accent);
   color: #000;
@@ -1280,316 +1280,622 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
   opacity: 1;
 }
 /* ============================================================
-
-/* ============================================================
-   DYGPRO — COMPACT DESIGN SYSTEM v2
-   Un solo bloque limpio. Sin overrides apilados.
+   DYGPRO — MOBILE RESPONSIVE PATCH
+   Agregar al final de style.css
+   Breakpoints: 480px (phone), 700px (ya existente, ampliado)
    ============================================================ */
 
-/* ── VARIABLES COMPACTAS ── */
-:root {
-  --sidebar-w: 188px;
-  --topbar-h:  40px;
-  --panel-pad: 10px 13px;
-  --panel-rad: 10px;
-  --panel-gap: 8px;
-  --card-pad:  8px 10px;
-  --card-rad:  8px;
-  --font-label: 9px;
-  --font-value: 15px;
-  --font-small: 10px;
-  --font-body:  11px;
+/* ── TOP BAR MOBILE ── */
+@media (max-width: 700px) {
+  .top-bar {
+    padding: 0 8px;
+    height: 48px;
+    gap: 4px;
+    justify-content: space-between;
+  }
+
+  .top-logo { display: none; }
+
+  .top-actions {
+    gap: 6px;
+    flex: 1;
+    justify-content: space-between;
+    min-width: 0;
+  }
+
+  /* Solo íconos en botones de vista */
+  .view-btn span { display: none; }
+  .view-btn::after { display: none !important; content: none !important; }
+  .view-btn { padding: 6px 10px; font-size: 11px; }
+  .view-btn i { font-size: 16px; }
+  .view-toggle { padding: 3px; gap: 2px; border-radius: 8px; }
+
+  /* Email y nombre ocultos */
+  #user-email-label { display: none; }
+  #topbar-trader-name { display: none !important; }
+
+  /* Badge compacto */
+  #plan-badge { font-size: 10px !important; padding: 2px 6px !important; }
+
+  /* Botón Salir pequeño */
+  #logout-btn { padding: 4px 8px; font-size: 11px; }
+
+  /* Sidebar */
+  #sidebar { top: 48px; height: calc(100vh - 48px); }
 }
 
-/* ── TOP BAR ── */
-.top-bar        { height: var(--topbar-h) !important; padding: 0 12px !important; }
-.top-logo .logo-main { font-size: 15px !important; letter-spacing: 2px !important; }
-.top-logo .logo-sub  { font-size: 8px  !important; }
-.view-btn       { font-size: 10px !important; padding: 3px 10px !important; }
-.user-chip      { gap: 6px !important; }
-.user-avatar-sm { width: 26px !important; height: 26px !important; font-size: 10px !important; }
-#logout-btn     { font-size: 10px !important; padding: 3px 8px !important; }
-#plan-badge     { font-size: 9px !important; padding: 2px 6px !important; }
-
-/* ── SIDEBAR ── */
-#sidebar        { width: var(--sidebar-w) !important; }
-.sidebar-logo   { padding: 10px 12px 8px !important; }
-.sidebar-logo h1{ font-size: 18px !important; }
-.sidebar-logo span { font-size: 8px !important; }
-.sidebar-nav    { padding: 4px 0 !important; }
-.nav-section    { padding: 8px 10px 3px !important; font-size: 8px !important; letter-spacing: .8px !important; }
-.nav-item       { padding: 5px 10px !important; font-size: 11px !important; border-radius: 6px !important; margin: 1px 4px !important; }
-.nav-item i     { font-size: 13px !important; width: 14px !important; }
-.sidebar-footer { padding: 8px 10px !important; }
-.sidebar-footer a { font-size: 9px !important; margin-bottom: 3px !important; }
-
-/* ── MAIN SCROLL ── */
-#main-scroll    { padding-top: var(--topbar-h); }
-
-/* ── PANELS ── */
-.panel {
-  padding: var(--panel-pad) !important;
-  border-radius: var(--panel-rad) !important;
-  margin-bottom: var(--panel-gap) !important;
+/* ── PLAN BANNER ── */
+@media (max-width: 700px) {
+  .plan-banner {
+    font-size: 12px;
+    padding: 8px 14px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .upgrade-btn {
+    font-size: 12px !important;
+    padding: 6px 12px !important;
+    white-space: nowrap;
+  }
 }
-.panel h2 {
-  font-size: 12px !important;
-  letter-spacing: .8px !important;
-  margin-bottom: 4px !important;
-}
-.panel > p {
-  font-size: var(--font-small) !important;
-  margin-bottom: 7px !important;
-  line-height: 1.4 !important;
-}
-.panel-subtitle { font-size: var(--font-small) !important; margin-bottom: 7px !important; }
 
-/* ── METRIC CARDS (fila de 12) ── */
-.dashboard {
-  gap: 5px !important;
-  margin-bottom: 7px !important;
+/* ── MAIN SCROLL PADDING ── */
+@media (max-width: 700px) {
+  #main-scroll { padding: 12px 10px 24px; }
+  .page-section { padding: 16px 12px; }
 }
-.dashboard[style*="repeat(12"] {
-  grid-template-columns: repeat(12, 1fr) !important;
+
+/* ── GRID PRINCIPAL (Equity + Estado del Sistema) ── */
+/* En desktop: 2fr 1fr side by side */
+/* En mobile: stack vertical */
+@media (max-width: 700px) {
+  .grid-main {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
 }
-.card {
-  padding: var(--card-pad) !important;
-  border-radius: var(--card-rad) !important;
+
+/* ── EQUITY CURVE PANEL ── */
+@media (max-width: 700px) {
+  .equity-controls {
+    gap: 8px;
+  }
+  .equity-controls input {
+    min-width: 110px;
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+  /* Los source-toggle buttons (TODAS, TRADINGVIEW, WEBULL, TRADOVATE) */
+  #sourceFilterRow {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding-bottom: 4px !important;
+    gap: 6px !important;
+  }
+  .source-toggle {
+    font-size: 9px !important;
+    padding: 3px 8px !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    border-width: 1.5px !important;
+    border-radius: 999px !important;
+  }
+  /* Equity controls más compactos */
+  .equity-controls {
+    gap: 6px !important;
+    flex-wrap: wrap !important;
+  }
+  .equity-controls input { font-size: 11px !important; padding: 6px 8px !important; }
+  .equity-controls .tool-btn { padding: 6px 10px !important; font-size: 11px !important; }
+  canvas { height: 200px !important; }
+  .trader-manifesto p { font-size: 13px; }
+  .trader-manifesto p:first-child { font-size: 14px; }
 }
-.card span   { font-size: 9px !important; margin-bottom: 4px !important; letter-spacing: .3px !important; }
-.card strong { font-size: 14px !important; font-weight: 600 !important; line-height: 1.2 !important; }
 
-/* ── EQUITY PANEL ── */
-.grid-main { gap: 8px !important; margin-bottom: 8px !important; grid-template-columns: 3fr 1fr !important; }
-.chart-panel { padding: var(--panel-pad) !important; }
-#equityChart  { min-height: 210px !important; }
-canvas        { height: 210px !important; }
-.equity-controls { gap: 7px !important; margin-bottom: 7px !important; }
-.equity-controls label { font-size: 10px !important; gap: 2px !important; }
-.equity-controls input { padding: 4px 6px !important; font-size: 10px !important; min-width: 105px !important; }
-#sourceFilterRow { gap: 5px !important; margin-bottom: 7px !important; }
-.source-toggle { padding: 3px 9px !important; font-size: 10px !important; }
-.trader-manifesto { padding: 4px 10px !important; margin-top: 4px !important; border-radius: 6px !important; }
-.trader-manifesto p { font-size: 9px !important; margin: 0 !important; line-height: 1.4 !important; }
-
-/* ── SYSTEM PANEL ── */
-.system-panel { display: flex; flex-direction: column; gap: 5px; }
-.system-box   { padding: 6px 9px !important; border-radius: 7px !important; margin-bottom: 0 !important; }
-.system-box span   { font-size: 8px !important; }
-.system-box strong { font-size: 12px !important; margin-top: 2px !important; }
-.clock-section { text-align: center; padding: 5px 0 3px !important; }
-.clock-time-digital { font-size: 20px !important; letter-spacing: 2px !important; margin: 0 !important; }
-.discipline-msg { font-size: 9px !important; color: var(--text3); margin: 2px 0 4px !important; }
-.alarm-section  { padding-top: 5px !important; border-top: 1px solid var(--border); }
-.alarm-title    { font-size: 10px !important; margin-bottom: 5px !important; font-weight: 600 !important; }
-.alarm-row      { padding: 3px 0 !important; font-size: 10px !important; }
-.alarm-row span { font-size: 10px !important; }
-.alarm-row select { font-size: 10px !important; padding: 3px 5px !important; }
-.alarm-add-btn  { font-size: 9px !important; padding: 3px 7px !important; }
-.alarm-test-btn { font-size: 9px !important; padding: 3px 10px !important; margin-top: 5px !important; }
-
-/* ── SETUP QUALITY SCORE ── */
-.setup-panel h2   { font-size: 12px !important; }
-.setup-panel > p  { font-size: 10px !important; }
-#setupRanking     { font-size: 10px !important; }
-
-/* ── NOTAS + DRIFT (lado a lado) ── */
-.notes-drift-row {
-  display: grid !important;
-  grid-template-columns: 1fr 1fr !important;
-  gap: var(--panel-gap) !important;
-  margin-bottom: var(--panel-gap) !important;
-  align-items: start !important;
+/* ── MÉTRICAS DASHBOARD (6 columnas → 2 columnas en mobile) ── */
+@media (max-width: 700px) {
+  .dashboard {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .card {
+    padding: 14px 12px;
+    border-radius: 12px;
+  }
+  .card span { font-size: 10px; margin-bottom: 6px; }
+  .card strong { font-size: 18px; }
 }
-.notes-compact-grid {
-  display: grid !important;
-  grid-template-columns: 1fr 1fr !important;
-  gap: 7px !important;
+
+/* ── SETUP QUALITY SCORE (5 columnas → 2-3 en mobile) ── */
+@media (max-width: 700px) {
+  .setup-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .setup-metric { padding: 9px 6px; }
+  .setup-metric span { font-size: 9px; }
+  .setup-metric strong { font-size: 16px; }
+  .setup-card { padding: 16px; }
+  .setup-card h3 { font-size: 14px; margin-bottom: 12px; }
 }
-.notes-editor-compact textarea { min-height: 58px !important; font-size: 11px !important; padding: 5px 7px !important; resize: vertical; }
-.notes-calendar-box-compact .note-cell { min-height: 24px !important; padding: 2px 3px !important; }
-.notes-calendar-box-compact .note-day-number { font-size: 8px !important; }
-.notes-calendar-box-compact .note-cell-preview { display: none !important; }
-.notes-calendar-box-compact .notes-calendar-pro { gap: 2px !important; }
-.notes-weekdays span { font-size: 8px !important; }
-.drift-panel .drift-grid { grid-template-columns: repeat(2,1fr) !important; gap: 5px !important; }
-.drift-box  { padding: 7px 9px !important; border-radius: 7px !important; }
-.drift-box span   { font-size: 9px !important; margin-bottom: 3px !important; }
-.drift-box strong { font-size: 14px !important; margin-bottom: 1px !important; }
-.drift-box p      { font-size: 9px !important; }
 
-/* ── ANALYTICS ROW (Recovery + Account + Scorecard) ── */
-.analytics-row {
-  display: grid !important;
-  grid-template-columns: 1fr 1fr 1fr !important;
-  gap: var(--panel-gap) !important;
-  margin-bottom: var(--panel-gap) !important;
-  align-items: start !important;
+@media (max-width: 400px) {
+  .setup-grid { grid-template-columns: repeat(2, 1fr); }
 }
-.analytics-row .recovery-grid { grid-template-columns: 1fr !important; gap: 4px !important; }
-.analytics-row .recovery-box  { padding: 6px 8px !important; border-radius: 7px !important; }
-.recovery-box span   { font-size: 9px !important; margin-bottom: 3px !important; }
-.recovery-box strong { font-size: 14px !important; }
-.recovery-box p      { font-size: 9px !important; line-height: 1.3 !important; }
-.analytics-row .account-grid { grid-template-columns: repeat(2,1fr) !important; gap: 4px !important; }
-.account-box  { padding: 6px 8px !important; border-radius: 7px !important; }
-.account-box span        { font-size: 9px !important; margin-bottom: 2px !important; }
-.account-box strong      { font-size: 13px !important; margin-bottom: 1px !important; }
-.account-box .account-tag { font-size: 9px !important; margin: 0 !important; }
-.account-box .account-explain { display: none !important; }
-.account-status-box { padding: 5px 8px !important; margin-top: 5px !important; border-radius: 6px !important; }
-.account-status-box strong { font-size: 10px !important; }
-.account-status-box p  { font-size: 9px !important; }
-.analytics-row #section-scorecard-wrapper { min-width: 0 !important; }
-.scorecard-grid { gap: 4px !important; }
-.system-rating-box { padding: 6px 8px !important; border-radius: 7px !important; }
-.system-rating-box span   { font-size: 9px !important; }
-.system-rating-box strong { font-size: 16px !important; }
-.system-rating-box p      { font-size: 9px !important; margin-top: 2px !important; }
-.system-diagnosis, .system-improvement { padding: 6px 9px !important; border-radius: 7px !important; }
-.system-diagnosis h3, .system-improvement h3 { font-size: 10px !important; margin-bottom: 3px !important; }
-.system-diagnosis p, .system-improvement p,
-.system-improvement li { font-size: 9px !important; line-height: 1.4 !important; }
 
-/* ── RESEARCH + DISTRIBUCIÓN + CALENDARIO (3 en línea) ── */
-.research-calendar-row {
-  display: grid !important;
-  grid-template-columns: 1fr 1fr 2fr !important;
-  gap: var(--panel-gap) !important;
-  margin-bottom: var(--panel-gap) !important;
-  align-items: start !important;
+/* ── SYSTEM BOXES (Estado del Sistema) ── */
+@media (max-width: 700px) {
+  .system-box { padding: 12px 14px; }
+  .system-box strong { font-size: 15px; }
 }
-.research-calendar-row .panel h2 { font-size: 11px !important; }
-.research-calendar-row .research-box { font-size: 10px !important; }
-.research-calendar-row .distribution { font-size: 10px !important; }
-.calendar { gap: 3px !important; }
-.cal-day  { min-height: 38px !important; padding: 3px 4px !important; border-radius: 5px !important; }
-.cal-date { font-size: 8px !important; }
-.cal-pl   { font-size: 10px !important; margin-top: 5px !important; }
 
-/* ── SESSION DATABASE ── */
-#section-sessions h2    { font-size: 12px !important; }
-#section-sessions > p   { font-size: 10px !important; margin-bottom: 5px !important; }
-#section-sessions table { font-size: 10px !important; }
-#section-sessions th    { padding: 5px 6px !important; font-size: 9px !important; }
-#section-sessions td    { padding: 4px 6px !important; }
+/* ── CLOCK + ALARMAS ── */
+@media (max-width: 700px) {
+  #analogClock {
+    width: 130px !important;
+    height: 130px !important;
+    min-width: 130px;
+    min-height: 130px;
+    max-width: 130px;
+    max-height: 130px;
+  }
+  .clock-time-digital { font-size: 17px; }
+}
 
-/* ── HISTORIAL ── */
-#section-history h2      { font-size: 12px !important; }
-#section-history > div   { margin-bottom: 6px !important; }
-#section-history table   { font-size: 10px !important; }
-#section-history th      { padding: 5px 6px !important; font-size: 9px !important; }
-#section-history td      { padding: 4px 6px !important; }
+/* ── ACCOUNT SIZE ENGINE (4 columnas → 2 en mobile) ── */
+/* (ya existe a 900px, reforzamos 480px) */
+@media (max-width: 480px) {
+  .account-grid { grid-template-columns: 1fr !important; }
+}
+
+/* ── RECOVERY GRID (3 → 1 en mobile) ── */
+@media (max-width: 700px) {
+  .recovery-grid { grid-template-columns: 1fr; }
+}
+
+/* ── DRIFT GRID (4 → 2 en mobile) ── */
+@media (max-width: 700px) {
+  .drift-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* ── SCORECARD GRID ── */
+@media (max-width: 700px) {
+  .scorecard-grid { grid-template-columns: 1fr; }
+}
+
+/* ── NOTES PRO GRID ── */
+@media (max-width: 700px) {
+  .notes-pro-grid { grid-template-columns: 1fr; }
+}
+
+/* ── TABLA DE TRADES ── */
+@media (max-width: 700px) {
+  .history-scroll-box, .session-scroll-box {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  th, td { font-size: 11px; padding: 8px 7px; }
+}
+
+/* ── CALENDARIO ── */
+@media (max-width: 480px) {
+  .cal-day { min-height: 60px; padding: 6px; }
+  .cal-pl  { font-size: 13px; margin-top: 8px; }
+  .cal-date { font-size: 10px; }
+}
+
+/* ── PANEL GENÉRICO ── */
+@media (max-width: 700px) {
+  .panel { padding: 18px 14px; border-radius: 14px; margin-bottom: 14px; }
+  .panel h2 { font-size: 18px; }
+}
+
+/* ── PAGE HEADER ── */
+@media (max-width: 700px) {
+  .page-header h2 { font-size: 24px; }
+  .page-header { margin-bottom: 18px; }
+}
+
+/* ── TOOLS BAR (botones de importar, etc.) ── */
+@media (max-width: 700px) {
+  .tools { gap: 8px; }
+  .tool-btn, .file-label {
+    font-size: 12px;
+    padding: 8px 12px;
+  }
+}
+
+/* ── TRADE FORM ── */
+@media (max-width: 480px) {
+  .trade-form-v2 {
+    grid-template-columns: 1fr !important;
+  }
+  .trade-form-v2 label:has(#notes),
+  .trade-form-v2 label:has(#lessonLearned) {
+    grid-column: 1 / -1 !important;
+  }
+  .trade-form-v2 button[type="submit"] {
+    max-width: 100%;
+    justify-self: stretch;
+  }
+}
+
+/* ── TOAST DE DISCIPLINA ── */
+@media (max-width: 700px) {
+  .discipline-toast {
+    top: 66px;
+    right: 10px;
+    left: 10px;
+    max-width: none;
+  }
+}
 
 /* ── GALERÍA ── */
-.gallery-upload-area { padding: 12px 16px !important; border-radius: 8px !important; margin-bottom: 8px !important; }
-.gallery-upload-area > div:first-child { font-size: 22px !important; margin-bottom: 3px !important; }
-.gallery-upload-area > div:nth-child(2){ font-size: 11px !important; }
-.gallery-upload-area > div:nth-child(3){ font-size: 9px !important; margin-top: 2px !important; }
-#gallerySearch { margin-bottom: 7px !important; font-size: 11px !important; padding: 4px 8px !important; }
-#tradeGallery  { grid-template-columns: repeat(auto-fill, minmax(130px,1fr)) !important; gap: 7px !important; }
-.gallery-item img { height: 85px !important; object-fit: cover !important; border-radius: 6px !important; }
-.gallery-item-meta { padding: 4px 5px !important; }
-.gallery-item-date { font-size: 9px !important; }
-.gallery-item-note { font-size: 10px !important; line-height: 1.3 !important; }
-
-/* ── PERFIL ── */
-#section-profile h2       { font-size: 12px !important; }
-#section-profile > p      { font-size: 10px !important; margin-bottom: 8px !important; }
-.profile-layout           { gap: 14px !important; }
-.profile-photo-col        { min-width: 85px !important; }
-.profile-avatar-wrap      { width: 78px !important; height: 78px !important; }
-#profileAvatarInitials    { font-size: 24px !important; }
-.profile-photo-col .tool-btn { font-size: 10px !important; padding: 3px 8px !important; margin-top: 5px !important; }
-.profile-fields           { gap: 7px !important; }
-.profile-label            { font-size: 10px !important; gap: 3px !important; }
-.profile-label input,
-.profile-label select     { font-size: 11px !important; padding: 4px 7px !important; }
-
-/* ── CONFIGURACIÓN + IMPORTAR (cada uno en su línea) ── */
-#section-config h2 { font-size: 12px !important; }
-#section-config > p { font-size: 10px !important; margin-bottom: 6px !important; }
-#section-config [style*="grid-template-columns:1fr 1fr"] {
-  grid-template-columns: repeat(6, 1fr) !important;
-  gap: 6px !important;
-  margin-top: 6px !important;
-}
-#section-config label { font-size: 10px !important; gap: 2px !important; }
-#section-config input,
-#section-config select { font-size: 11px !important; padding: 4px 7px !important; }
-#cfgDayCheckboxes { gap: 6px !important; }
-#cfgDayCheckboxes label { font-size: 11px !important; gap: 4px !important; }
-#section-config [style*="margin-top:16px"],
-#section-config [style*="margin-top:20px"],
-#section-config [style*="margin-top:8px"] { margin-top: 7px !important; }
-#section-config [style*="font-size:14px;padding:12px 24px"] { font-size: 11px !important; padding: 5px 14px !important; }
-#cfgPreview { font-size: 10px !important; padding: 7px !important; margin-top: 6px !important; border-radius: 6px !important; }
-#section-data h2 { font-size: 12px !important; }
-#section-data > p { font-size: 10px !important; margin-bottom: 5px !important; }
-#section-data .tools { gap: 4px !important; flex-wrap: wrap !important; }
-#deleteBySourceRow { margin-top: 5px !important; gap: 4px !important; flex-wrap: wrap !important; }
-#deleteBySourceRow span { font-size: 10px !important; }
-
-/* ── FORMULARIO REGISTRAR TRADE ── */
-#section-entry h2  { font-size: 12px !important; }
-.panel-subtitle    { font-size: 10px !important; margin-bottom: 7px !important; }
-.trade-form-v2     { gap: 7px !important; }
-.trade-form-v2 label { font-size: 10px !important; gap: 2px !important; }
-.trade-form-v2 input,
-.trade-form-v2 select { font-size: 11px !important; padding: 4px 7px !important; }
-.trade-form-v2 textarea { min-height: 52px !important; font-size: 11px !important; padding: 4px 7px !important; }
-.trade-form-v2 small { display: none !important; }
-.form-section-title { font-size: 9px !important; padding: 4px 9px !important; margin-top: 4px !important; letter-spacing: 1px !important; }
-.trade-form-v2 button[type="submit"] { font-size: 12px !important; padding: 6px 20px !important; }
-
-/* ── INPUTS GLOBALES ── */
-input, select, textarea {
-  padding: 5px 8px !important;
-  font-size: 12px !important;
-  border-radius: 7px !important;
-}
-
-/* ── BOTONES GLOBALES ── */
-.tool-btn, .file-label {
-  font-size: 11px !important;
-  padding: 4px 10px !important;
-  border-radius: 7px !important;
-}
-button[type="submit"] { font-size: 13px !important; padding: 6px 18px !important; }
-
-/* ── WIDGET COTIZACIONES ── */
-.tradingview-widget-container { height: 44px !important; overflow: hidden !important; }
-
-/* ── TOOLTIP ── */
-.tip { width: 13px !important; height: 13px !important; font-size: 9px !important; margin-left: 3px !important; }
-.tip::after { font-size: 11px !important; width: 200px !important; padding: 8px 11px !important; }
-
-/* ── TOAST ── */
-.discipline-toast { top: 48px !important; right: 16px !important; max-width: 260px !important; padding: 12px 15px !important; }
-.toast-title { font-size: 12px !important; }
-.toast-msg   { font-size: 11px !important; margin-top: 3px !important; }
-.toast-close { font-size: 10px !important; }
-
-/* ── MOBILE ── */
-@media (max-width: 900px) {
-  .analytics-row      { grid-template-columns: 1fr 1fr !important; }
-  .analytics-row #section-scorecard-wrapper { grid-column: 1/-1 !important; }
-  .research-calendar-row { grid-template-columns: 1fr 1fr !important; }
-  .research-calendar-row #section-calendar { grid-column: 1/-1 !important; }
-}
 @media (max-width: 700px) {
-  :root { --sidebar-w: 0px; }
-  .notes-drift-row    { grid-template-columns: 1fr !important; }
-  .notes-compact-grid { grid-template-columns: 1fr !important; }
-  .analytics-row      { grid-template-columns: 1fr !important; }
-  .research-calendar-row { grid-template-columns: 1fr !important; }
-  .grid-main          { grid-template-columns: 1fr !important; }
-  .dashboard[style*="repeat(12"] { grid-template-columns: repeat(6,1fr) !important; }
-  .card span   { font-size: 8px !important; }
-  .card strong { font-size: 12px !important; }
-  .top-bar     { height: 44px !important; }
-  #main-scroll { margin-left: 0 !important; width: 100% !important; }
+  .trade-gallery-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .gallery-upload-area { padding: 24px 16px; }
+}
+
+@media (max-width: 400px) {
+  .trade-gallery-grid { grid-template-columns: 1fr; }
+}
+
+/* ============================================================
+   MI PERFIL DE TRADER
+   ============================================================ */
+.profile-layout {
+  display: flex;
+  gap: 36px;
+  margin-top: 28px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.profile-photo-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.profile-avatar-wrap {
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  background: var(--surface2);
+  border: 3px solid var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 44px; color: var(--accent);
+  overflow: hidden; cursor: pointer;
+  position: relative;
+  transition: border-color .2s, box-shadow .2s;
+}
+.profile-avatar-wrap:hover {
+  border-color: var(--gold);
+  box-shadow: 0 0 24px rgba(251,191,36,0.25);
+}
+.profile-avatar-overlay {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity .2s;
+  font-size: 24px; color: #fff;
+  border-radius: 50%;
+}
+.profile-avatar-wrap:hover .profile-avatar-overlay { opacity: 1; }
+
+.profile-fields {
+  flex: 1;
+  min-width: 260px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.profile-label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text2);
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  font-weight: 500;
+}
+
+.profile-preview-card {
+  margin-top: 28px;
+  padding: 22px 26px;
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: 16px;
+}
+
+.profile-preview-avatar {
+  width: 60px; height: 60px;
+  border-radius: 50%;
+  background: var(--surface2);
+  border: 2px solid var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; color: var(--accent);
+  overflow: hidden; flex-shrink: 0;
+}
+
+/* Responsive perfil */
+@media (max-width: 700px) {
+  .profile-layout { flex-direction: column; align-items: center; }
+  .profile-fields { grid-template-columns: 1fr; }
+  .profile-label[style*="grid-column"] { grid-column: 1 !important; }
+}
+
+/* ── Time Picker personalizado ── */
+.time-picker-wrap { position: relative; }
+.time-picker-dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 2000;
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: 14px;
+  padding: 14px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  min-width: 240px;
+}
+.time-picker-dropdown.open { display: block; }
+.time-slot {
+  padding: 6px 10px;
+  border-radius: 7px;
+  text-align: center;
+  cursor: pointer;
+  font-size: 13px;
+  font-family: 'DM Mono', monospace;
+  color: var(--text2);
+  transition: all .1s;
+  border: 1px solid transparent;
+}
+.time-slot:hover { background: var(--surface2); color: var(--accent); border-color: var(--border2); }
+.time-slot.selected { background: var(--accent); color: #000; font-weight: 700; }
+
+/* ============================================================
+   DYGPRO — MOBILE COMPREHENSIVE FIX
+   Fixes: auth box, calendar overflow, time picker, modal,
+   dist-row, account-status-box, notes calendar, tap targets
+   ============================================================ */
+
+/* ── AUTH BOX — padding correcto en phones ── */
+@media (max-width: 480px) {
+  .auth-box {
+    padding: 28px 20px;
+    border-radius: 16px;
+    margin: 12px;
+  }
+  .auth-logo h1 { font-size: 32px; }
+}
+
+/* ── CALENDARIO P/L — scroll horizontal en phones ── */
+@media (max-width: 700px) {
+  .calendar {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
 }
 @media (max-width: 480px) {
-  .dashboard[style*="repeat(12"] { grid-template-columns: repeat(4,1fr) !important; }
+  .calendar {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
+  }
+  .cal-day { min-height: 56px; padding: 7px 6px; }
+  .cal-pl  { font-size: 12px; margin-top: 6px; }
+  .cal-date { font-size: 10px; }
+}
+
+/* ── DISTRIBUTION ROW — no se sale en mobile ── */
+@media (max-width: 480px) {
+  .dist-row {
+    grid-template-columns: 70px 1fr 55px;
+    gap: 6px;
+    font-size: 11px;
+  }
+}
+
+/* ── TIME PICKER — no se sale de pantalla en mobile ── */
+@media (max-width: 700px) {
+  .time-picker-dropdown {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    min-width: 260px;
+    max-width: 90vw;
+    z-index: 9999;
+  }
+}
+
+/* ── IMAGE MODAL — full width en mobile ── */
+@media (max-width: 600px) {
+  .modal-content {
+    padding: 16px 14px;
+    border-radius: 14px;
+    width: 96%;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .modal-content img {
+    max-height: 260px;
+  }
+  .modal-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .modal-actions button { width: 100%; }
+}
+
+/* ── ACCOUNT STATUS BOX — stack vertical en mobile ── */
+@media (max-width: 600px) {
+  .account-status-box {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+
+/* ── NOTES CALENDAR — celdas más pequeñas en mobile ── */
+@media (max-width: 480px) {
+  .notes-calendar-pro,
+  .notes-weekdays {
+    grid-template-columns: repeat(7, 1fr);
+    gap: 3px;
+  }
+  .note-cell {
+    min-height: 42px;
+    padding: 4px 3px;
+  }
+  .note-day-number { font-size: 10px; }
+  .note-cell-preview { display: none; }
+  .note-badge { font-size: 8px; padding: 1px 4px; }
+  .notes-calendar-header { flex-direction: column; gap: 8px; }
+}
+
+/* ── TAP TARGETS — botones mínimo 44px en mobile ── */
+@media (max-width: 700px) {
+  .tool-btn, .file-label, .alarm-add-btn, .source-toggle {
+    min-height: 40px;
+  }
+  .delete-btn {
+    padding: 7px 10px;
+    font-size: 12px;
+    min-height: 34px;
+  }
+  .nav-item {
+    padding: 11px 12px;
+    min-height: 44px;
+  }
+}
+
+/* ── FORM LABELS — más separación en mobile ── */
+@media (max-width: 480px) {
+  .trade-form-v2 {
+    gap: 10px;
+  }
+  input, select, textarea {
+    padding: 10px 12px;
+    font-size: 16px; /* evita zoom automático en iOS */
+  }
+}
+
+/* ── SIDEBAR — cerrar al tocar afuera en mobile ── */
+@media (max-width: 768px) {
+  #main-scroll {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+}
+
+/* ── PANEL COLLAPSE BTN — tap target suficiente ── */
+@media (max-width: 700px) {
+  .panel [data-collapse-init] button,
+  .panel h2 button {
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 16px !important;
+  }
+}
+
+/* ── EQUITY CONTROLS — wrap limpio ── */
+@media (max-width: 480px) {
+  .equity-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .equity-controls label { width: 100%; }
+  .equity-controls input { min-width: unset; width: 100%; }
+}
+
+/* ── SETUP GRID — 2 columnas en muy pequeño ── */
+@media (max-width: 360px) {
+  .setup-grid { grid-template-columns: 1fr 1fr; }
+  .drift-grid { grid-template-columns: 1fr; }
+}
+
+/* ── TOAST — no se solapa con top-bar ── */
+@media (max-width: 700px) {
+  .discipline-toast {
+    top: 56px;
+  }
+}
+
+/* ============================================================
+   MOBILE SIZE REDUCTION — elementos demasiado grandes
+   ============================================================ */
+@media (max-width: 700px) {
+  /* Page header */
+  .page-header { padding: 16px 16px 12px; }
+  .page-header h2 { font-size: 20px; }
+  .page-header p { font-size: 12px; }
+
+  /* Panels */
+  .panel { padding: 16px 14px; border-radius: 14px; }
+  .panel h2 { font-size: 16px; }
+  .panel > p { font-size: 12px; }
+
+  /* Dashboard stat cards */
+  .dashboard { gap: 10px; }
+  .stat-card { padding: 12px 10px; border-radius: 12px; }
+  .stat-label { font-size: 10px; }
+  .stat-value { font-size: 18px; }
+  .stat-sub { font-size: 11px; }
+
+  /* System boxes */
+  .system-box { padding: 10px 12px; }
+  .system-box span { font-size: 10px; }
+  .system-box strong { font-size: 13px; }
+
+  /* Top bar */
+  .top-bar { padding: 0 12px; height: 48px; }
+  .top-bar-title { font-size: 14px; }
+
+  /* Tools bar */
+  .tools { gap: 6px; flex-wrap: wrap; }
+  .tool-btn { font-size: 12px; padding: 7px 10px; }
+  .file-label { font-size: 12px; padding: 7px 10px; }
+
+  /* Table */
+  .history-table { font-size: 11px; }
+  .history-table th, .history-table td { padding: 7px 6px; }
+
+  /* Section entry form */
+  .form-label { font-size: 12px; }
+  .form-group { margin-bottom: 10px; }
+
+  /* Research center */
+  .research-grid { grid-template-columns: 1fr; gap: 10px; }
+  .research-card { padding: 14px; }
+  .research-card h3 { font-size: 13px; }
+
+  /* Equity chart container */
+  #equityChart { max-height: 200px; }
+
+  /* Section padding */
+  section.panel, .panel { margin-bottom: 14px; }
+
+  /* Gallery */
+  .gallery-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .gallery-item img { height: 100px; }
+}
+
+@media (max-width: 480px) {
+  .page-header h2 { font-size: 18px; }
+  .panel h2 { font-size: 15px; }
+  .stat-value { font-size: 16px; }
+  .panel { padding: 12px 11px; }
+  .dashboard { grid-template-columns: repeat(2, 1fr); }
+  #equityChart { max-height: 160px; }
+  .gallery-grid { grid-template-columns: repeat(2, 1fr); }
 }

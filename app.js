@@ -4013,7 +4013,6 @@ initPersonalNotesProRestore();
    ============================================================ */
 function drawClock() {
   const canvas = document.getElementById('analogClock');
-  if (!canvas) return; // reloj eliminado del UI
   if (!canvas) return;
 
   // Force exact square size
