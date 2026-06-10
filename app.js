@@ -1440,11 +1440,15 @@ form.addEventListener("submit", async function(e) {
 
   let saveOk = false;
   try {
-    await Promise.race([
+    const result = await Promise.race([
       saveTradeToSupabase(trade),
       new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 10000))
     ]);
-    saveOk = true;
+    if (result) {
+      saveOk = true;
+    } else {
+      showToast('⚠️ Error al guardar', 'La base de datos rechazó el registro. Revisa la consola (F12) para más detalles.');
+    }
   } catch(e) {
     console.log('Save trade error:', e.message);
     showToast('⚠️ Error al guardar', 'No se pudo conectar con Supabase. Intenta de nuevo.');
