@@ -411,11 +411,34 @@ canvas {
     grid-template-columns: 1fr;
   }
 
-  /* Compact P/L calendar when sharing the row with the notes calendar */
+  /* Static, matched height for both panels when shown side by side — overflow scrolls internally */
+  .dyg-row:not(:has(> [style*="display: none"])) > .panel {
+    height: 440px !important;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    resize: none;
+  }
+  .dyg-row:not(:has(> [style*="display: none"])) > .panel > h2,
+  .dyg-row:not(:has(> [style*="display: none"])) > .panel > p { flex: none; }
+
+  .dyg-row:not(:has(> [style*="display: none"])) #plCalendar {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    align-content: start;
+  }
+
+  .dyg-row:not(:has(> [style*="display: none"])) .notes-pro-grid { flex: 1; min-height: 0; }
+  .dyg-row:not(:has(> [style*="display: none"])) .notes-editor { display: flex; flex-direction: column; min-height: 0; }
+  .dyg-row:not(:has(> [style*="display: none"])) .notes-editor textarea { flex: 1; min-height: 60px; }
+  .dyg-row:not(:has(> [style*="display: none"])) .notes-calendar-box { overflow-y: auto; }
+
+  /* Compact P/L calendar cells, with slightly larger text than before */
   .dyg-row .calendar { gap: 5px; }
   .dyg-row .cal-day { min-height: 60px; padding: 5px; }
-  .dyg-row .cal-date { font-size: 9px; }
-  .dyg-row .cal-pl { font-size: 11px; margin-top: 6px; }
+  .dyg-row .cal-date { font-size: 10px; }
+  .dyg-row .cal-pl { font-size: 12px; margin-top: 6px; }
 }
 
 .system-box {
@@ -1143,26 +1166,26 @@ header { display: none; }
 
 .gallery-upload-area {
   border: 2px dashed var(--border2);
-  border-radius: 14px; padding: 32px;
+  border-radius: 14px; padding: 18px;
   text-align: center; cursor: pointer;
-  transition: all .2s; margin-bottom: 18px;
+  transition: all .2s; margin-bottom: 12px;
   display: flex; flex-direction: column;
-  align-items: center; gap: 8px;
+  align-items: center; gap: 6px;
 }
 .gallery-upload-area:hover {
   border-color: var(--gold);
   background: rgba(240,180,41,0.05);
 }
-.gallery-upload-area i { font-size: 36px; color: var(--text2); }
+.gallery-upload-area i { font-size: 28px; color: var(--text2); }
 .gallery-upload-area span { color: var(--text2); font-size: 14px; }
 .gallery-upload-area small { color: var(--text3); font-size: 12px; }
 
-.gallery-filters { margin-bottom: 16px; }
+.gallery-filters { margin-bottom: 10px; }
 
 .trade-gallery-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
 }
 .gallery-item {
   border-radius: 12px; overflow: hidden;
@@ -1173,17 +1196,17 @@ header { display: none; }
 .gallery-item:hover { border-color: var(--gold); transform: scale(1.02); }
 .gallery-item img {
   width: 100% !important;
-  height: 140px !important;
-  max-height: 140px !important;
+  height: 110px !important;
+  max-height: 110px !important;
   object-fit: cover !important;
   display: block !important;
 }
 .gallery-item-meta {
-  padding: 10px 12px;
+  padding: 8px 10px;
 }
-.gallery-item-date { font-size: 11px; color: var(--text2); }
+.gallery-item-date { font-size: 12px; color: var(--text2); }
 .gallery-item-note {
-  font-size: 12px; color: var(--text);
+  font-size: 13px; color: var(--text);
   margin-top: 4px; line-height: 1.4;
   overflow: hidden; text-overflow: ellipsis;
   display: -webkit-box; -webkit-line-clamp: 2;
@@ -1232,7 +1255,7 @@ header { display: none; }
 /* ── Galería — espacio extra para no quedar tapada por sidebar ── */
 
 .gallery-item-note {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text);
   margin-top: 4px;
   line-height: 1.4;
@@ -1652,8 +1675,8 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
    ============================================================ */
 .profile-layout {
   display: flex;
-  gap: 36px;
-  margin-top: 28px;
+  gap: 24px;
+  margin-top: 14px;
   flex-wrap: wrap;
   align-items: flex-start;
 }
@@ -1701,14 +1724,14 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
   min-width: 260px;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: 12px;
 }
 
 .profile-label {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text2);
   text-transform: uppercase;
   letter-spacing: .4px;
@@ -1716,8 +1739,8 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
 }
 
 .profile-preview-card {
-  margin-top: 28px;
-  padding: 22px 26px;
+  margin-top: 14px;
+  padding: 16px 18px;
   background: var(--bg2);
   border: 1px solid var(--border2);
   border-radius: 16px;
