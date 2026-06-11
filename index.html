@@ -207,8 +207,8 @@
       <a class="nav-item" id="navItemAdminStudents" href="#" onclick="showSidebarSection('section-admin-students');return false;" style="display:none"><i class="ti ti-users"></i> Mis Estudiantes</a>
       <div class="nav-section">Dashboard</div>
       <a class="nav-item" href="#" onclick="showSidebarSection('section-dashboard');return false;"><i class="ti ti-chart-line"></i> Equity + Ratios</a>
-      <a class="nav-item" href="#" onclick="showSidebarSection('section-notes');return false;"><i class="ti ti-notes"></i> Notas</a>
       <a class="nav-item" href="#" onclick="showSidebarSection('section-calendar');return false;"><i class="ti ti-calendar-stats"></i> Calendario P/L</a>
+      <a class="nav-item" href="#" onclick="showSidebarSection('section-notes');return false;"><i class="ti ti-notes"></i> Notas</a>
       <a class="nav-item" href="#" onclick="showSidebarSection('section-research');return false;"><i class="ti ti-chart-bar"></i> Research</a>
       <div class="nav-section">Análisis</div>
       <a class="nav-item" href="#" onclick="showSidebarSection('section-scorecard-wrapper');return false;"><i class="ti ti-award"></i> Scorecard</a>
@@ -420,6 +420,12 @@
   </section>
   </div><!-- /section-dashboard -->
 
+  <section class="panel dyg-resizable" id="section-calendar">
+    <h2>Calendario P/L Diario</h2>
+    <p>Cada día se colorea según el resultado acumulado.</p>
+    <div id="plCalendar" class="calendar"></div>
+  </section>
+
   <section class="panel notes-panel dyg-resizable" id="section-notes">
     <h2>Personal Notes Calendar Pro</h2>
     <p>Notas personales por fecha. Guarda ideas, emociones, observaciones o bugs del sistema.</p>
@@ -451,12 +457,6 @@
         <div id="notesCalendar" class="notes-calendar-pro"></div>
       </div>
     </div>
-  </section>
-
-  <section class="panel dyg-resizable" id="section-calendar">
-    <h2>Calendario P/L Diario</h2>
-    <p>Cada día se colorea según el resultado acumulado.</p>
-    <div id="plCalendar" class="calendar"></div>
   </section>
 
   <section class="grid-main" id="section-research">
