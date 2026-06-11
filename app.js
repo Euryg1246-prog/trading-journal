@@ -159,7 +159,7 @@ function pickSymbol(sym) {
    PANEL COLLAPSE — Solo ocultar/mostrar contenido
    ============================================================ */
 function initPanelCollapse() {
-  document.querySelectorAll('.panel').forEach(panel => {
+  document.querySelectorAll('.panel').forEach((panel, idx) => {
     if (panel.dataset.collapseInit) return;
     panel.dataset.collapseInit = "1";
 
@@ -193,8 +193,8 @@ function initPanelCollapse() {
     h2.style.cssText += ';display:flex;align-items:center;';
     h2.appendChild(btn);
 
-    // Assign panel ID
-    const pid = 'panel_' + Math.random().toString(36).slice(2,7);
+    // Assign stable panel ID (igual entre sesiones para que ocultar/mostrar persista)
+    const pid = panel.id ? ('panel_' + panel.id) : ('panel_idx_' + idx);
     panel.dataset.panelId = pid;
 
     // Restore saved state
