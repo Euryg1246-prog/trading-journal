@@ -397,6 +397,27 @@ canvas {
   margin-bottom: 14px;
 }
 
+.dyg-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+  align-items: start;
+}
+
+@media (min-width: 1300px) {
+  .dyg-row { grid-template-columns: 1fr 1fr; }
+  .dyg-row:has(> [style*="display: none"]) {
+    grid-template-columns: 1fr;
+  }
+
+  /* Compact P/L calendar when sharing the row with the notes calendar */
+  .dyg-row .calendar { gap: 5px; }
+  .dyg-row .cal-day { min-height: 60px; padding: 5px; }
+  .dyg-row .cal-date { font-size: 9px; }
+  .dyg-row .cal-pl { font-size: 11px; margin-top: 6px; }
+}
+
 .system-box {
   background: var(--bg2);
   border: 1px solid var(--border);
