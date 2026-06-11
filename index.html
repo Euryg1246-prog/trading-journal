@@ -213,19 +213,19 @@
       <div class="nav-section">Análisis</div>
       <a class="nav-item" href="#" onclick="showSidebarSection('section-scorecard-wrapper');return false;"><i class="ti ti-award"></i> Scorecard</a>
       <a class="nav-item" href="#" onclick="showSidebarSection('section-drift');return false;"><i class="ti ti-activity"></i> Drift Monitor</a>
-      <a class="nav-item" href="#" onclick="showSidebarSection('section-setup');return false;"><i class="ti ti-star"></i> Setup Score</a>
       <a class="nav-item" href="#" onclick="showSidebarSection('section-recovery');return false;"><i class="ti ti-refresh-alert"></i> Recovery</a>
-      <a class="nav-item" href="#" onclick="showSidebarSection('section-account');return false;"><i class="ti ti-wallet"></i> Account Size</a>
+      <a class="nav-item" href="#" onclick="showSidebarSection('section-setup');return false;"><i class="ti ti-star"></i> Setup Score</a>
       <a class="nav-item" href="#" onclick="showSidebarSection('section-montecarlo');return false;"><i class="ti ti-dice"></i> Monte Carlo</a>
+      <a class="nav-item" href="#" onclick="showSidebarSection('section-account');return false;"><i class="ti ti-wallet"></i> Account Size</a>
       <div class="nav-section">Operaciones</div>
+      <a class="nav-item" href="#" onclick="showSidebarSection('section-config');return false;"><i class="ti ti-settings"></i> Mi Sistema</a>
+      <a class="nav-item" href="#" onclick="showSidebarSection('section-data');return false;"><i class="ti ti-upload"></i> Importar CSV</a>
       <a class="nav-item" href="#" onclick="showSidebarSection('section-entry');return false;"><i class="ti ti-plus-circle"></i> Nuevo Trade</a>
       <a class="nav-item" href="#" onclick="showSidebarSection('section-history');return false;"><i class="ti ti-list"></i> Historial</a>
       <a class="nav-item" href="#" onclick="showSidebarSection('section-sessions');return false;"><i class="ti ti-database"></i> Sesiones</a>
-      <a class="nav-item" href="#" onclick="showSidebarSection('section-data');return false;"><i class="ti ti-upload"></i> Importar CSV</a>
       <div class="nav-section">Personal</div>
-      <a class="nav-item" href="#" onclick="showSidebarSection('section-gallery');return false;"><i class="ti ti-photo"></i> Galería</a>
       <a class="nav-item" href="#" onclick="showSidebarSection('section-profile');return false;"><i class="ti ti-user-circle"></i> Mi Perfil</a>
-      <a class="nav-item" href="#" onclick="showSidebarSection('section-config');return false;"><i class="ti ti-settings"></i> Mi Sistema</a>
+      <a class="nav-item" href="#" onclick="showSidebarSection('section-gallery');return false;"><i class="ti ti-photo"></i> Galería</a>
     </div>
     <div style="padding:14px 16px;border-top:1px solid var(--border2);margin-top:auto;">
       <a href="/help.html" target="_blank" style="display:flex;align-items:center;gap:8px;color:var(--text3);font-size:12px;text-decoration:none;opacity:.7;transition:opacity .2s;margin-bottom:6px;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.7">
@@ -486,12 +486,6 @@
     </div>
   </section>
 
-  <section class="panel setup-panel dyg-resizable" id="section-setup">
-    <h2>Setup Quality Score</h2>
-    <p>Ranking estadístico de setups según rendimiento real.</p>
-    <div id="setupRanking"></div>
-  </section>
-
   <section class="panel recovery-panel dyg-resizable" id="section-recovery">
     <h2>Recovery Analytics</h2>
     <p>Mide qué tan resistente es el sistema después de drawdowns y rachas negativas.</p>
@@ -502,19 +496,10 @@
     </div>
   </section>
 
-  <section class="panel account-panel dyg-resizable" id="section-account">
-    <h2>Account Size Engine</h2>
-    <p>¿Cuánto capital necesitas para operar este sistema? Basado en tu peor racha real hasta ahora.</p>
-    <div class="account-grid">
-      <div class="account-box minimum"><span>🟠 Cuenta Mínima</span><strong id="accountMinimum">$0.00</strong><p class="account-tag">DD x 1</p><p class="account-explain">Puedes empezar aquí, pero un mal día puede sacarte del juego. Solo si tienes disciplina comprobada y estás dispuesto a asumir más riesgo.</p></div>
-      <div class="account-box aggressive"><span>🟡 Cuenta Recomendada</span><strong id="accountAggressive">$0.00</strong><p class="account-tag">DD x 2</p><p class="account-explain">El punto de entrada real. Aguantas tu peor racha histórica completa y sigues operando sin quedarte sin capital.</p></div>
-      <div class="account-box balanced"><span>🟢 Cuenta Cómoda</span><strong id="accountBalanced">$0.00</strong><p class="account-tag">DD x 4</p><p class="account-explain">Operas sin presión emocional. Las pérdidas no te afectan psicológicamente porque tienes colchón suficiente.</p></div>
-      <div class="account-box conservative"><span>💼 Cuenta Profesional</span><strong id="accountConservative">$0.00</strong><p class="account-tag">DD x 6</p><p class="account-explain">Para cuando quieres escalar contratos. El sistema tiene espacio para crecer sin poner en riesgo tu capital base.</p></div>
-    </div>
-    <div class="account-status-box">
-      <strong id="accountStatus">Sin datos</strong>
-      <p id="accountAdvice">Importa o registra operaciones para calcular tu capital recomendado.</p>
-    </div>
+  <section class="panel setup-panel dyg-resizable" id="section-setup">
+    <h2>Setup Quality Score</h2>
+    <p>Ranking estadístico de setups según rendimiento real.</p>
+    <div id="setupRanking"></div>
   </section>
 
   <section class="panel dyg-resizable" id="section-montecarlo">
@@ -538,6 +523,79 @@
         <strong>📌 Conclusión</strong>
         <p id="mcConclusion"></p>
       </div>
+    </div>
+  </section>
+
+  <section class="panel account-panel dyg-resizable" id="section-account">
+    <h2>Account Size Engine</h2>
+    <p>¿Cuánto capital necesitas para operar este sistema? Basado en tu peor racha real hasta ahora.</p>
+    <div class="account-grid">
+      <div class="account-box minimum"><span>🟠 Cuenta Mínima</span><strong id="accountMinimum">$0.00</strong><p class="account-tag">DD x 1</p><p class="account-explain">Puedes empezar aquí, pero un mal día puede sacarte del juego. Solo si tienes disciplina comprobada y estás dispuesto a asumir más riesgo.</p></div>
+      <div class="account-box aggressive"><span>🟡 Cuenta Recomendada</span><strong id="accountAggressive">$0.00</strong><p class="account-tag">DD x 2</p><p class="account-explain">El punto de entrada real. Aguantas tu peor racha histórica completa y sigues operando sin quedarte sin capital.</p></div>
+      <div class="account-box balanced"><span>🟢 Cuenta Cómoda</span><strong id="accountBalanced">$0.00</strong><p class="account-tag">DD x 4</p><p class="account-explain">Operas sin presión emocional. Las pérdidas no te afectan psicológicamente porque tienes colchón suficiente.</p></div>
+      <div class="account-box conservative"><span>💼 Cuenta Profesional</span><strong id="accountConservative">$0.00</strong><p class="account-tag">DD x 6</p><p class="account-explain">Para cuando quieres escalar contratos. El sistema tiene espacio para crecer sin poner en riesgo tu capital base.</p></div>
+    </div>
+    <div class="account-status-box">
+      <strong id="accountStatus">Sin datos</strong>
+      <p id="accountAdvice">Importa o registra operaciones para calcular tu capital recomendado.</p>
+    </div>
+  </section>
+
+  <section class="panel dyg-resizable" id="section-config">
+    <h2>⚙️ Configuración de Mi Sistema</h2>
+    <p>Define tu ventana de trading. El journal validará tus operaciones según estas reglas.</p>
+    <div style="display:grid;grid-template-columns:repeat(5, 1fr);gap:8px;margin-top:8px">
+      <label style="display:flex;flex-direction:column;gap:4px;font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">Nombre de tu sistema<input type="text" id="cfgSystemName" placeholder="Ej: Mi Sistema de Trading"></label>
+      <label style="display:flex;flex-direction:column;gap:4px;font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">Día de inicio<select id="cfgStartDay"><option value="0">Domingo</option><option value="1">Lunes</option><option value="2">Martes</option><option value="3">Miércoles</option><option value="4">Jueves</option><option value="5">Viernes</option><option value="6">Sábado</option></select></label>
+      <label style="display:flex;flex-direction:column;gap:4px;font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">Hora de inicio<div class="time-picker-wrap" style="position:relative;">
+          <div style="display:flex;gap:6px;align-items:center">
+            <input type="time" id="cfgStartHour" value="18:00" style="flex:1">
+            <button type="button" onclick="openTimePicker('cfgStartHour')" style="background:var(--surface2);border:1px solid var(--border2);color:var(--accent);border-radius:8px;padding:6px 8px;cursor:pointer;font-size:12px;white-space:nowrap;width:auto;grid-column:auto;font-family:'DM Sans',sans-serif;">🕐</button>
+          </div>
+          <div class="time-picker-dropdown" id="picker-cfgStartHour"></div>
+        </div></label>
+      <label style="display:flex;flex-direction:column;gap:4px;font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">Día de fin<select id="cfgEndDay"><option value="0">Domingo</option><option value="1">Lunes</option><option value="2">Martes</option><option value="3" selected>Miércoles</option><option value="4">Jueves</option><option value="5">Viernes</option><option value="6">Sábado</option></select></label>
+      <label style="display:flex;flex-direction:column;gap:4px;font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">Hora de fin<div class="time-picker-wrap" style="position:relative;">
+          <div style="display:flex;gap:6px;align-items:center">
+            <input type="time" id="cfgEndHour" value="16:00" style="flex:1">
+            <button type="button" onclick="openTimePicker('cfgEndHour')" style="background:var(--surface2);border:1px solid var(--border2);color:var(--accent);border-radius:8px;padding:6px 8px;cursor:pointer;font-size:12px;white-space:nowrap;width:auto;grid-column:auto;font-family:'DM Sans',sans-serif;">🕐</button>
+          </div>
+          <div class="time-picker-dropdown" id="picker-cfgEndHour"></div>
+        </div></label>
+    </div>
+    <div style="margin-top:8px">
+      <p style="font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px">Días válidos todo el día</p>
+      <div style="display:flex;gap:6px;flex-wrap:wrap" id="cfgDayCheckboxes">
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text);cursor:pointer"><input type="checkbox" value="0"> Dom</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text);cursor:pointer"><input type="checkbox" value="1" checked> Lun</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text);cursor:pointer"><input type="checkbox" value="2" checked> Mar</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text);cursor:pointer"><input type="checkbox" value="3"> Mié</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text);cursor:pointer"><input type="checkbox" value="4"> Jue</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text);cursor:pointer"><input type="checkbox" value="5"> Vie</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text);cursor:pointer"><input type="checkbox" value="6"> Sáb</label>
+      </div>
+    </div>
+    <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
+      <button class="tool-btn" onclick="saveSystemConfigUI()" style="font-size:12px;padding:8px 14px">Guardar configuración</button>
+      <button class="tool-btn danger-btn" onclick="resetSystemConfig()">Restablecer por defecto</button>
+    </div>
+    <div id="cfgPreview" style="margin-top:8px;padding:8px;background:var(--bg2);border-radius:12px;border:1px solid var(--border2);font-size:12px;color:var(--text2);display:none"></div>
+  </section>
+
+  <section class="panel dyg-resizable" id="section-data">
+    <h2>Importar / Exportar Datos</h2>
+    <p>Importa operaciones desde CSV o descarga un backup del journal.</p>
+    <div class="tools">
+      <label class="file-label">Importar CSV<input type="file" id="csvFile" accept=".csv"></label>
+      <button type="button" class="tool-btn" id="exportCSV">Exportar CSV</button>
+      <button type="button" class="tool-btn danger-btn" id="clearData">🗑️ Borrar Todo</button>
+    </div>
+    <div class="tools" style="margin-top:10px;" id="deleteBySourceRow">
+      <span style="font-size:12px;color:var(--muted);align-self:center;">Borrar por fuente:</span>
+      <button type="button" class="tool-btn danger-btn" onclick="deleteBySource('tradingview')">🗑️ TradingView</button>
+      <button type="button" class="tool-btn danger-btn" onclick="deleteBySource('webull')">🗑️ Webull</button>
+      <button type="button" class="tool-btn danger-btn" onclick="deleteBySource('tradovate')">🗑️ Tradovate</button>
+      <button type="button" class="tool-btn danger-btn" onclick="deleteBySource('manual')">🗑️ Manuales</button>
     </div>
   </section>
 
@@ -670,23 +728,6 @@
     </table>
   </section>
 
-  <section class="panel dyg-resizable" id="section-data">
-    <h2>Importar / Exportar Datos</h2>
-    <p>Importa operaciones desde CSV o descarga un backup del journal.</p>
-    <div class="tools">
-      <label class="file-label">Importar CSV<input type="file" id="csvFile" accept=".csv"></label>
-      <button type="button" class="tool-btn" id="exportCSV">Exportar CSV</button>
-      <button type="button" class="tool-btn danger-btn" id="clearData">🗑️ Borrar Todo</button>
-    </div>
-    <div class="tools" style="margin-top:10px;" id="deleteBySourceRow">
-      <span style="font-size:12px;color:var(--muted);align-self:center;">Borrar por fuente:</span>
-      <button type="button" class="tool-btn danger-btn" onclick="deleteBySource('tradingview')">🗑️ TradingView</button>
-      <button type="button" class="tool-btn danger-btn" onclick="deleteBySource('webull')">🗑️ Webull</button>
-      <button type="button" class="tool-btn danger-btn" onclick="deleteBySource('tradovate')">🗑️ Tradovate</button>
-      <button type="button" class="tool-btn danger-btn" onclick="deleteBySource('manual')">🗑️ Manuales</button>
-    </div>
-  </section>
-
   <!-- ══════════════════════════════════════════════
        MI PERFIL DE TRADER
   ══════════════════════════════════════════════ -->
@@ -784,47 +825,6 @@
     </div>
     <input type="text" id="gallerySearch" placeholder="Buscar por nota o fecha..." oninput="renderGallery()" style="max-width:300px;margin-bottom:14px">
     <div id="tradeGallery" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px"></div>
-  </section>
-
-  <section class="panel dyg-resizable" id="section-config">
-    <h2>⚙️ Configuración de Mi Sistema</h2>
-    <p>Define tu ventana de trading. El journal validará tus operaciones según estas reglas.</p>
-    <div style="display:grid;grid-template-columns:repeat(5, 1fr);gap:8px;margin-top:8px">
-      <label style="display:flex;flex-direction:column;gap:4px;font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">Nombre de tu sistema<input type="text" id="cfgSystemName" placeholder="Ej: Mi Sistema de Trading"></label>
-      <label style="display:flex;flex-direction:column;gap:4px;font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">Día de inicio<select id="cfgStartDay"><option value="0">Domingo</option><option value="1">Lunes</option><option value="2">Martes</option><option value="3">Miércoles</option><option value="4">Jueves</option><option value="5">Viernes</option><option value="6">Sábado</option></select></label>
-      <label style="display:flex;flex-direction:column;gap:4px;font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">Hora de inicio<div class="time-picker-wrap" style="position:relative;">
-          <div style="display:flex;gap:6px;align-items:center">
-            <input type="time" id="cfgStartHour" value="18:00" style="flex:1">
-            <button type="button" onclick="openTimePicker('cfgStartHour')" style="background:var(--surface2);border:1px solid var(--border2);color:var(--accent);border-radius:8px;padding:6px 8px;cursor:pointer;font-size:12px;white-space:nowrap;width:auto;grid-column:auto;font-family:'DM Sans',sans-serif;">🕐</button>
-          </div>
-          <div class="time-picker-dropdown" id="picker-cfgStartHour"></div>
-        </div></label>
-      <label style="display:flex;flex-direction:column;gap:4px;font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">Día de fin<select id="cfgEndDay"><option value="0">Domingo</option><option value="1">Lunes</option><option value="2">Martes</option><option value="3" selected>Miércoles</option><option value="4">Jueves</option><option value="5">Viernes</option><option value="6">Sábado</option></select></label>
-      <label style="display:flex;flex-direction:column;gap:4px;font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">Hora de fin<div class="time-picker-wrap" style="position:relative;">
-          <div style="display:flex;gap:6px;align-items:center">
-            <input type="time" id="cfgEndHour" value="16:00" style="flex:1">
-            <button type="button" onclick="openTimePicker('cfgEndHour')" style="background:var(--surface2);border:1px solid var(--border2);color:var(--accent);border-radius:8px;padding:6px 8px;cursor:pointer;font-size:12px;white-space:nowrap;width:auto;grid-column:auto;font-family:'DM Sans',sans-serif;">🕐</button>
-          </div>
-          <div class="time-picker-dropdown" id="picker-cfgEndHour"></div>
-        </div></label>
-    </div>
-    <div style="margin-top:8px">
-      <p style="font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px">Días válidos todo el día</p>
-      <div style="display:flex;gap:6px;flex-wrap:wrap" id="cfgDayCheckboxes">
-        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text);cursor:pointer"><input type="checkbox" value="0"> Dom</label>
-        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text);cursor:pointer"><input type="checkbox" value="1" checked> Lun</label>
-        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text);cursor:pointer"><input type="checkbox" value="2" checked> Mar</label>
-        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text);cursor:pointer"><input type="checkbox" value="3"> Mié</label>
-        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text);cursor:pointer"><input type="checkbox" value="4"> Jue</label>
-        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text);cursor:pointer"><input type="checkbox" value="5"> Vie</label>
-        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text);cursor:pointer"><input type="checkbox" value="6"> Sáb</label>
-      </div>
-    </div>
-    <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
-      <button class="tool-btn" onclick="saveSystemConfigUI()" style="font-size:12px;padding:8px 14px">Guardar configuración</button>
-      <button class="tool-btn danger-btn" onclick="resetSystemConfig()">Restablecer por defecto</button>
-    </div>
-    <div id="cfgPreview" style="margin-top:8px;padding:8px;background:var(--bg2);border-radius:12px;border:1px solid var(--border2);font-size:12px;color:var(--text2);display:none"></div>
   </section>
 
   <section class="panel dyg-resizable" id="section-admin-students">
