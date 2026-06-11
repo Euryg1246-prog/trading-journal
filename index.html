@@ -207,12 +207,13 @@
       <a class="nav-item" id="navItemAdminStudents" href="#" onclick="showSidebarSection('section-admin-students');return false;" style="display:none"><i class="ti ti-users"></i> Mis Estudiantes</a>
       <div class="nav-section">Dashboard</div>
       <a class="nav-item" href="#" onclick="showSidebarSection('section-dashboard');return false;"><i class="ti ti-chart-line"></i> Equity + Ratios</a>
+      <a class="nav-item" href="#" onclick="showSidebarSection('section-notes');return false;"><i class="ti ti-notes"></i> Notas</a>
       <a class="nav-item" href="#" onclick="showSidebarSection('section-calendar');return false;"><i class="ti ti-calendar-stats"></i> Calendario P/L</a>
       <a class="nav-item" href="#" onclick="showSidebarSection('section-research');return false;"><i class="ti ti-chart-bar"></i> Research</a>
       <div class="nav-section">Análisis</div>
-      <a class="nav-item" href="#" onclick="showSidebarSection('section-setup');return false;"><i class="ti ti-star"></i> Setup Score</a>
       <a class="nav-item" href="#" onclick="showSidebarSection('section-scorecard-wrapper');return false;"><i class="ti ti-award"></i> Scorecard</a>
       <a class="nav-item" href="#" onclick="showSidebarSection('section-drift');return false;"><i class="ti ti-activity"></i> Drift Monitor</a>
+      <a class="nav-item" href="#" onclick="showSidebarSection('section-setup');return false;"><i class="ti ti-star"></i> Setup Score</a>
       <a class="nav-item" href="#" onclick="showSidebarSection('section-recovery');return false;"><i class="ti ti-refresh-alert"></i> Recovery</a>
       <a class="nav-item" href="#" onclick="showSidebarSection('section-account');return false;"><i class="ti ti-wallet"></i> Account Size</a>
       <a class="nav-item" href="#" onclick="showSidebarSection('section-montecarlo');return false;"><i class="ti ti-dice"></i> Monte Carlo</a>
@@ -222,9 +223,8 @@
       <a class="nav-item" href="#" onclick="showSidebarSection('section-sessions');return false;"><i class="ti ti-database"></i> Sesiones</a>
       <a class="nav-item" href="#" onclick="showSidebarSection('section-data');return false;"><i class="ti ti-upload"></i> Importar CSV</a>
       <div class="nav-section">Personal</div>
-      <a class="nav-item" href="#" onclick="showSidebarSection('section-notes');return false;"><i class="ti ti-notes"></i> Notas</a>
-      <a class="nav-item" href="#" onclick="showSidebarSection('section-profile');return false;"><i class="ti ti-user-circle"></i> Mi Perfil</a>
       <a class="nav-item" href="#" onclick="showSidebarSection('section-gallery');return false;"><i class="ti ti-photo"></i> Galería</a>
+      <a class="nav-item" href="#" onclick="showSidebarSection('section-profile');return false;"><i class="ti ti-user-circle"></i> Mi Perfil</a>
       <a class="nav-item" href="#" onclick="showSidebarSection('section-config');return false;"><i class="ti ti-settings"></i> Mi Sistema</a>
     </div>
     <div style="padding:14px 16px;border-top:1px solid var(--border2);margin-top:auto;">
@@ -267,8 +267,6 @@
     </button>
   </div>
 
-  <div class="dyg-block" data-block-id="dashboard">
-    <div class="dyg-drag-handle" draggable="true" title="Arrastrar para mover esta sección">⠿⠿</div>
     <div id="section-dashboard">
 
   <!-- WIDGET PRECIOS EN VIVO + PERFIL -->
@@ -421,95 +419,6 @@
     <div class="card"><span>RR Real</span><strong id="realRR">0.00R</strong></div>
   </section>
   </div><!-- /section-dashboard -->
-  </div><!-- /dyg-block: dashboard -->
-
-  <div class="dyg-block" data-block-id="recovery-account-scorecard">
-    <div class="dyg-drag-handle" draggable="true" title="Arrastrar para mover esta sección">⠿⠿</div>
-  <div class="dyg-row" style="display:grid;grid-template-columns:1fr;gap:8px">
-  <section class="panel recovery-panel dyg-resizable" id="section-recovery">
-    <h2>Recovery Analytics</h2>
-    <p>Mide qué tan resistente es el sistema después de drawdowns y rachas negativas.</p>
-    <div class="recovery-grid">
-      <div class="recovery-box"><span>Recovery Factor</span><strong id="recoveryFactor">0.00</strong><p id="recoveryFactorStatus">Sin datos</p></div>
-      <div class="recovery-box"><span>Recovery Time</span><strong id="recoveryTime">0 trades</strong><p>Trades necesarios para recuperar el peor drawdown.</p></div>
-      <div class="recovery-box"><span>Worst Losing Streak</span><strong id="worstLosingStreak">0</strong><p id="worstLosingStreakLoss">$0.00</p></div>
-    </div>
-  </section>
-
-  <section class="panel drift-panel dyg-resizable" id="section-drift">
-    <h2>System Drift Monitor</h2>
-    <p>Compara los últimos 20 trades contra el comportamiento histórico del sistema.</p>
-    <div class="drift-grid">
-      <div class="drift-box main-drift"><span>Drift Score</span><strong id="driftScore">100/100</strong><p id="driftStatus">🟢 Sistema alineado</p></div>
-      <div class="drift-box"><span>Expectancy Histórica</span><strong id="driftHistExpectancy">$0.00</strong><p>Promedio por trade total.</p></div>
-      <div class="drift-box"><span>Expectancy Reciente</span><strong id="driftRecentExpectancy">$0.00</strong><p>Últimos 20 trades.</p></div>
-      <div class="drift-box"><span>Win Rate Reciente</span><strong id="driftRecentWinRate">0%</strong><p id="driftComment">Esperando datos...</p></div>
-    </div>
-  </section>
-
-  <div id="section-scorecard-wrapper">
-    <section class="panel scorecard-panel dyg-resizable" id="section-scorecard">
-      <h2>System Scorecard</h2>
-      <div class="scorecard-grid">
-        <div class="system-rating-box"><span>Valoración del Sistema</span><strong id="systemRating">0.0 / 10</strong><p id="systemRatingStatus">Sin datos suficientes</p></div>
-        <div class="system-diagnosis"><h3>Diagnóstico</h3><p id="systemDiagnosis">Importa o registra operaciones para evaluar el sistema.</p></div>
-        <div class="system-improvement"><h3>Puede mejorar</h3><ul id="systemImprovements"><li>Esperando datos...</li></ul></div>
-      </div>
-    </section>
-  </div>
-
-  <section class="panel dyg-resizable" id="section-montecarlo">
-    <h2>🎲 Monte Carlo</h2>
-    <p>Simula miles de escenarios alternativos reordenando tus operaciones reales para estimar el rango de resultados y el riesgo real de drawdown en tu próxima racha.</p>
-    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px">
-      <button type="button" class="tool-btn" id="runMonteCarloBtn" onclick="runMonteCarlo()">🎲 Ejecutar Simulación (2,000 escenarios)</button>
-      <span id="mcTradeCount" style="font-size:12px;color:var(--text2)"></span>
-    </div>
-    <p id="mcEmptyState" class="muted">Registra al menos 10 operaciones para obtener una simulación representativa.</p>
-    <div id="mcResults" style="display:none">
-      <div style="position:relative;height:320px">
-        <canvas id="monteCarloChart"></canvas>
-      </div>
-      <div class="recovery-grid" style="margin-top:16px">
-        <div class="recovery-box"><span>P&amp;L Próximas Operaciones (mediana)</span><strong id="mcMedianEquity">$0.00</strong><p>Rango 5%–95%: <span id="mcEquityRange"></span></p></div>
-        <div class="recovery-box"><span>Prob. de Racha Negativa</span><strong id="mcProbLoss">0%</strong><p>Probabilidad de que tu próxima racha de operaciones cierre en pérdida neta.</p></div>
-        <div class="recovery-box"><span>Drawdown Proyectado (mediana)</span><strong id="mcMedianDD">$0.00</strong><p>Peor caso (P95): <span id="mcDD95"></span></p></div>
-      </div>
-      <div class="account-status-box" style="margin-top:12px">
-        <strong>📌 Conclusión</strong>
-        <p id="mcConclusion"></p>
-      </div>
-    </div>
-  </section>
-  </div>
-  </div><!-- /dyg-block: recovery-account-scorecard -->
-
-  <div class="dyg-block" data-block-id="setup">
-    <div class="dyg-drag-handle" draggable="true" title="Arrastrar para mover esta sección">⠿⠿</div>
-  <section class="panel setup-panel dyg-resizable" id="section-setup">
-    <h2>Setup Quality Score</h2>
-    <p>Ranking estadístico de setups según rendimiento real.</p>
-    <div id="setupRanking"></div>
-  </section>
-  </div><!-- /dyg-block: setup -->
-
-  <div class="dyg-block" data-block-id="drift-notes">
-    <div class="dyg-drag-handle" draggable="true" title="Arrastrar para mover esta sección">⠿⠿</div>
-  <div class="dyg-row" style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-  <section class="panel account-panel dyg-resizable" id="section-account">
-    <h2>Account Size Engine</h2>
-    <p>¿Cuánto capital necesitas para operar este sistema? Basado en tu peor racha real hasta ahora.</p>
-    <div class="account-grid">
-      <div class="account-box minimum"><span>🟠 Cuenta Mínima</span><strong id="accountMinimum">$0.00</strong><p class="account-tag">DD x 1</p><p class="account-explain">Puedes empezar aquí, pero un mal día puede sacarte del juego. Solo si tienes disciplina comprobada y estás dispuesto a asumir más riesgo.</p></div>
-      <div class="account-box aggressive"><span>🟡 Cuenta Recomendada</span><strong id="accountAggressive">$0.00</strong><p class="account-tag">DD x 2</p><p class="account-explain">El punto de entrada real. Aguantas tu peor racha histórica completa y sigues operando sin quedarte sin capital.</p></div>
-      <div class="account-box balanced"><span>🟢 Cuenta Cómoda</span><strong id="accountBalanced">$0.00</strong><p class="account-tag">DD x 4</p><p class="account-explain">Operas sin presión emocional. Las pérdidas no te afectan psicológicamente porque tienes colchón suficiente.</p></div>
-      <div class="account-box conservative"><span>💼 Cuenta Profesional</span><strong id="accountConservative">$0.00</strong><p class="account-tag">DD x 6</p><p class="account-explain">Para cuando quieres escalar contratos. El sistema tiene espacio para crecer sin poner en riesgo tu capital base.</p></div>
-    </div>
-    <div class="account-status-box">
-      <strong id="accountStatus">Sin datos</strong>
-      <p id="accountAdvice">Importa o registra operaciones para calcular tu capital recomendado.</p>
-    </div>
-  </section>
 
   <section class="panel notes-panel dyg-resizable" id="section-notes">
     <h2>Personal Notes Calendar Pro</h2>
@@ -543,74 +452,95 @@
       </div>
     </div>
   </section>
-  </div>
-  </div><!-- /dyg-block: drift-notes -->
 
-  <div class="dyg-block" data-block-id="config-data">
-    <div class="dyg-drag-handle" draggable="true" title="Arrastrar para mover esta sección">⠿⠿</div>
-  <div class="dyg-row" style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-  <section class="panel dyg-resizable" id="section-config">
-    <h2>⚙️ Configuración de Mi Sistema</h2>
-    <p>Define tu ventana de trading. El journal validará tus operaciones según estas reglas.</p>
-    <div style="display:grid;grid-template-columns:repeat(5, 1fr);gap:8px;margin-top:8px">
-      <label style="display:flex;flex-direction:column;gap:4px;font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">Nombre de tu sistema<input type="text" id="cfgSystemName" placeholder="Ej: Mi Sistema de Trading"></label>
-      <label style="display:flex;flex-direction:column;gap:4px;font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">Día de inicio<select id="cfgStartDay"><option value="0">Domingo</option><option value="1">Lunes</option><option value="2">Martes</option><option value="3">Miércoles</option><option value="4">Jueves</option><option value="5">Viernes</option><option value="6">Sábado</option></select></label>
-      <label style="display:flex;flex-direction:column;gap:4px;font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">Hora de inicio<div class="time-picker-wrap" style="position:relative;">
-          <div style="display:flex;gap:6px;align-items:center">
-            <input type="time" id="cfgStartHour" value="18:00" style="flex:1">
-            <button type="button" onclick="openTimePicker('cfgStartHour')" style="background:var(--surface2);border:1px solid var(--border2);color:var(--accent);border-radius:8px;padding:6px 8px;cursor:pointer;font-size:12px;white-space:nowrap;width:auto;grid-column:auto;font-family:'DM Sans',sans-serif;">🕐</button>
-          </div>
-          <div class="time-picker-dropdown" id="picker-cfgStartHour"></div>
-        </div></label>
-      <label style="display:flex;flex-direction:column;gap:4px;font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">Día de fin<select id="cfgEndDay"><option value="0">Domingo</option><option value="1">Lunes</option><option value="2">Martes</option><option value="3" selected>Miércoles</option><option value="4">Jueves</option><option value="5">Viernes</option><option value="6">Sábado</option></select></label>
-      <label style="display:flex;flex-direction:column;gap:4px;font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">Hora de fin<div class="time-picker-wrap" style="position:relative;">
-          <div style="display:flex;gap:6px;align-items:center">
-            <input type="time" id="cfgEndHour" value="16:00" style="flex:1">
-            <button type="button" onclick="openTimePicker('cfgEndHour')" style="background:var(--surface2);border:1px solid var(--border2);color:var(--accent);border-radius:8px;padding:6px 8px;cursor:pointer;font-size:12px;white-space:nowrap;width:auto;grid-column:auto;font-family:'DM Sans',sans-serif;">🕐</button>
-          </div>
-          <div class="time-picker-dropdown" id="picker-cfgEndHour"></div>
-        </div></label>
+  <section class="panel dyg-resizable" id="section-calendar">
+    <h2>Calendario P/L Diario</h2>
+    <p>Cada día se colorea según el resultado acumulado.</p>
+    <div id="plCalendar" class="calendar"></div>
+  </section>
+
+  <section class="grid-main" id="section-research">
+    <div class="panel dyg-resizable" data-resize-id="research-center"><h2>Research Center</h2><div id="researchBox" class="research-box"></div></div>
+    <div class="panel dyg-resizable" data-resize-id="peak-distribution"><h2>Distribución Hora Pico</h2><div id="peakDistribution" class="distribution"></div></div>
+  </section>
+
+  <div id="section-scorecard-wrapper">
+    <section class="panel scorecard-panel dyg-resizable" id="section-scorecard">
+      <h2>System Scorecard</h2>
+      <div class="scorecard-grid">
+        <div class="system-rating-box"><span>Valoración del Sistema</span><strong id="systemRating">0.0 / 10</strong><p id="systemRatingStatus">Sin datos suficientes</p></div>
+        <div class="system-diagnosis"><h3>Diagnóstico</h3><p id="systemDiagnosis">Importa o registra operaciones para evaluar el sistema.</p></div>
+        <div class="system-improvement"><h3>Puede mejorar</h3><ul id="systemImprovements"><li>Esperando datos...</li></ul></div>
+      </div>
+    </section>
+  </div>
+
+  <section class="panel drift-panel dyg-resizable" id="section-drift">
+    <h2>System Drift Monitor</h2>
+    <p>Compara los últimos 20 trades contra el comportamiento histórico del sistema.</p>
+    <div class="drift-grid">
+      <div class="drift-box main-drift"><span>Drift Score</span><strong id="driftScore">100/100</strong><p id="driftStatus">🟢 Sistema alineado</p></div>
+      <div class="drift-box"><span>Expectancy Histórica</span><strong id="driftHistExpectancy">$0.00</strong><p>Promedio por trade total.</p></div>
+      <div class="drift-box"><span>Expectancy Reciente</span><strong id="driftRecentExpectancy">$0.00</strong><p>Últimos 20 trades.</p></div>
+      <div class="drift-box"><span>Win Rate Reciente</span><strong id="driftRecentWinRate">0%</strong><p id="driftComment">Esperando datos...</p></div>
     </div>
-    <div style="margin-top:8px">
-      <p style="font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px">Días válidos todo el día</p>
-      <div style="display:flex;gap:6px;flex-wrap:wrap" id="cfgDayCheckboxes">
-        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text);cursor:pointer"><input type="checkbox" value="0"> Dom</label>
-        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text);cursor:pointer"><input type="checkbox" value="1" checked> Lun</label>
-        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text);cursor:pointer"><input type="checkbox" value="2" checked> Mar</label>
-        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text);cursor:pointer"><input type="checkbox" value="3"> Mié</label>
-        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text);cursor:pointer"><input type="checkbox" value="4"> Jue</label>
-        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text);cursor:pointer"><input type="checkbox" value="5"> Vie</label>
-        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text);cursor:pointer"><input type="checkbox" value="6"> Sáb</label>
+  </section>
+
+  <section class="panel setup-panel dyg-resizable" id="section-setup">
+    <h2>Setup Quality Score</h2>
+    <p>Ranking estadístico de setups según rendimiento real.</p>
+    <div id="setupRanking"></div>
+  </section>
+
+  <section class="panel recovery-panel dyg-resizable" id="section-recovery">
+    <h2>Recovery Analytics</h2>
+    <p>Mide qué tan resistente es el sistema después de drawdowns y rachas negativas.</p>
+    <div class="recovery-grid">
+      <div class="recovery-box"><span>Recovery Factor</span><strong id="recoveryFactor">0.00</strong><p id="recoveryFactorStatus">Sin datos</p></div>
+      <div class="recovery-box"><span>Recovery Time</span><strong id="recoveryTime">0 trades</strong><p>Trades necesarios para recuperar el peor drawdown.</p></div>
+      <div class="recovery-box"><span>Worst Losing Streak</span><strong id="worstLosingStreak">0</strong><p id="worstLosingStreakLoss">$0.00</p></div>
+    </div>
+  </section>
+
+  <section class="panel account-panel dyg-resizable" id="section-account">
+    <h2>Account Size Engine</h2>
+    <p>¿Cuánto capital necesitas para operar este sistema? Basado en tu peor racha real hasta ahora.</p>
+    <div class="account-grid">
+      <div class="account-box minimum"><span>🟠 Cuenta Mínima</span><strong id="accountMinimum">$0.00</strong><p class="account-tag">DD x 1</p><p class="account-explain">Puedes empezar aquí, pero un mal día puede sacarte del juego. Solo si tienes disciplina comprobada y estás dispuesto a asumir más riesgo.</p></div>
+      <div class="account-box aggressive"><span>🟡 Cuenta Recomendada</span><strong id="accountAggressive">$0.00</strong><p class="account-tag">DD x 2</p><p class="account-explain">El punto de entrada real. Aguantas tu peor racha histórica completa y sigues operando sin quedarte sin capital.</p></div>
+      <div class="account-box balanced"><span>🟢 Cuenta Cómoda</span><strong id="accountBalanced">$0.00</strong><p class="account-tag">DD x 4</p><p class="account-explain">Operas sin presión emocional. Las pérdidas no te afectan psicológicamente porque tienes colchón suficiente.</p></div>
+      <div class="account-box conservative"><span>💼 Cuenta Profesional</span><strong id="accountConservative">$0.00</strong><p class="account-tag">DD x 6</p><p class="account-explain">Para cuando quieres escalar contratos. El sistema tiene espacio para crecer sin poner en riesgo tu capital base.</p></div>
+    </div>
+    <div class="account-status-box">
+      <strong id="accountStatus">Sin datos</strong>
+      <p id="accountAdvice">Importa o registra operaciones para calcular tu capital recomendado.</p>
+    </div>
+  </section>
+
+  <section class="panel dyg-resizable" id="section-montecarlo">
+    <h2>🎲 Monte Carlo</h2>
+    <p>Simula miles de escenarios alternativos reordenando tus operaciones reales para estimar el rango de resultados y el riesgo real de drawdown en tu próxima racha.</p>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px">
+      <button type="button" class="tool-btn" id="runMonteCarloBtn" onclick="runMonteCarlo()">🎲 Ejecutar Simulación (2,000 escenarios)</button>
+      <span id="mcTradeCount" style="font-size:12px;color:var(--text2)"></span>
+    </div>
+    <p id="mcEmptyState" class="muted">Registra al menos 10 operaciones para obtener una simulación representativa.</p>
+    <div id="mcResults" style="display:none">
+      <div style="position:relative;height:320px">
+        <canvas id="monteCarloChart"></canvas>
+      </div>
+      <div class="recovery-grid" style="margin-top:16px">
+        <div class="recovery-box"><span>P&amp;L Próximas Operaciones (mediana)</span><strong id="mcMedianEquity">$0.00</strong><p>Rango 5%–95%: <span id="mcEquityRange"></span></p></div>
+        <div class="recovery-box"><span>Prob. de Racha Negativa</span><strong id="mcProbLoss">0%</strong><p>Probabilidad de que tu próxima racha de operaciones cierre en pérdida neta.</p></div>
+        <div class="recovery-box"><span>Drawdown Proyectado (mediana)</span><strong id="mcMedianDD">$0.00</strong><p>Peor caso (P95): <span id="mcDD95"></span></p></div>
+      </div>
+      <div class="account-status-box" style="margin-top:12px">
+        <strong>📌 Conclusión</strong>
+        <p id="mcConclusion"></p>
       </div>
     </div>
-    <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
-      <button class="tool-btn" onclick="saveSystemConfigUI()" style="font-size:12px;padding:8px 14px">Guardar configuración</button>
-      <button class="tool-btn danger-btn" onclick="resetSystemConfig()">Restablecer por defecto</button>
-    </div>
-    <div id="cfgPreview" style="margin-top:8px;padding:8px;background:var(--bg2);border-radius:12px;border:1px solid var(--border2);font-size:12px;color:var(--text2);display:none"></div>
   </section>
 
-  <section class="panel dyg-resizable" id="section-data">
-    <h2>Importar / Exportar Datos</h2>
-    <p>Importa operaciones desde CSV o descarga un backup del journal.</p>
-    <div class="tools">
-      <label class="file-label">Importar CSV<input type="file" id="csvFile" accept=".csv"></label>
-      <button type="button" class="tool-btn" id="exportCSV">Exportar CSV</button>
-      <button type="button" class="tool-btn danger-btn" id="clearData">🗑️ Borrar Todo</button>
-    </div>
-    <div class="tools" style="margin-top:10px;" id="deleteBySourceRow">
-      <span style="font-size:12px;color:var(--muted);align-self:center;">Borrar por fuente:</span>
-      <button type="button" class="tool-btn danger-btn" onclick="deleteBySource('tradingview')">🗑️ TradingView</button>
-      <button type="button" class="tool-btn danger-btn" onclick="deleteBySource('webull')">🗑️ Webull</button>
-      <button type="button" class="tool-btn danger-btn" onclick="deleteBySource('tradovate')">🗑️ Tradovate</button>
-      <button type="button" class="tool-btn danger-btn" onclick="deleteBySource('manual')">🗑️ Manuales</button>
-    </div>
-  </section>
-  </div>
-  </div><!-- /dyg-block: config-data -->
-
-  <div class="dyg-block" data-block-id="entry">
-    <div class="dyg-drag-handle" draggable="true" title="Arrastrar para mover esta sección">⠿⠿</div>
   <section class="panel trade-entry-panel dyg-resizable" id="section-entry">
     <h2>Registrar Trade / Sesión</h2>
     <p class="panel-subtitle">Formulario claro para registrar operaciones sin confusión. Cada campo explica exactamente qué dato debes ingresar.</p>
@@ -718,38 +648,7 @@
       </div>
     </form>
   </section>
-  </div><!-- /dyg-block: entry -->
 
-  <div class="dyg-block" data-block-id="research-calendar">
-    <div class="dyg-drag-handle" draggable="true" title="Arrastrar para mover esta sección">⠿⠿</div>
-  <div class="dyg-row" style="display:grid;grid-template-columns:1fr 1fr 2fr;gap:8px">
-  <section class="grid-main" id="section-research" style="grid-column: span 2">
-    <div class="panel dyg-resizable" data-resize-id="research-center"><h2>Research Center</h2><div id="researchBox" class="research-box"></div></div>
-    <div class="panel dyg-resizable" data-resize-id="peak-distribution"><h2>Distribución Hora Pico</h2><div id="peakDistribution" class="distribution"></div></div>
-  </section>
-
-  <section class="panel dyg-resizable" id="section-calendar">
-    <h2>Calendario P/L Diario</h2>
-    <p>Cada día se colorea según el resultado acumulado.</p>
-    <div id="plCalendar" class="calendar"></div>
-  </section>
-  </div>
-  </div><!-- /dyg-block: research-calendar -->
-
-  <div class="dyg-block" data-block-id="sessions">
-    <div class="dyg-drag-handle" draggable="true" title="Arrastrar para mover esta sección">⠿⠿</div>
-  <section class="panel dyg-resizable" id="section-sessions">
-    <h2>Session Database</h2>
-    <p>Base de datos de sesiones registradas.</p>
-    <table>
-      <thead><tr><th>Fecha</th><th>Día</th><th>Entrada</th><th>Salida</th><th>Open Sesión</th><th>Pullback</th><th>Max Alta</th><th>Hora Pico</th><th>Recovery %</th><th>Dev Max</th><th>Resultado</th><th>Plan</th></tr></thead>
-      <tbody id="sessionTable"></tbody>
-    </table>
-  </section>
-  </div><!-- /dyg-block: sessions -->
-
-  <div class="dyg-block" data-block-id="history">
-    <div class="dyg-drag-handle" draggable="true" title="Arrastrar para mover esta sección">⠿⠿</div>
   <section class="panel dyg-resizable" id="section-history">
     <h2>Historial</h2>
     <div style="margin-bottom:15px;">
@@ -761,24 +660,33 @@
       <tbody id="tradeTable"></tbody>
     </table>
   </section>
-  </div><!-- /dyg-block: history -->
 
-  <div class="dyg-block" data-block-id="admin-students">
-    <div class="dyg-drag-handle" draggable="true" title="Arrastrar para mover esta sección">⠿⠿</div>
-  <section class="panel dyg-resizable" id="section-admin-students">
-    <h2>Mis Estudiantes</h2>
-    <p class="panel-subtitle">Agrega el correo de tus estudiantes para revisar su journal completo en modo solo lectura, igual que si entraras a su cuenta.</p>
-    <div class="tools" style="margin-bottom:16px;">
-      <input type="email" id="newStudentEmail" placeholder="correo@estudiante.com" style="flex:1;min-width:220px;">
-      <button type="button" class="tool-btn" onclick="addStudent()">+ Agregar Estudiante</button>
-    </div>
-    <div id="adminStudentsList"></div>
+  <section class="panel dyg-resizable" id="section-sessions">
+    <h2>Session Database</h2>
+    <p>Base de datos de sesiones registradas.</p>
+    <table>
+      <thead><tr><th>Fecha</th><th>Día</th><th>Entrada</th><th>Salida</th><th>Open Sesión</th><th>Pullback</th><th>Max Alta</th><th>Hora Pico</th><th>Recovery %</th><th>Dev Max</th><th>Resultado</th><th>Plan</th></tr></thead>
+      <tbody id="sessionTable"></tbody>
+    </table>
   </section>
-  </div><!-- /dyg-block: admin-students -->
 
-  <div class="dyg-block" data-block-id="gallery-profile">
-    <div class="dyg-drag-handle" draggable="true" title="Arrastrar para mover esta sección">⠿⠿</div>
-  <div class="dyg-row" style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+  <section class="panel dyg-resizable" id="section-data">
+    <h2>Importar / Exportar Datos</h2>
+    <p>Importa operaciones desde CSV o descarga un backup del journal.</p>
+    <div class="tools">
+      <label class="file-label">Importar CSV<input type="file" id="csvFile" accept=".csv"></label>
+      <button type="button" class="tool-btn" id="exportCSV">Exportar CSV</button>
+      <button type="button" class="tool-btn danger-btn" id="clearData">🗑️ Borrar Todo</button>
+    </div>
+    <div class="tools" style="margin-top:10px;" id="deleteBySourceRow">
+      <span style="font-size:12px;color:var(--muted);align-self:center;">Borrar por fuente:</span>
+      <button type="button" class="tool-btn danger-btn" onclick="deleteBySource('tradingview')">🗑️ TradingView</button>
+      <button type="button" class="tool-btn danger-btn" onclick="deleteBySource('webull')">🗑️ Webull</button>
+      <button type="button" class="tool-btn danger-btn" onclick="deleteBySource('tradovate')">🗑️ Tradovate</button>
+      <button type="button" class="tool-btn danger-btn" onclick="deleteBySource('manual')">🗑️ Manuales</button>
+    </div>
+  </section>
+
   <!-- ══════════════════════════════════════════════
        MI PERFIL DE TRADER
   ══════════════════════════════════════════════ -->
@@ -877,8 +785,57 @@
     <input type="text" id="gallerySearch" placeholder="Buscar por nota o fecha..." oninput="renderGallery()" style="max-width:300px;margin-bottom:14px">
     <div id="tradeGallery" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px"></div>
   </section>
-  </div><!-- /dyg-row: gallery-profile -->
-  </div><!-- /dyg-block: gallery-profile -->
+
+  <section class="panel dyg-resizable" id="section-config">
+    <h2>⚙️ Configuración de Mi Sistema</h2>
+    <p>Define tu ventana de trading. El journal validará tus operaciones según estas reglas.</p>
+    <div style="display:grid;grid-template-columns:repeat(5, 1fr);gap:8px;margin-top:8px">
+      <label style="display:flex;flex-direction:column;gap:4px;font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">Nombre de tu sistema<input type="text" id="cfgSystemName" placeholder="Ej: Mi Sistema de Trading"></label>
+      <label style="display:flex;flex-direction:column;gap:4px;font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">Día de inicio<select id="cfgStartDay"><option value="0">Domingo</option><option value="1">Lunes</option><option value="2">Martes</option><option value="3">Miércoles</option><option value="4">Jueves</option><option value="5">Viernes</option><option value="6">Sábado</option></select></label>
+      <label style="display:flex;flex-direction:column;gap:4px;font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">Hora de inicio<div class="time-picker-wrap" style="position:relative;">
+          <div style="display:flex;gap:6px;align-items:center">
+            <input type="time" id="cfgStartHour" value="18:00" style="flex:1">
+            <button type="button" onclick="openTimePicker('cfgStartHour')" style="background:var(--surface2);border:1px solid var(--border2);color:var(--accent);border-radius:8px;padding:6px 8px;cursor:pointer;font-size:12px;white-space:nowrap;width:auto;grid-column:auto;font-family:'DM Sans',sans-serif;">🕐</button>
+          </div>
+          <div class="time-picker-dropdown" id="picker-cfgStartHour"></div>
+        </div></label>
+      <label style="display:flex;flex-direction:column;gap:4px;font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">Día de fin<select id="cfgEndDay"><option value="0">Domingo</option><option value="1">Lunes</option><option value="2">Martes</option><option value="3" selected>Miércoles</option><option value="4">Jueves</option><option value="5">Viernes</option><option value="6">Sábado</option></select></label>
+      <label style="display:flex;flex-direction:column;gap:4px;font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">Hora de fin<div class="time-picker-wrap" style="position:relative;">
+          <div style="display:flex;gap:6px;align-items:center">
+            <input type="time" id="cfgEndHour" value="16:00" style="flex:1">
+            <button type="button" onclick="openTimePicker('cfgEndHour')" style="background:var(--surface2);border:1px solid var(--border2);color:var(--accent);border-radius:8px;padding:6px 8px;cursor:pointer;font-size:12px;white-space:nowrap;width:auto;grid-column:auto;font-family:'DM Sans',sans-serif;">🕐</button>
+          </div>
+          <div class="time-picker-dropdown" id="picker-cfgEndHour"></div>
+        </div></label>
+    </div>
+    <div style="margin-top:8px">
+      <p style="font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px">Días válidos todo el día</p>
+      <div style="display:flex;gap:6px;flex-wrap:wrap" id="cfgDayCheckboxes">
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text);cursor:pointer"><input type="checkbox" value="0"> Dom</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text);cursor:pointer"><input type="checkbox" value="1" checked> Lun</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text);cursor:pointer"><input type="checkbox" value="2" checked> Mar</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text);cursor:pointer"><input type="checkbox" value="3"> Mié</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text);cursor:pointer"><input type="checkbox" value="4"> Jue</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text);cursor:pointer"><input type="checkbox" value="5"> Vie</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text);cursor:pointer"><input type="checkbox" value="6"> Sáb</label>
+      </div>
+    </div>
+    <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
+      <button class="tool-btn" onclick="saveSystemConfigUI()" style="font-size:12px;padding:8px 14px">Guardar configuración</button>
+      <button class="tool-btn danger-btn" onclick="resetSystemConfig()">Restablecer por defecto</button>
+    </div>
+    <div id="cfgPreview" style="margin-top:8px;padding:8px;background:var(--bg2);border-radius:12px;border:1px solid var(--border2);font-size:12px;color:var(--text2);display:none"></div>
+  </section>
+
+  <section class="panel dyg-resizable" id="section-admin-students">
+    <h2>Mis Estudiantes</h2>
+    <p class="panel-subtitle">Agrega el correo de tus estudiantes para revisar su journal completo en modo solo lectura, igual que si entraras a su cuenta.</p>
+    <div class="tools" style="margin-bottom:16px;">
+      <input type="email" id="newStudentEmail" placeholder="correo@estudiante.com" style="flex:1;min-width:220px;">
+      <button type="button" class="tool-btn" onclick="addStudent()">+ Agregar Estudiante</button>
+    </div>
+    <div id="adminStudentsList"></div>
+  </section>
 
 </div><!-- /main-scroll -->
 
