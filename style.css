@@ -292,14 +292,14 @@ body {
 }
 .panel h2 {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 15px;
+  font-size: 17px;
   letter-spacing: 1px;
   color: var(--accent);
   margin-bottom: 3px;
 }
 .panel > p {
   color: var(--text2);
-  font-size: 13px;
+  font-size: 15px;
   margin-bottom: 4px;
 }
 
