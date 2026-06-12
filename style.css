@@ -498,7 +498,7 @@ canvas {
 table { width: 100%; border-collapse: collapse; }
 
 th {
-  background: var(--bg2);
+  background: var(--bg);
   color: var(--text2);
   padding: 11px 12px;
   font-size: 11px;
@@ -545,7 +545,7 @@ tr:hover td { background: var(--surface2); }
 
 .cal-day {
   min-height: 80px;
-  background: var(--bg2);
+  background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 10px;
@@ -561,7 +561,7 @@ tr:hover td { background: var(--surface2); }
 /* Research box */
 .research-box { display: grid; gap: 12px; }
 .insight {
-  background: var(--bg2);
+  background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 9px 14px;
@@ -761,7 +761,7 @@ button[type="submit"]:hover { opacity: .88; }
 }
 .notes-editor label { color: var(--text2); font-size: 12px; display: block; margin-bottom: 4px; text-transform: uppercase; letter-spacing: .4px; }
 .notes-calendar-box {
-  background: var(--bg2); border: 1px solid var(--border);
+  background: var(--bg); border: 1px solid var(--border);
   border-radius: 12px; padding: 10px;
 }
 .notes-calendar-header { display: flex; gap: 6px; align-items: center; margin-bottom: 8px; }
@@ -1118,7 +1118,7 @@ header { display: none; }
 .fixed-alarms-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 6px; }
 .fixed-alarm-item {
   display: flex; align-items: center; justify-content: space-between;
-  background: var(--bg2); border: 1px solid var(--border);
+  background: var(--bg); border: 1px solid var(--border);
   border-radius: 8px; padding: 7px 10px;
   font-size: 12px; color: var(--text);
 }
@@ -1293,7 +1293,7 @@ header { display: none; }
 }
 
 .account-status-box {
-  background: var(--bg2);
+  background: var(--bg);
   border: 1px solid var(--border2);
   border-radius: 12px;
   padding: 14px 18px;
@@ -1741,7 +1741,7 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
 .profile-preview-card {
   margin-top: 14px;
   padding: 16px 18px;
-  background: var(--bg2);
+  background: var(--bg);
   border: 1px solid var(--border2);
   border-radius: 16px;
 }
