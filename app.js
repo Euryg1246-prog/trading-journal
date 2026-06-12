@@ -1127,6 +1127,7 @@ function showApp() {
   if (av) av.textContent = initials;
   const saved = localStorage.getItem('dygpro_view') || 'scroll';
   setView(saved);
+  loadProfile();
   loadTradesFromSupabase();
   loadNotesFromSupabase();
   loadGalleryFromSupabase();
@@ -4731,25 +4732,23 @@ function loadProfile() {
         if (error || !data) return;
         isAdmin = !!data.is_admin;
         applyAdminUI();
-        if (data.trader_name || data.nickname || data.photo || data.system_config) {
-          traderProfile.name       = data.trader_name || traderProfile.name || '';
-          traderProfile.nickname   = data.nickname    || traderProfile.nickname || '';
-          traderProfile.capital    = data.capital     || traderProfile.capital || '';
-          traderProfile.broker     = data.broker      || traderProfile.broker || '';
-          traderProfile.instrument = data.instrument  || traderProfile.instrument || '';
-          traderProfile.motto      = data.motto       || traderProfile.motto || '';
-          if (data.photo) traderProfile.photo = data.photo;
-          try { localStorage.setItem('dygpro_profile', JSON.stringify(traderProfile)); } catch(e) {}
-          // Restaurar config del sistema desde Supabase
-          if (data.system_config) {
-            try {
-              const cloudConfig = JSON.parse(data.system_config);
-              systemConfig = { ...DEFAULT_CONFIG, ...cloudConfig };
-              localStorage.setItem('dygpro_system_config', JSON.stringify(systemConfig));
-            } catch(e) { console.log('Error parseando system_config:', e); }
-          }
-          applyProfileToUI();
-        }
+        traderProfile = {
+          name:       data.trader_name || '',
+          nickname:   data.nickname    || '',
+          capital:    data.capital     || '',
+          broker:     data.broker      || '',
+          instrument: data.instrument  || '',
+          motto:      data.motto       || '',
+          photo:      data.photo       || ''
+        };
+        try { localStorage.setItem('dygpro_profile', JSON.stringify(traderProfile)); } catch(e) {}
+        // Restaurar config del sistema desde Supabase (o por defecto si la cuenta es nueva)
+        try {
+          const cloudConfig = data.system_config ? JSON.parse(data.system_config) : {};
+          systemConfig = { ...DEFAULT_CONFIG, ...cloudConfig };
+          localStorage.setItem('dygpro_system_config', JSON.stringify(systemConfig));
+        } catch(e) { console.log('Error parseando system_config:', e); }
+        applyProfileToUI();
       });
   }
 }
