@@ -503,7 +503,7 @@ function renderCustomMarkets() {
   }
 
   list.innerHTML = keys.map(name => `
-    <div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 14px">
+    <div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 14px">
       <span style="font-size:14px;color:var(--text);font-family:DM Mono,monospace">${name}</span>
       <span style="font-size:13px;color:var(--text2)">$${customs[name]} por punto</span>
       <button onclick="removeCustomMarket('${name}')" class="danger-btn" style="padding:4px 10px;font-size:12px;border-radius:6px;cursor:pointer;border:1px solid rgba(244,63,94,0.3);background:rgba(244,63,94,0.1);color:var(--red);font-family:DM Sans,sans-serif">Eliminar</button>
