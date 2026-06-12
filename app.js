@@ -3302,7 +3302,10 @@ function renderMonteCarloPanel(activeTrades) {
 }
 
 function runMonteCarlo() {
-  const list = getSourceFilteredTrades(trades).length ? getSourceFilteredTrades(trades) : trades;
+  let list = getSourceFilteredTrades(trades);
+  if (equityFilterStart || equityFilterEnd) {
+    list = getEquityFilteredTrades();
+  }
   const pnls = list.map(t => Number(t.pl) || 0);
   const n = pnls.length;
   if (n < 10) return;
