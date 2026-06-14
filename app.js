@@ -4549,7 +4549,7 @@ async function handleImageUpload(event) {
   if (!currentUser) { showToast('⚠️ Sesión requerida', 'Inicia sesión para subir imágenes.'); return; }
   if (viewingStudent) return;
 
-  const isPro = currentUser._plan === 'pro';
+  const isPro = userPlan === 'pro';
   const limit = isPro ? PRO_LIMIT : FREE_LIMIT;
   if (tradeImages.length >= limit) {
     showToast('⚠️ Límite alcanzado', `Plan ${isPro ? 'Pro' : 'gratuito'}: máximo ${limit} imágenes.`);
