@@ -805,6 +805,10 @@ function checkTradeLimit() {
   return true;
 }
 
+function canAddTrade() {
+  return isPro() || trades.length < FREE_TRADE_LIMIT;
+}
+
 async function startCheckout() {
   if (!currentUser) { showToast('⚠️ Sesión requerida', 'Debes iniciar sesión primero.'); return; }
 
@@ -2130,6 +2134,8 @@ function importTradingViewRows(rows, filename) {
     const insideWindow = isInsidePlanWindow(date, time);
     const d = new Date(`${date}T${time}`);
 
+    if (!canAddTrade()) { skipped++; return; }
+
     trades.push({
       date, time, day: dayNames[d.getDay()], symbol, direction,
       entry, exit, contracts, points, pl,
@@ -2177,6 +2183,8 @@ function importGenericRows(rows) {
     const pl = points * pointValue[symbol] * contracts;
     const insideWindow = isInsidePlanWindow(date, time);
     const d = new Date(`${date}T${time}`);
+
+    if (!canAddTrade()) { skipped++; return; }
 
     trades.push({
       date, time, day: dayNames[d.getDay()], symbol, direction,
@@ -2288,6 +2296,8 @@ function importWebullRows(rows) {
       const dayName = dayNames[d.getDay()];
       const insideWindow = isInsidePlanWindow(date, time);
 
+      if (!canAddTrade()) { skipped++; continue; }
+
       trades.push({
         date, time, day: dayName, symbol: sym, direction,
         entry, exit, contracts, points, pl,
@@ -2361,6 +2371,8 @@ function importTradovateRows(rows) {
     const d = new Date(`${date}T${time}`);
     const dayName = dayNames[d.getDay()];
     const insideWindow = isInsidePlanWindow(date, time);
+
+    if (!canAddTrade()) { skipped++; return; }
 
     trades.push({
       date, time, day: dayName, symbol: sym, direction,
@@ -2476,6 +2488,8 @@ function importUniversalRows(rows, headers) {
     const d = new Date(`${date}T${time}`);
     const dayName = dayNames[d.getDay()];
     const insideWindow = isInsidePlanWindow(date, time);
+
+    if (!canAddTrade()) { skipped++; return; }
 
     trades.push({
       date, time, day: dayName,
