@@ -59,10 +59,9 @@
 
   /* ── HERO ── */
   .hero {
-    min-height: 100vh;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     text-align: center;
-    padding: 120px 40px 80px;
+    padding: 100px 40px 60px;
     position: relative;
     overflow: hidden;
   }
@@ -160,11 +159,23 @@
   }
   .btn-secondary:hover { color: var(--text); border-color: var(--accent); }
 
+  .hero-preview {
+    margin-top: 56px;
+    max-width: 900px; width: 100%;
+    position: relative; z-index: 1;
+    animation: fadeUp .6s .35s ease both;
+  }
+  .hero-preview img {
+    width: 100%; display: block;
+    border-radius: 16px; border: 1px solid var(--border);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+
   .hero-stats {
     display: flex; gap: 48px; justify-content: center;
-    margin-top: 72px;
+    margin-top: 56px;
     position: relative; z-index: 1;
-    animation: fadeUp .6s .4s ease both;
+    animation: fadeUp .6s .45s ease both;
     flex-wrap: wrap;
   }
   .hero-stat { text-align: center; }
@@ -372,7 +383,7 @@
     <a href="#features">Funciones</a>
     <a href="#brokers">Brokers</a>
     <a href="#pricing">Precios</a>
-    <a href="https://trading-journal-beta-red.vercel.app" class="nav-cta">Entrar al Journal →</a>
+    <a href="https://app.dygpro.com" class="nav-cta">Entrar al Journal →</a>
   </div>
 </nav>
 
@@ -388,8 +399,11 @@
     El journal que entiende cómo operas — y qué tan disciplinado eres. Importa desde cualquier broker, analiza tu sistema y te dice exactamente qué está funcionando (y qué te está rompiendo el plan).
   </p>
   <div class="hero-actions">
-    <a href="https://trading-journal-beta-red.vercel.app" class="btn-primary">Empezar gratis →</a>
+    <a href="https://app.dygpro.com" class="btn-primary">Empezar gratis →</a>
     <a href="#features" class="btn-secondary">Ver funciones</a>
+  </div>
+  <div class="hero-preview">
+    <img src="https://app.dygpro.com/screenshot-equity.png" alt="Equity Curve Pro de DYGPRO mostrando P/L dentro y fuera del plan, y un score de disciplina del 100%">
   </div>
   <div class="hero-stats">
     <div class="hero-stat">
@@ -432,7 +446,7 @@
       <p>Cada operación se marca como "dentro" o "fuera" de tu plan. Así sabes si tu cuenta crece porque ejecutas bien — o a pesar de ti mismo.</p>
     </div>
     <div class="showcase-img">
-      <img src="screenshot-equity.png" alt="Equity Curve Pro de DYGPRO mostrando P/L dentro y fuera del plan, y un score de disciplina del 100%">
+      <img src="https://app.dygpro.com/screenshot-equity.png" alt="Equity Curve Pro de DYGPRO mostrando P/L dentro y fuera del plan, y un score de disciplina del 100%">
     </div>
   </div>
 
@@ -443,7 +457,7 @@
       <p>DYGPRO analiza tu historial completo y te da un diagnóstico real: qué tan saludable está tu sistema, si se está desviando de su comportamiento normal y qué tan rápido te recuperas después de una mala racha.</p>
     </div>
     <div class="showcase-img">
-      <img src="screenshot-scorecard.png" alt="System Scorecard de DYGPRO con valoración del sistema, drift monitor y recovery analytics">
+      <img src="https://app.dygpro.com/screenshot-scorecard.png" alt="System Scorecard de DYGPRO con valoración del sistema, drift monitor y recovery analytics">
     </div>
   </div>
 
@@ -454,7 +468,7 @@
       <p>Visualiza tu resultado día por día y detecta patrones de comportamiento. ¿Hay días donde te sales más seguido de tu plan? DYGPRO te lo muestra de un vistazo.</p>
     </div>
     <div class="showcase-img">
-      <img src="screenshot-calendario.png" alt="Calendario P/L Diario de DYGPRO mostrando resultados de cada día de operación">
+      <img src="https://app.dygpro.com/screenshot-calendario.png" alt="Calendario P/L Diario de DYGPRO mostrando resultados de cada día de operación">
     </div>
   </div>
 </section>
@@ -541,7 +555,7 @@
         <li class="disabled">Account Size Engine</li>
       </ul>
       <p style="font-size:13px;color:var(--text2);line-height:1.5;margin:-12px 0 24px;text-align:left">Tus primeros 30 trades quedan guardados para siempre. Al llegar al límite, sigues viendo todo tu historial — solo pasas a Pro cuando quieras seguir agregando.</p>
-      <a href="https://trading-journal-beta-red.vercel.app" class="pricing-btn free">Empezar gratis</a>
+      <a href="https://app.dygpro.com" class="pricing-btn free">Empezar gratis</a>
     </div>
 
     <div class="pricing-card featured">
@@ -559,7 +573,7 @@
         <li>Recovery Analytics</li>
         <li>Galería de capturas</li>
       </ul>
-      <a href="https://trading-journal-beta-red.vercel.app" class="pricing-btn pro">Empezar Pro →</a>
+      <a href="https://app.dygpro.com" class="pricing-btn pro">Empezar Pro →</a>
     </div>
   </div>
 </section>
@@ -568,7 +582,7 @@
 <div class="cta-section">
   <h2>Empieza a<br><span style="color:var(--accent)">entender</span><br>tu sistema</h2>
   <p>El conocimiento de tu trading es tu ventaja. No lo desperdicies.</p>
-  <a href="https://trading-journal-beta-red.vercel.app" class="btn-primary" style="display:inline-block;font-size:18px;padding:18px 48px">
+  <a href="https://app.dygpro.com" class="btn-primary" style="display:inline-block;font-size:18px;padding:18px 48px">
     Abrir DYGPRO gratis →
   </a>
 </div>
