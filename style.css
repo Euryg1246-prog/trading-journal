@@ -296,36 +296,36 @@ body {
   background: var(--surface);
   border: 1px solid var(--border2);
   border-radius: 14px;
-  padding: 9px;
-  margin-bottom: 8px;
+  padding: 16px 18px;
+  margin-bottom: 14px;
   box-shadow: 0 4px 32px rgba(0,0,0,0.4);
 }
 .panel h2 {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 700;
   letter-spacing: .3px;
   color: var(--accent);
-  margin-bottom: 3px;
+  margin-bottom: 4px;
 }
 .panel > p {
   color: var(--text2);
   font-size: 15px;
-  margin-bottom: 4px;
+  margin-bottom: 5px;
 }
 
 /* Metric Cards Grid */
 .dashboard {
   display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 6px;
-  margin-bottom: 10px;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
 .card {
   background: var(--surface2);
   border: 1px solid var(--border2);
   border-radius: 10px;
-  padding: 8px;
+  padding: 11px 12px;
   transition: all .2s;
 }
 .card:hover { border-color: var(--accent); box-shadow: 0 0 18px rgba(56,189,248,0.12); }
@@ -341,14 +341,14 @@ body {
 }
 .card strong {
   font-family: 'DM Mono', monospace;
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 500;
   color: var(--text);
 }
 
 /* Chart Panel */
 /* Altura del canvas equity chart */
-#equityChart { min-height: 260px; }
+#equityChart { min-height: 240px; }
 .chart-panel { min-height: 300px; }
 .trader-manifesto { padding: 10px 16px !important; margin-top: 10px !important; }
 .trader-manifesto p { font-size: 13px !important; margin: 2px 0 !important; }
@@ -472,12 +472,12 @@ canvas {
 
 /* Buttons */
 .tool-btn, .file-label {
-  padding: 7px 12px;
+  padding: 10px 16px;
   border-radius: 9px;
   background: var(--surface2);
   border: 1px solid var(--border2);
   color: var(--text);
-  font-size: 12px; font-weight: 500;
+  font-size: 13px; font-weight: 500;
   cursor: pointer;
   font-family: 'DM Sans', sans-serif;
   transition: all .15s;
@@ -601,24 +601,18 @@ tr:hover td { background: var(--surface2); }
 /* Form */
 .trade-entry-panel { max-width: none !important; }
 
-.trade-form-v2-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
 .trade-form-v2 {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
-  align-content: start;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
 }
 .trade-form-v2 label {
-  display: flex; flex-direction: column; gap: 4px;
-  font-size: 11px; color: var(--text2);
+  display: flex; flex-direction: column; gap: 6px;
+  font-size: 12px; color: var(--text2);
   text-transform: uppercase; letter-spacing: .4px; font-weight: 500;
 }
 .trade-form-v2 small { display: none !important; }
-.trade-form-v2 textarea { min-height: 50px; resize: vertical; }
+.trade-form-v2 textarea { min-height: 74px; resize: vertical; }
 
 .trade-form-v2 label:has(#notes),
 .trade-form-v2 label:has(#lessonLearned) { grid-column: span 2; }
@@ -630,13 +624,13 @@ tr:hover td { background: var(--surface2); }
 }
 
 input, select, textarea {
-  width: 100%; padding: 6px 8px;
-  border-radius: 8px;
+  width: 100%; padding: 7px 10px;
+  border-radius: 10px;
   border: 1px solid var(--border2);
   background: var(--bg2);
   color: var(--text);
   outline: none;
-  font-size: 12px;
+  font-size: 13px;
   font-family: 'DM Sans', sans-serif;
   transition: border-color .2s;
 }
@@ -662,16 +656,16 @@ button[type="submit"]:hover { opacity: .88; }
 
 .form-section-title {
   grid-column: 1 / -1;
-  padding: 5px 10px;
+  padding: 8px 12px;
   border-left: 3px solid var(--accent);
   background: rgba(0,212,255,0.05);
   color: var(--accent);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 1.5px;
   text-transform: uppercase;
   border-radius: 0 8px 8px 0;
-  margin-top: 4px;
+  margin-top: 8px;
 }
 
 .panel-subtitle {
@@ -712,10 +706,6 @@ button[type="submit"]:hover { opacity: .88; }
   grid-template-columns: repeat(4, 1fr);
   gap: 14px;
 }
-/* Ahora vive junto al calendario de notas (panel a media pantalla): 2x2 */
-.account-panel .account-grid {
-  grid-template-columns: repeat(2, 1fr);
-}
 .account-box {
   background: var(--bg); border: 1px solid var(--border);
   border-radius: 12px; padding: 16px;
@@ -748,59 +738,59 @@ button[type="submit"]:hover { opacity: .88; }
   border-radius: 10px; padding: 8px;
 }
 .drift-box.main-drift { border-color: rgba(0,212,255,0.25); }
-.drift-box span { display: block; color: var(--text2); font-size: 11px; text-transform: uppercase; letter-spacing: .4px; margin-bottom: 4px; }
-.drift-box strong { display: block; font-size: 18px; color: var(--accent); font-family: 'DM Mono', monospace; margin-bottom: 2px; }
-.drift-box p { color: var(--text2); font-size: 12px; margin: 0; line-height: 1.3; }
+.drift-box span { display: block; color: var(--text2); font-size: 12px; text-transform: uppercase; letter-spacing: .4px; margin-bottom: 8px; }
+.drift-box strong { display: block; font-size: 28px; color: var(--accent); font-family: 'DM Mono', monospace; margin-bottom: 4px; }
+.drift-box p { color: var(--text2); font-size: 13px; margin: 0; line-height: 1.4; }
 
 /* Setup cards */
 .setup-card {
   background: var(--surface2); border: 1px solid var(--border2);
-  border-radius: 12px; padding: 12px; margin-bottom: 8px;
+  border-radius: 14px; padding: 20px; margin-bottom: 12px;
   transition: border-color .2s;
 }
 .setup-card:hover { border-color: var(--accent); }
-.setup-card h3 { color: var(--accent); font-size: 14px; font-weight: 700; margin-bottom: 8px; letter-spacing: .3px; }
-.setup-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
-.setup-metric { background: var(--bg); border-radius: 8px; padding: 8px; text-align: center; }
-.setup-metric span { display: block; color: var(--text2); font-size: 11px; text-transform: uppercase; letter-spacing: .6px; margin-bottom: 4px; }
-.setup-metric strong { color: var(--text); font-family: 'DM Mono', monospace; font-size: 16px; font-weight: 700; }
+.setup-card h3 { color: var(--accent); font-size: 16px; font-weight: 700; margin-bottom: 16px; letter-spacing: .3px; }
+.setup-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+.setup-metric { background: var(--bg); border-radius: 10px; padding: 12px; text-align: center; }
+.setup-metric span { display: block; color: var(--text2); font-size: 11px; text-transform: uppercase; letter-spacing: .6px; margin-bottom: 6px; }
+.setup-metric strong { color: var(--text); font-family: 'DM Mono', monospace; font-size: 20px; font-weight: 700; }
 
 /* Notes */
 .notes-pro-grid {
-  display: grid; grid-template-columns: 1fr 1.4fr; gap: 10px;
+  display: grid; grid-template-columns: 1fr 1.4fr; gap: 20px;
 }
-.notes-editor label { color: var(--text2); font-size: 12px; display: block; margin-bottom: 4px; text-transform: uppercase; letter-spacing: .4px; }
+.notes-editor label { color: var(--text2); font-size: 13px; display: block; margin-bottom: 8px; text-transform: uppercase; letter-spacing: .4px; }
 .notes-calendar-box {
   background: var(--bg); border: 1px solid var(--border);
-  border-radius: 12px; padding: 10px;
+  border-radius: 12px; padding: 16px;
 }
-.notes-calendar-header { display: flex; gap: 6px; align-items: center; margin-bottom: 8px; }
+.notes-calendar-header { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; }
 .notes-calendar-header input { flex: 1; }
 .notes-weekdays {
   display: grid; grid-template-columns: repeat(7, 1fr);
-  gap: 4px; margin-bottom: 4px;
-  color: var(--text2); font-size: 10px; text-align: center;
+  gap: 6px; margin-bottom: 8px;
+  color: var(--text2); font-size: 11px; text-align: center;
   text-transform: uppercase; letter-spacing: .4px;
 }
-.notes-calendar-pro { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.notes-calendar-pro { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
 .note-cell {
-  min-height: 44px; background: var(--surface);
-  border: 1px solid var(--border); border-radius: 8px;
-  padding: 4px; cursor: pointer; overflow: hidden;
+  min-height: 72px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: 10px;
+  padding: 7px; cursor: pointer; overflow: hidden;
   transition: border-color .15s;
 }
 .note-cell:hover { border-color: var(--gold); }
 .note-cell.empty { background: transparent; border: none; cursor: default; }
 .note-cell.selected { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(0,212,255,0.15); }
 .note-cell.has-note { border-color: rgba(240,180,41,0.4); background: rgba(240,180,41,0.06); }
-.note-day-number { color: var(--text); font-weight: 600; font-size: 10px; }
+.note-day-number { color: var(--text); font-weight: 600; font-size: 12px; }
 .note-badge {
-  margin-top: 2px; display: inline-block;
-  font-size: 9px; color: #000;
+  margin-top: 4px; display: inline-block;
+  font-size: 10px; color: #000;
   background: var(--gold); border-radius: 999px;
-  padding: 1px 5px; font-weight: 700;
+  padding: 1px 6px; font-weight: 700;
 }
-.note-cell-preview { color: var(--text2); font-size: 9px; margin-top: 2px; line-height: 1.2; }
+.note-cell-preview { color: var(--text2); font-size: 10px; margin-top: 4px; line-height: 1.3; }
 
 /* History controls */
 .history-view-controls, .session-view-controls, .pl-calendar-controls {
@@ -838,7 +828,6 @@ button[type="submit"]:hover { opacity: .88; }
   .grid-main { grid-template-columns: 1fr; }
   .scorecard-grid, .account-grid { grid-template-columns: 1fr; }
   .drift-grid { grid-template-columns: 1fr 1fr; }
-  .trade-form-v2-grid { grid-template-columns: 1fr !important; }
   .trade-form-v2 { grid-template-columns: repeat(2, 1fr) !important; }
   .page-section { padding: 20px 16px; }
 }
@@ -869,13 +858,12 @@ button[type="submit"]:hover { opacity: .88; }
 .top-bar {
   display: flex; align-items: center;
   justify-content: space-between;
-  padding: 0 40px;
+  padding: 0 48px;
   height: 64px;
-  background: var(--surface);
+  background: var(--bg2);
   border-bottom: 1px solid var(--border2);
-  border-radius: 0 0 14px 14px;
   position: sticky; top: 0; z-index: 200;
-  box-shadow: 0 4px 32px rgba(0,0,0,0.4);
+  box-shadow: 0 2px 20px rgba(0,0,0,0.4);
 }
 
 .top-logo {
@@ -916,62 +904,6 @@ button[type="submit"]:hover { opacity: .88; }
   font-weight: 600;
 }
 .view-btn:hover:not(.active) { color: var(--text); }
-.view-btn:disabled {
-  opacity: .45; cursor: not-allowed;
-}
-.soon-badge {
-  font-size: 9px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: .04em; padding: 2px 6px; border-radius: 999px;
-  background: var(--surface2); color: var(--text2);
-}
-
-.top-links {
-  display: flex; align-items: center; gap: 6px;
-}
-.top-link-btn {
-  position: relative;
-  display: flex; align-items: center; gap: 6px;
-  padding: 7px 12px;
-  border-radius: 7px;
-  border: 1px solid var(--border2);
-  background: var(--bg);
-  color: var(--text2);
-  font-size: 13px;
-  cursor: pointer;
-  text-decoration: none;
-  font-family: 'DM Sans', sans-serif;
-  white-space: nowrap;
-  transition: all .2s;
-}
-.top-link-btn i { font-size: 15px; }
-.top-link-btn:hover {
-  color: var(--accent);
-  border-color: var(--accent);
-  background: var(--surface2);
-}
-.top-link-btn::after {
-  content: attr(data-tooltip);
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--surface2);
-  color: var(--text);
-  font-size: 11px;
-  padding: 5px 10px;
-  border-radius: 6px;
-  border: 1px solid var(--border2);
-  white-space: nowrap;
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transition: opacity .15s;
-  z-index: 300;
-}
-.top-link-btn:hover::after {
-  opacity: 1;
-  visibility: visible;
-}
 
 .user-chip {
   display: flex; align-items: center; gap: 8px;
@@ -1035,17 +967,11 @@ button[type="submit"]:hover { opacity: .88; }
 .nav-item i { font-size: 15px; width: 18px; }
 
 /* ── Main scroll area ── */
-#main-scroll { padding: 18px 28px; width: 100%; box-sizing: border-box; }
+#main-scroll { padding: 28px 40px; width: 100%; box-sizing: border-box; }
 
 /* App in sidebar mode shifts right */
 .app.sidebar-mode #main-scroll {
   margin-left: var(--sidebar-w);
-}
-
-/* En Vista por Secciones solo se ve una sección de cada par,
-   así que esa sección debe ocupar el ancho completo */
-.app.sidebar-mode .dyg-row {
-  grid-template-columns: 1fr !important;
 }
 
 /* Remove old header styles */
@@ -1377,9 +1303,7 @@ header { display: none; }
   font-size: 12px;
   cursor: pointer;
   font-family: DM Sans, sans-serif;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  display: none;
   transition: all .2s;
 }
 .reset-layout-btn:hover {
@@ -1439,11 +1363,6 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
   .view-btn { padding: 6px 10px; font-size: 11px; }
   .view-btn i { font-size: 16px; }
   .view-toggle { padding: 3px; gap: 2px; border-radius: 8px; }
-
-  /* Accesos a soporte/guía: solo íconos */
-  .top-links { gap: 4px; }
-  .top-link-btn { padding: 6px; font-size: 14px; }
-  .top-link-btn span { display: none; }
 
   /* Email y nombre ocultos */
   #user-email-label { display: none; }
@@ -1723,11 +1642,6 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
   border-radius: 50%;
 }
 .profile-avatar-wrap:hover .profile-avatar-overlay { opacity: 1; }
-#profileAvatarImg {
-  max-width: 80px;
-  max-height: 80px;
-  object-fit: cover;
-}
 
 .profile-fields {
   flex: 1;
@@ -2041,56 +1955,244 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
 }
 
 /* ============================================================
-   DYGPRO — VENTANAS AJUSTABLES (redimensionar + reordenar)
+   FIX SEGURO — SOLO VISUAL
+   - Oculta reloj analógico
+   - Mantiene reloj digital
+   - Da más espacio a Equity Curve
+   - Baja la franja/frase al fondo del panel
    ============================================================ */
-.dyg-block {
-  position: relative;
-}
-.dyg-drag-handle {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 20;
-  width: 30px;
-  height: 26px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--surface2);
-  border: 1px solid var(--border2);
-  border-radius: 6px;
-  color: var(--text2);
-  font-size: 13px;
-  line-height: 1;
-  cursor: grab;
-  opacity: 0.4;
-  user-select: none;
-  transition: opacity .15s, color .15s, border-color .15s;
-}
-.dyg-drag-handle:hover {
-  opacity: 1;
-  color: var(--accent);
-  border-color: var(--accent);
-}
-.dyg-drag-handle:active { cursor: grabbing; }
-.dyg-block.dyg-dragging { opacity: 0.4; }
-.dyg-block.dyg-drop-target {
-  outline: 2px dashed var(--accent);
-  outline-offset: 4px;
-  border-radius: 14px;
+.system-panel .clock-section {
+  padding: 10px 0 12px !important;
+  margin: 10px 0 8px !important;
+  text-align: center !important;
+  border-top: 1px solid rgba(56,189,248,.18) !important;
+  border-bottom: 1px solid rgba(56,189,248,.12) !important;
 }
 
-.dyg-resizable {
-  resize: vertical;
-  overflow: auto;
-  min-height: 120px;
+.system-panel #analogClock {
+  display: none !important;
+}
+
+.system-panel .clock-time-digital {
+  font-family: 'DM Mono', monospace !important;
+  font-size: clamp(22px, 2.5vw, 34px) !important;
+  line-height: 1.1 !important;
+  letter-spacing: 3px !important;
+  color: var(--accent) !important;
+  text-shadow: 0 0 12px rgba(56,189,248,.35) !important;
+  margin-top: 6px !important;
+}
+
+.system-panel .discipline-msg {
+  margin-top: 5px !important;
+  color: var(--gold) !important;
+  font-weight: 600 !important;
+  font-size: 11px !important;
+}
+
+.chart-panel {
+  min-height: 420px !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+#equityChart {
+  height: 260px !important;
+  min-height: 260px !important;
+}
+
+.chart-panel .trader-manifesto {
+  margin-top: auto !important;
+  padding: 8px 12px !important;
+}
+
+.chart-panel .trader-manifesto p {
+  font-size: 11px !important;
+  line-height: 1.5 !important;
+  margin: 0 !important;
 }
 
 @media (max-width: 800px) {
-  .dyg-drag-handle { display: none; }
-  .dyg-resizable { resize: none; }
-  .reset-layout-btn { display: none; }
+  .chart-panel { min-height: 500px !important; }
+  #equityChart { height: 280px !important; min-height: 280px !important; }
 }
+
+/* ============================================================
+   LAYOUT FIXES — topbar alineado, calendario+drift, perfil+galería
+   ============================================================ */
+
+/* Topbar alineado con el contenido principal */
+.top-bar { padding: 0 40px !important; }
+@media (max-width: 900px) { .top-bar { padding: 0 16px !important; } }
+
+/* Calendario compacto cuando comparte fila con notas */
+#section-calendar .calendar { gap: 5px !important; }
+#section-calendar .cal-day  { min-height: 60px !important; padding: 5px !important; }
+#section-calendar .cal-date { font-size: 10px !important; }
+#section-calendar .cal-pl   { font-size: 12px !important; margin-top: 6px !important; }
+#section-calendar h2        { font-size: 13px !important; margin-bottom: 4px !important; }
+#section-calendar > p       { font-size: 10px !important; margin-bottom: 8px !important; }
+
+/* Drift compacto cuando está junto al calendario */
+.drift-panel .drift-grid    { gap: 6px !important; }
+.drift-panel .drift-box     { padding: 9px 11px !important; border-radius: 8px !important; }
+.drift-panel .drift-box span   { font-size: 10px !important; }
+.drift-panel .drift-box strong { font-size: 17px !important; }
+.drift-panel .drift-box p      { font-size: 10px !important; }
+
+/* Galería compacta cuando está junto al perfil */
+#section-gallery h2            { font-size: 13px !important; }
+#section-gallery > p           { font-size: 10px !important; margin-bottom: 8px !important; }
+#section-gallery .gallery-upload-area { padding: 14px 16px !important; margin-bottom: 8px !important; }
+#section-gallery #tradeGallery { grid-template-columns: repeat(auto-fill, minmax(130px,1fr)) !important; gap: 8px !important; }
+#section-gallery .gallery-item img { height: 90px !important; }
+
+/* Perfil compacto cuando está junto a galería */
+#section-profile h2            { font-size: 13px !important; }
+#section-profile > p           { font-size: 10px !important; margin-bottom: 8px !important; }
+.profile-avatar-wrap           { width: 80px !important; height: 80px !important; }
+#profileAvatarImg              { width: 80px !important; height: 80px !important; max-width: 80px !important; max-height: 80px !important; object-fit: cover !important; border-radius: 50% !important; }
+
+/* Mobile — stack en columna */
+@media (max-width: 800px) {
+  div[style*="grid-template-columns:3fr 2fr"],
+  div[style*="grid-template-columns:1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Perfil + galería — misma altura, fija, con scroll interno para lo que no quepa */
+#section-profile, #section-gallery {
+  height: 460px !important;
+  box-sizing: border-box !important;
+}
+#section-profile { overflow-y: auto; }
+#section-gallery {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+#section-gallery > h2,
+#section-gallery > p,
+#section-gallery .gallery-upload-area,
+#section-gallery #gallerySearch { flex: none; }
+#section-gallery #tradeGallery {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* Reducir la vista previa del perfil para no agrandar el panel */
+.profile-preview-card { padding: 10px 12px !important; margin-top: 8px !important; }
+.profile-preview-name { font-size: 13px !important; }
+.profile-preview-sub  { font-size: 11px !important; }
+.profile-preview-stats { font-size: 11px !important; gap: 8px !important; }
+.profile-preview-avatar { width: 36px !important; height: 36px !important; }
+
+/* ============================================================
+   FINAL POLISH — topbar alineado, altura reducida global
+   ============================================================ */
+
+/* Topbar — mismo padding que #main-scroll (40px) */
+.top-bar { padding: 0 40px !important; height: 52px !important; }
+@media (max-width: 900px) { .top-bar { padding: 0 16px !important; } }
+
+/* Reducir altura global de todos los panels EXCEPTO equity */
+.panel:not(.chart-panel) {
+  padding: 10px 14px !important;
+  margin-bottom: 10px !important;
+}
+.panel:not(.chart-panel) h2 {
+  font-size: 12px !important;
+  margin-bottom: 3px !important;
+  letter-spacing: .7px !important;
+}
+.panel:not(.chart-panel) > p {
+  font-size: 10px !important;
+  margin-bottom: 7px !important;
+}
+
+/* Drift boxes más compactos */
+.drift-box { padding: 8px 10px !important; }
+.drift-box span   { font-size: 9px !important; margin-bottom: 3px !important; }
+.drift-box strong { font-size: 15px !important; margin-bottom: 2px !important; }
+.drift-box p      { font-size: 9px !important; }
+.drift-grid       { gap: 5px !important; }
+
+/* Recovery boxes más compactos */
+.recovery-box { padding: 8px 10px !important; }
+.recovery-box span   { font-size: 9px !important; }
+.recovery-box strong { font-size: 16px !important; }
+.recovery-box p      { font-size: 9px !important; }
+.recovery-grid { gap: 5px !important; }
+
+/* Account boxes */
+.account-box { padding: 7px 9px !important; }
+.account-box span        { font-size: 9px !important; }
+.account-box strong      { font-size: 14px !important; }
+.account-box .account-tag { font-size: 9px !important; margin-top: 1px !important; }
+.account-box .account-explain { display: none !important; }
+.account-grid { gap: 5px !important; }
+.account-status-box { padding: 5px 8px !important; margin-top: 6px !important; font-size: 10px !important; }
+
+/* Scorecard */
+.system-rating-box { padding: 8px 10px !important; }
+.system-rating-box span   { font-size: 9px !important; }
+.system-rating-box strong { font-size: 18px !important; }
+.system-rating-box p      { font-size: 9px !important; }
+.system-diagnosis h3,
+.system-improvement h3    { font-size: 10px !important; margin-bottom: 3px !important; }
+.system-diagnosis p,
+.system-improvement li    { font-size: 10px !important; line-height: 1.4 !important; }
+.scorecard-grid { gap: 5px !important; }
+
+/* Cards métricas */
+.card { padding: 10px 9px !important; border-radius: 9px !important; }
+.card span   { font-size: 9px !important; margin-bottom: 4px !important; }
+.card strong { font-size: 16px !important; }
+
+/* Tables */
+th { padding: 6px 7px !important; font-size: 9px !important; }
+td { padding: 4px 7px !important; font-size: 10px !important; }
+
+/* Notas */
+.notes-panel .notes-pro-grid { gap: 8px !important; }
+.note-cell { min-height: 36px !important; padding: 3px 4px !important; }
+.note-day-number { font-size: 9px !important; }
+.note-cell-preview { font-size: 9px !important; }
+.notes-weekdays span { font-size: 8px !important; }
+
+/* Sistema boxes */
+.system-box { padding: 6px 9px !important; margin-bottom: 5px !important; border-radius: 7px !important; }
+.system-box span   { font-size: 10px !important; }
+.system-box strong { font-size: 13px !important; margin-top: 1px !important; }
+
+/* Config form */
+#section-config label[style*="font-size:12px"] { font-size: 10px !important; gap: 3px !important; }
+#section-config input, #section-config select { padding: 4px 7px !important; font-size: 11px !important; }
+#section-config [style*="margin-top:16px"],
+#section-config [style*="margin-top:20px"] { margin-top: 8px !important; }
+#cfgDayCheckboxes label { font-size: 11px !important; }
+#cfgPreview { padding: 8px 10px !important; font-size: 10px !important; margin-top: 8px !important; }
+#section-config [style*="font-size:14px;padding:12px 24px"] { font-size: 11px !important; padding: 6px 14px !important; }
+
+/* Alarm */
+.alarm-section { padding-top: 6px !important; }
+.alarm-row { padding: 3px 0 !important; font-size: 10px !important; }
+.alarm-row select { padding: 2px 5px !important; font-size: 10px !important; }
+.alarm-add-btn { padding: 3px 7px !important; font-size: 9px !important; }
+.alarm-test-btn { padding: 3px 10px !important; font-size: 9px !important; margin-top: 4px !important; }
+
+/* Research */
+.research-box { font-size: 10px !important; line-height: 1.5 !important; }
+.distribution  { font-size: 10px !important; }
+
+/* Form trade */
+.trade-form-v2 label { font-size: 10px !important; gap: 2px !important; }
+.trade-form-v2 input,
+.trade-form-v2 select { padding: 4px 7px !important; font-size: 11px !important; }
+.trade-form-v2 textarea { min-height: 50px !important; font-size: 11px !important; }
+.form-section-title { font-size: 9px !important; padding: 3px 9px !important; margin-top: 3px !important; }
 
 /* ============================================================
    ADMIN — "Mis Estudiantes" / Modo "viendo journal" (solo lectura)

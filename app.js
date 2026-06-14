@@ -952,7 +952,6 @@ const ALL_SECTIONS = [
 let activeSidebarSection = localStorage.getItem('dygpro_active_section') || 'section-dashboard';
 
 function setView(mode) {
-  if (mode === 'sidebar') mode = 'scroll'; // Vista por Secciones: próximamente
   currentView = mode;
   localStorage.setItem('dygpro_view', mode);
 
@@ -2633,6 +2632,7 @@ function renderPerformanceRatios(activeTrades) {
 }
 
 
+
 // Borrar trades por fuente
 async function deleteBySource(source) {
   if (viewingStudent) return;
@@ -2805,6 +2805,7 @@ function setList(id, items) {
 }
 
 
+
 function renderAccountSizeEngine(activeTrades) {
   const trades = Array.isArray(activeTrades) ? activeTrades : (Array.isArray(window.trades) ? window.trades : []);
   if (!document.getElementById("accountAggressive")) return;
@@ -2858,6 +2859,7 @@ function renderAccountSizeEngine(activeTrades) {
   setText("accountStatus", status);
   setText("accountAdvice", advice);
 }
+
 
 
 function renderRecoveryAnalytics(activeTrades) {
@@ -2985,6 +2987,7 @@ function calculateWorstLosingStreak(list) {
     loss: worstLoss
   };
 }
+
 
 
 // personalNotes se carga desde Supabase en loadNotesFromSupabase()
