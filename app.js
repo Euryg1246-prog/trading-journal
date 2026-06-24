@@ -928,8 +928,13 @@ function expandSidebar() {
 
   if (sidebar) sidebar.style.display = 'flex';
   if (mainScroll) {
-    mainScroll.style.marginLeft = '220px';
-    mainScroll.style.width = 'calc(100vw - 220px)';
+    if (window.innerWidth > 768) {
+      mainScroll.style.marginLeft = '220px';
+      mainScroll.style.width = 'calc(100vw - 220px)';
+    } else {
+      mainScroll.style.marginLeft = '0';
+      mainScroll.style.width = '100%';
+    }
   }
   if (showBtn) showBtn.style.display = 'none';
 }
@@ -965,8 +970,13 @@ function setView(mode) {
     if (sidebar) { sidebar.style.display = 'flex'; sidebar.classList.remove('hidden'); }
     // Empujar contenido a la derecha del sidebar — usar padding no margin
     if (mainScroll) {
-      mainScroll.style.marginLeft = '220px';
-      mainScroll.style.width = 'calc(100vw - 220px)';
+      if (window.innerWidth > 768) {
+        mainScroll.style.marginLeft = '220px';
+        mainScroll.style.width = 'calc(100vw - 220px)';
+      } else {
+        mainScroll.style.marginLeft = '0';
+        mainScroll.style.width = '100%';
+      }
       mainScroll.style.minWidth = '0';
       mainScroll.style.overflowX = 'hidden';
     }
@@ -1033,7 +1043,7 @@ function showSidebarSection(sectionId) {
 
 // Restore saved view on load
 document.addEventListener('DOMContentLoaded', () => {
-  const saved = localStorage.getItem('dygpro_view') || 'scroll';
+  const saved = window.innerWidth <= 768 ? 'scroll' : (localStorage.getItem('dygpro_view') || 'scroll');
   setView(saved);
 });
 
