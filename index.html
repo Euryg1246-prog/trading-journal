@@ -56,6 +56,10 @@
   <style>
   /* ── MOBILE OVERRIDE CRÍTICO ── */
   @media (max-width: 800px) {
+    .panel, .dashboard, .grid-main, .dyg-row, [id^="section-"] {
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+    }
     .grid-main { grid-template-columns: 1fr !important; gap: 14px !important; }
     .dashboard { grid-template-columns: repeat(2, 1fr) !important; }
     .setup-grid { grid-template-columns: repeat(3, 1fr) !important; }
