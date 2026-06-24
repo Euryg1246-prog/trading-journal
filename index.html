@@ -56,10 +56,7 @@
   <style>
   /* ── MOBILE OVERRIDE CRÍTICO ── */
   @media (max-width: 800px) {
-    .panel, .dashboard, .grid-main, .dyg-row, [id^="section-"] {
-      -webkit-transform: translateZ(0);
-      transform: translateZ(0);
-    }
+    .dyg-row { grid-template-columns: 1fr !important; }
     .grid-main { grid-template-columns: 1fr !important; gap: 14px !important; }
     .dashboard { grid-template-columns: repeat(2, 1fr) !important; }
     .setup-grid { grid-template-columns: repeat(3, 1fr) !important; }
@@ -68,6 +65,7 @@
     .recovery-grid { grid-template-columns: 1fr !important; }
     .notes-pro-grid { grid-template-columns: 1fr !important; }
     .account-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    .trade-form-v2-grid { grid-template-columns: 1fr !important; }
     .trade-form-v2 { grid-template-columns: 1fr 1fr !important; }
     #main-scroll { padding: 12px 10px !important; }
     .panel { padding: 16px 12px !important; margin-bottom: 14px !important; }
@@ -143,14 +141,10 @@
       <button onclick="showTab('register')">Registrarse</button>
     </div>
     <div id="auth-error" class="auth-error"></div>
-    <form id="auth-form" onsubmit="event.preventDefault(); submitAuth();">
-      <label for="auth-email" class="sr-only">Email</label>
-      <input type="email" id="auth-email" placeholder="Email" autocomplete="email">
-      <label for="auth-password" class="sr-only">Contraseña</label>
-      <input type="password" id="auth-password" placeholder="Contraseña" autocomplete="current-password">
-      <button type="submit" class="btn-primary" id="auth-submit">Entrar</button>
-      <button type="button" class="btn-secondary" id="auth-reset" onclick="resetPassword()">¿Olvidaste tu contraseña?</button>
-    </form>
+    <input type="email" id="auth-email" placeholder="Email" autocomplete="email">
+    <input type="password" id="auth-password" placeholder="Contraseña" autocomplete="current-password">
+    <button class="btn-primary" id="auth-submit" onclick="submitAuth()">Entrar</button>
+    <button class="btn-secondary" id="auth-reset" onclick="resetPassword()">¿Olvidaste tu contraseña?</button>
   </div>
 </div>
 
@@ -158,7 +152,7 @@
   <div class="app">
 
   <!-- Top Bar -->
-  <div class="top-bar" style="padding-left: var(--main-pad, 32px); padding-right: var(--main-pad, 32px);">
+  <div class="top-bar">
     <div class="top-logo">
       <span class="logo-main">DYGPRO</span>
       <span class="logo-sub">Trading Journal</span>
@@ -168,9 +162,20 @@
         <button class="view-btn active" id="btn-scroll" onclick="setView('scroll')">
           <i class="ti ti-layout-list"></i> Vista Completa
         </button>
-        <button class="view-btn" id="btn-sidebar" onclick="setView('sidebar')">
-          <i class="ti ti-layout-sidebar"></i> Vista por Secciones
+        <button class="view-btn" id="btn-sidebar" disabled title="Próximamente">
+          <i class="ti ti-layout-sidebar"></i> Vista por Secciones <span class="soon-badge">Próximamente</span>
         </button>
+      </div>
+      <div class="top-links">
+        <a href="/help.html" target="_blank" class="top-link-btn" title="Guía de Aprendizaje" data-tooltip="Guía de Aprendizaje">
+          <i class="ti ti-book-2"></i> <span>Guía</span>
+        </a>
+        <button class="top-link-btn" onclick="openSuggestionModal()" title="Sugerencias y Soporte" data-tooltip="Sugerencias y Soporte">
+          <i class="ti ti-message-circle-2"></i> <span>Soporte</span>
+        </button>
+        <a href="/legal.html" target="_blank" class="top-link-btn" title="Términos & Privacidad" data-tooltip="Términos y Privacidad">
+          <i class="ti ti-shield-check"></i> <span>Legal</span>
+        </a>
       </div>
       <div class="user-chip">
         <div class="user-avatar-sm" id="user-avatar-initials" style="overflow:hidden;cursor:pointer;" onclick="showSidebarSection('section-profile');" title="Mi Perfil">
@@ -278,7 +283,7 @@
     </div>
   </div>
 
-  <div class="panel" style="flex:1;min-width:280px;margin-bottom:0;padding:12px 20px;">
+  <div class="panel dyg-resizable" data-resize-id="live-prices" style="flex:1;min-width:280px;margin-bottom:0;padding:12px 20px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
       <div style="display:flex;align-items:center;gap:8px;">
         <span style="width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block;animation:pulse 2s infinite;"></span>
@@ -306,9 +311,6 @@
           { "proName": "NASDAQ:META",     "title": "META" },
           { "proName": "NASDAQ:GOOGL",    "title": "GOOGL" },
           { "proName": "NASDAQ:AMZN",     "title": "AMZN" },
-          { "proName": "NASDAQ:PLTR",     "title": "PLTR" },
-          { "proName": "NASDAQ:HOOD",     "title": "HOOD" },
-          { "proName": "NASDAQ:SPCX",     "title": "SPCX" },
           { "proName": "NYSE:JPM",        "title": "JPM" },
           { "proName": "NYSE:BAC",        "title": "BAC" },
           { "proName": "NYSE:V",          "title": "VISA" },
@@ -333,7 +335,7 @@
   </div>
 
     <section class="grid-main">
-    <div class="panel chart-panel">
+    <div class="panel chart-panel dyg-resizable" data-resize-id="chart-panel">
       <h2>Equity Curve Pro</h2>
       <div class="equity-controls">
         <label>Desde<div style="display:flex;gap:6px;align-items:center">
@@ -364,13 +366,12 @@
         <p>Una buena operación puede perder.<br>Una mala operación puede ganar.<br>La disciplina siempre gana.</p>
       </div>
     </div>
-    <div class="panel system-panel">
+    <div class="panel system-panel dyg-resizable" data-resize-id="system-panel">
       <h2>Estado del Sistema</h2>
       <div class="system-box good"><span>Ventana de trading</span><strong id="systemWindowDisplay">—</strong></div>
       <div class="system-box"><span>Días activos</span><strong id="systemDaysDisplay">—</strong></div>
       <div class="system-box danger"><span>Fuera del plan</span><strong id="outPlanTrades">0 trades</strong></div>
       <div class="clock-section">
-        <canvas id="analogClock" width="160" height="160" style="cursor:pointer;" onclick="openTimePicker('time')" title="Clic para seleccionar hora de entrada"></canvas>
         <div class="clock-time-digital" id="clockDigital">00:00:00</div>
         <div class="discipline-msg" id="disciplineMsg">La disciplina siempre gana</div>
       </div>
@@ -410,8 +411,6 @@
     <div class="card"><span>Disciplina</span><strong id="disciplineRate">0%</strong></div>
     <div class="card"><span>Win Rate</span><strong id="winRate">0%</strong></div>
     <div class="card"><span>Max Drawdown</span><strong id="maxDD">$0.00</strong></div>
-  </section>
-  <section class="dashboard">
     <div class="card"><span>Profit Factor</span><strong id="profitFactor">0.00</strong></div>
     <div class="card"><span>Payoff Ratio</span><strong id="payoffRatio">0.00</strong></div>
     <div class="card"><span>Avg Win</span><strong id="avgWin">$0.00</strong></div>
@@ -422,13 +421,13 @@
   </div><!-- /section-dashboard -->
 
   <div class="dyg-row">
-  <section class="panel" id="section-calendar">
+  <section class="panel dyg-resizable" id="section-calendar">
     <h2>Calendario P/L Diario</h2>
     <p>Cada día se colorea según el resultado acumulado.</p>
     <div id="plCalendar" class="calendar"></div>
   </section>
 
-  <section class="panel notes-panel" id="section-notes">
+  <section class="panel notes-panel dyg-resizable" id="section-notes">
     <h2>Personal Notes Calendar Pro</h2>
     <p>Notas personales por fecha. Guarda ideas, emociones, observaciones o bugs del sistema.</p>
     <div class="notes-pro-grid">
@@ -463,12 +462,12 @@
   </div>
 
   <section class="grid-main" id="section-research">
-    <div class="panel"><h2>Research Center</h2><div id="researchBox" class="research-box"></div></div>
-    <div class="panel"><h2>Distribución Hora Pico</h2><div id="peakDistribution" class="distribution"></div></div>
+    <div class="panel dyg-resizable" data-resize-id="research-center"><h2>Research Center</h2><div id="researchBox" class="research-box"></div></div>
+    <div class="panel dyg-resizable" data-resize-id="peak-distribution"><h2>Distribución Hora Pico</h2><div id="peakDistribution" class="distribution"></div></div>
   </section>
 
   <div id="section-scorecard-wrapper">
-    <section class="panel scorecard-panel" id="section-scorecard">
+    <section class="panel scorecard-panel dyg-resizable" id="section-scorecard">
       <h2>System Scorecard</h2>
       <div class="scorecard-grid">
         <div class="system-rating-box"><span>Valoración del Sistema</span><strong id="systemRating">0.0 / 10</strong><p id="systemRatingStatus">Sin datos suficientes</p></div>
@@ -478,10 +477,10 @@
     </section>
   </div>
 
-  <section class="panel drift-panel" id="section-drift">
+  <section class="panel drift-panel dyg-resizable" id="section-drift">
     <h2>System Drift Monitor</h2>
     <p>Compara los últimos 20 trades contra el comportamiento histórico del sistema.</p>
-    <div class="drift-grid" style="grid-template-columns:repeat(4,1fr)">
+    <div class="drift-grid">
       <div class="drift-box main-drift"><span>Drift Score</span><strong id="driftScore">100/100</strong><p id="driftStatus">🟢 Sistema alineado</p></div>
       <div class="drift-box"><span>Expectancy Histórica</span><strong id="driftHistExpectancy">$0.00</strong><p>Promedio por trade total.</p></div>
       <div class="drift-box"><span>Expectancy Reciente</span><strong id="driftRecentExpectancy">$0.00</strong><p>Últimos 20 trades.</p></div>
@@ -489,7 +488,7 @@
     </div>
   </section>
 
-  <section class="panel recovery-panel" id="section-recovery">
+  <section class="panel recovery-panel dyg-resizable" id="section-recovery">
     <h2>Recovery Analytics</h2>
     <p>Mide qué tan resistente es el sistema después de drawdowns y rachas negativas.</p>
     <div class="recovery-grid">
@@ -499,13 +498,13 @@
     </div>
   </section>
 
-  <section class="panel setup-panel" id="section-setup">
+  <section class="panel setup-panel dyg-resizable" id="section-setup">
     <h2>Setup Quality Score</h2>
     <p>Ranking estadístico de setups según rendimiento real.</p>
     <div id="setupRanking"></div>
   </section>
 
-  <section class="panel" id="section-montecarlo">
+  <section class="panel dyg-resizable" id="section-montecarlo">
     <h2>🎲 Monte Carlo</h2>
     <p>Simula miles de escenarios alternativos reordenando tus operaciones reales para estimar el rango de resultados y el riesgo real de drawdown en tu próxima racha.</p>
     <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px">
@@ -529,7 +528,7 @@
     </div>
   </section>
 
-  <section class="panel account-panel" id="section-account">
+  <section class="panel account-panel dyg-resizable" id="section-account">
     <h2>Account Size Engine</h2>
     <p>¿Cuánto capital necesitas para operar este sistema? Basado en tu peor racha real hasta ahora.</p>
     <div class="account-grid">
@@ -544,22 +543,21 @@
     </div>
   </section>
 
-  <section class="panel" id="section-config">
+  <section class="panel dyg-resizable" id="section-config">
     <h2>⚙️ Configuración de Mi Sistema</h2>
     <p>Define tu ventana de trading. El journal validará tus operaciones según estas reglas.</p>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px">
-      <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">Nombre de tu sistema<input type="text" id="cfgSystemName" placeholder="Ej: Mi Sistema de Trading" style="font-size:14px"></label>
-      <div></div>
-      <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">Día de inicio<select id="cfgStartDay"><option value="0">Domingo</option><option value="1">Lunes</option><option value="2">Martes</option><option value="3">Miércoles</option><option value="4">Jueves</option><option value="5">Viernes</option><option value="6">Sábado</option></select></label>
-      <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">Hora de inicio<div class="time-picker-wrap" style="position:relative;">
+    <div style="display:grid;grid-template-columns:repeat(5, 1fr);gap:8px;margin-top:8px">
+      <label style="display:flex;flex-direction:column;gap:4px;font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">Nombre de tu sistema<input type="text" id="cfgSystemName" placeholder="Ej: Mi Sistema de Trading"></label>
+      <label style="display:flex;flex-direction:column;gap:4px;font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">Día de inicio<select id="cfgStartDay"><option value="0">Domingo</option><option value="1">Lunes</option><option value="2">Martes</option><option value="3">Miércoles</option><option value="4">Jueves</option><option value="5">Viernes</option><option value="6">Sábado</option></select></label>
+      <label style="display:flex;flex-direction:column;gap:4px;font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">Hora de inicio<div class="time-picker-wrap" style="position:relative;">
           <div style="display:flex;gap:6px;align-items:center">
             <input type="time" id="cfgStartHour" value="18:00" style="flex:1">
             <button type="button" onclick="openTimePicker('cfgStartHour')" style="background:var(--surface2);border:1px solid var(--border2);color:var(--accent);border-radius:8px;padding:6px 8px;cursor:pointer;font-size:12px;white-space:nowrap;width:auto;grid-column:auto;font-family:'DM Sans',sans-serif;">🕐</button>
           </div>
           <div class="time-picker-dropdown" id="picker-cfgStartHour"></div>
         </div></label>
-      <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">Día de fin<select id="cfgEndDay"><option value="0">Domingo</option><option value="1">Lunes</option><option value="2">Martes</option><option value="3" selected>Miércoles</option><option value="4">Jueves</option><option value="5">Viernes</option><option value="6">Sábado</option></select></label>
-      <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">Hora de fin<div class="time-picker-wrap" style="position:relative;">
+      <label style="display:flex;flex-direction:column;gap:4px;font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">Día de fin<select id="cfgEndDay"><option value="0">Domingo</option><option value="1">Lunes</option><option value="2">Martes</option><option value="3" selected>Miércoles</option><option value="4">Jueves</option><option value="5">Viernes</option><option value="6">Sábado</option></select></label>
+      <label style="display:flex;flex-direction:column;gap:4px;font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">Hora de fin<div class="time-picker-wrap" style="position:relative;">
           <div style="display:flex;gap:6px;align-items:center">
             <input type="time" id="cfgEndHour" value="16:00" style="flex:1">
             <button type="button" onclick="openTimePicker('cfgEndHour')" style="background:var(--surface2);border:1px solid var(--border2);color:var(--accent);border-radius:8px;padding:6px 8px;cursor:pointer;font-size:12px;white-space:nowrap;width:auto;grid-column:auto;font-family:'DM Sans',sans-serif;">🕐</button>
@@ -567,33 +565,35 @@
           <div class="time-picker-dropdown" id="picker-cfgEndHour"></div>
         </div></label>
     </div>
-    <div style="margin-top:16px">
-      <p style="font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px">Días válidos todo el día</p>
-      <div style="display:flex;gap:10px;flex-wrap:wrap" id="cfgDayCheckboxes">
-        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);cursor:pointer"><input type="checkbox" value="0"> Dom</label>
-        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);cursor:pointer"><input type="checkbox" value="1" checked> Lun</label>
-        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);cursor:pointer"><input type="checkbox" value="2" checked> Mar</label>
-        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);cursor:pointer"><input type="checkbox" value="3"> Mié</label>
-        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);cursor:pointer"><input type="checkbox" value="4"> Jue</label>
-        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);cursor:pointer"><input type="checkbox" value="5"> Vie</label>
-        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);cursor:pointer"><input type="checkbox" value="6"> Sáb</label>
+    <div style="margin-top:8px">
+      <p style="font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px">Días válidos todo el día</p>
+      <div style="display:flex;gap:6px;flex-wrap:wrap" id="cfgDayCheckboxes">
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text);cursor:pointer"><input type="checkbox" value="0"> Dom</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text);cursor:pointer"><input type="checkbox" value="1" checked> Lun</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text);cursor:pointer"><input type="checkbox" value="2" checked> Mar</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text);cursor:pointer"><input type="checkbox" value="3"> Mié</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text);cursor:pointer"><input type="checkbox" value="4"> Jue</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text);cursor:pointer"><input type="checkbox" value="5"> Vie</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text);cursor:pointer"><input type="checkbox" value="6"> Sáb</label>
       </div>
     </div>
-    <div style="margin-top:20px;display:flex;gap:12px;align-items:center">
-      <button class="tool-btn" onclick="saveSystemConfigUI()" style="font-size:14px;padding:12px 24px">Guardar configuración</button>
+    <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
+      <button class="tool-btn" onclick="saveSystemConfigUI()" style="font-size:12px;padding:8px 14px">Guardar configuración</button>
       <button class="tool-btn danger-btn" onclick="resetSystemConfig()">Restablecer por defecto</button>
     </div>
-    <div id="cfgPreview" style="margin-top:16px;padding:14px;background:var(--bg);border-radius:12px;border:1px solid var(--border2);font-size:13px;color:var(--text2);display:none"></div>
+    <div id="cfgPreview" style="margin-top:8px;padding:8px;background:var(--bg2);border-radius:12px;border:1px solid var(--border2);font-size:12px;color:var(--text2);display:none"></div>
   </section>
 
-  <section class="panel" id="section-data" style="padding:10px 14px;">
-    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-      <span style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.6px;white-space:nowrap;">📥 Importar / Exportar</span>
-      <label class="file-label" style="margin:0">Importar CSV<input type="file" id="csvFile" accept=".csv"></label>
+  <section class="panel dyg-resizable" id="section-data">
+    <h2>Importar / Exportar Datos</h2>
+    <p>Importa operaciones desde CSV o descarga un backup del journal.</p>
+    <div class="tools">
+      <label class="file-label">Importar CSV<input type="file" id="csvFile" accept=".csv"></label>
       <button type="button" class="tool-btn" id="exportCSV">Exportar CSV</button>
       <button type="button" class="tool-btn danger-btn" id="clearData">🗑️ Borrar Todo</button>
-      <span style="width:1px;height:20px;background:var(--border2);display:inline-block;margin:0 4px;"></span>
-      <span style="font-size:11px;color:var(--text3);white-space:nowrap;">Borrar:</span>
+    </div>
+    <div class="tools" style="margin-top:10px;" id="deleteBySourceRow">
+      <span style="font-size:12px;color:var(--muted);align-self:center;">Borrar por fuente:</span>
       <button type="button" class="tool-btn danger-btn" onclick="deleteBySource('tradingview')">🗑️ TradingView</button>
       <button type="button" class="tool-btn danger-btn" onclick="deleteBySource('webull')">🗑️ Webull</button>
       <button type="button" class="tool-btn danger-btn" onclick="deleteBySource('tradovate')">🗑️ Tradovate</button>
@@ -601,10 +601,11 @@
     </div>
   </section>
 
-  <section class="panel trade-entry-panel" id="section-entry">
+  <section class="panel trade-entry-panel dyg-resizable" id="section-entry">
     <h2>Registrar Trade / Sesión</h2>
     <p class="panel-subtitle">Formulario claro para registrar operaciones sin confusión. Cada campo explica exactamente qué dato debes ingresar.</p>
-    <form id="tradeForm" class="trade-form-v2">
+    <form id="tradeForm" class="trade-form-v2-grid">
+      <div class="trade-form-v2">
       <div class="form-section-title">Información Principal</div>
       <label style="grid-column:1/-1">Tipo de Instrumento
         <select id="instrumentType" onchange="handleInstrumentType(this.value)">
@@ -643,7 +644,7 @@
           <div class="time-picker-dropdown" id="picker-time"></div>
         </div>
       </label>
-      <div style="grid-column:1/-1;background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:4px">
+      <div style="grid-column:1/-1;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:4px">
         <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="toggleMarketsPanel()">
           <span style="font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;font-weight:600">📊 Mis Mercados — agregar símbolo personalizado</span>
           <span id="marketsPanelArrow" style="color:var(--text2);font-size:14px">▼</span>
@@ -657,6 +658,21 @@
           <div id="customMarketsList" style="display:flex;flex-direction:column;gap:6px"></div>
         </div>
       </div>
+      <div class="form-section-title">Datos de la Sesión</div>
+      <label>Precio de Apertura de Sesión <span class="tip" data-tip="El precio de apertura de la sesión del día — generalmente el Open de las 9:30 AM ET o el Globex según tu estrategia.">?</span><input type="number" step="0.25" id="sessionOpen" placeholder="Precio apertura"></label>
+      <label>Precio Más Bajo de la Sesión <span class="tip" data-tip="El low más bajo que alcanzó el instrumento durante toda la sesión del día, no solo durante tu trade. Sirve como contexto del rango del mercado.">?</span><input type="number" step="0.25" id="sessionLow" placeholder="Low sesión"></label>
+      <label>Precio Más Alto de la Sesión <span class="tip" data-tip="El high más alto que alcanzó el instrumento durante toda la sesión del día. Sirve para entender qué tan cerca estuvo el precio del extremo superior.">?</span><input type="number" step="0.25" id="sessionHigh" placeholder="High sesión"></label>
+      <label>Hora del Pico Más Alto <span class="tip" data-tip="La hora exacta en que el precio alcanzó su punto más alto durante la sesión. Útil para identificar patrones de timing en el mercado.">?</span>
+        <div class="time-picker-wrap" id="wrap-peakTime">
+          <div style="display:flex;gap:6px;align-items:center">
+            <input type="time" id="peakTime" style="flex:1">
+            <button type="button" onclick="openTimePicker('peakTime')" style="background:var(--surface2);border:1px solid var(--border2);color:var(--accent);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:13px;white-space:nowrap;width:auto;grid-column:auto;font-family:'DM Sans',sans-serif;">🕐 Elegir</button>
+          </div>
+          <div class="time-picker-dropdown" id="picker-peakTime"></div>
+        </div>
+      </label>
+      </div>
+      <div class="trade-form-v2">
       <label>Símbolo
         <select id="symbol" onchange="handleSymbolChange(this)">
           <option value="">Seleccionar símbolo</option>
@@ -680,19 +696,6 @@
         <small>Instrumento operado.</small>
       </label>
       <label>Dirección <span class="tip" data-tip="Long si compraste esperando que suba el precio. Short si vendiste esperando que baje.">?</span><select id="direction"><option value="">Seleccionar dirección</option><option value="Long">Long</option><option value="Short">Short</option></select></label>
-      <div class="form-section-title">Datos de la Sesión</div>
-      <label>Precio de Apertura de Sesión <span class="tip" data-tip="El precio de apertura de la sesión del día — generalmente el Open de las 9:30 AM ET o el Globex según tu estrategia.">?</span><input type="number" step="0.25" id="sessionOpen" placeholder="Precio apertura"></label>
-      <label>Precio Más Bajo de la Sesión <span class="tip" data-tip="El low más bajo que alcanzó el instrumento durante toda la sesión del día, no solo durante tu trade. Sirve como contexto del rango del mercado.">?</span><input type="number" step="0.25" id="sessionLow" placeholder="Low sesión"></label>
-      <label>Precio Más Alto de la Sesión <span class="tip" data-tip="El high más alto que alcanzó el instrumento durante toda la sesión del día. Sirve para entender qué tan cerca estuvo el precio del extremo superior.">?</span><input type="number" step="0.25" id="sessionHigh" placeholder="High sesión"></label>
-      <label>Hora del Pico Más Alto <span class="tip" data-tip="La hora exacta en que el precio alcanzó su punto más alto durante la sesión. Útil para identificar patrones de timing en el mercado.">?</span>
-        <div class="time-picker-wrap" id="wrap-peakTime">
-          <div style="display:flex;gap:6px;align-items:center">
-            <input type="time" id="peakTime" style="flex:1">
-            <button type="button" onclick="openTimePicker('peakTime')" style="background:var(--surface2);border:1px solid var(--border2);color:var(--accent);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:13px;white-space:nowrap;width:auto;grid-column:auto;font-family:'DM Sans',sans-serif;">🕐 Elegir</button>
-          </div>
-          <div class="time-picker-dropdown" id="picker-peakTime"></div>
-        </div>
-      </label>
       <div class="form-section-title">Clasificación del Trade</div>
       <label>Setup <span class="tip" data-tip="El patrón o estrategia que usaste para entrar al trade. Documentar esto te ayuda a identificar cuáles setups son más rentables para ti.">?</span><select id="setup"><option value="">Seleccionar setup</option><option value="Mi Setup">Mi Setup</option><option value="Trend Continuation">Trend Continuation</option><option value="Breakout">Breakout</option><option value="Manual">Manual</option></select></label>
       <label>¿Cumplió las Reglas? <span class="tip" data-tip="¿Este trade estuvo dentro de tu plan de trading? Ser honesto aquí es clave para mejorar tu disciplina con el tiempo.">?</span><select id="ruleFollowed"><option value="">Seleccionar</option><option value="yes">Sí, dentro del plan</option><option value="no">No, fuera del plan</option></select></label>
@@ -702,10 +705,11 @@
       <label>Estado Emocional <span class="tip" data-tip="¿Cómo te sentiste durante este trade? El estado emocional tiene un impacto enorme en la toma de decisiones. Documentarlo revela patrones.">?</span><select id="emotionalState"><option value="">Seleccionar estado</option><option value="Tranquilo">Tranquilo</option><option value="Confiado">Confiado</option><option value="Ansioso">Ansioso</option><option value="Impaciente">Impaciente</option><option value="Frustrado">Frustrado</option><option value="Eufórico">Eufórico</option></select></label>
       <label>Lección Aprendida <span class="tip" data-tip="¿Qué aprendiste con este trade? Aunque haya salido bien. Un trade ganador ejecutado mal también es una lección.">?</span><textarea id="lessonLearned" placeholder="¿Qué te enseñó este trade?"></textarea></label>
       <button type="submit">Guardar Registro</button>
+      </div>
     </form>
   </section>
 
-  <section class="panel" id="section-history">
+  <section class="panel dyg-resizable" id="section-history">
     <h2>Historial</h2>
     <div style="margin-bottom:15px;">
       <button id="historyExportBtn" class="tool-btn">Exportar CSV</button>
@@ -717,7 +721,7 @@
     </table>
   </section>
 
-  <section class="panel" id="section-sessions">
+  <section class="panel dyg-resizable" id="section-sessions">
     <h2>Session Database</h2>
     <p>Base de datos de sesiones registradas.</p>
     <table>
@@ -726,8 +730,10 @@
     </table>
   </section>
 
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;align-items:start">
-  <section class="panel" id="section-profile" style="margin-bottom:0">
+  <!-- ══════════════════════════════════════════════
+       MI PERFIL DE TRADER
+  ══════════════════════════════════════════════ -->
+  <section class="panel dyg-resizable" id="section-profile">
     <h2>👤 Mi Perfil de Trader</h2>
     <p>Tu identidad como trader. Estos datos personalizan tu experiencia y aparecen en el dashboard.</p>
 
@@ -809,7 +815,8 @@
       </div>
     </div>
   </section>
-  <section class="panel" id="section-gallery" style="margin-bottom:0">
+
+  <section class="panel dyg-resizable" id="section-gallery">
     <h2>📸 Galería de Trades</h2>
     <p>Sube capturas de tus operaciones. Añade notas y aprende viendo tus trades.</p>
     <div class="gallery-upload-area" onclick="document.getElementById('tradeImageInput').click()">
@@ -821,9 +828,8 @@
     <input type="text" id="gallerySearch" placeholder="Buscar por nota o fecha..." oninput="renderGallery()" style="max-width:300px;margin-bottom:14px">
     <div id="tradeGallery" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px"></div>
   </section>
-  </div>
 
-  <section class="panel" id="section-admin-students">
+  <section class="panel dyg-resizable" id="section-admin-students">
     <h2>Mis Estudiantes</h2>
     <p class="panel-subtitle">Agrega el correo de tus estudiantes para revisar su journal completo en modo solo lectura, igual que si entraras a su cuenta.</p>
     <div class="tools" style="margin-bottom:16px;">
@@ -857,8 +863,11 @@
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="app.js"></script>
+<script src="dygpro-layout.js"></script>
     </div>
   </div>
+
+  <button class="reset-layout-btn" id="resetLayoutBtn" onclick="resetPanelLayout()" title="Restablece el orden y tamaño de los paneles">↺ Restablecer diseño</button>
 
   <div id="onboardingOverlay" style="display:none;position:fixed;inset:0;z-index:8000;background:rgba(6,13,26,0.96);align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(8px);">
     <div style="background:#0a1628;border:1px solid rgba(56,189,248,0.3);border-radius:24px;padding:48px;max-width:540px;width:100%;text-align:center">
@@ -886,20 +895,6 @@
   </div>
 
   <!-- ── BUZÓN DE SUGERENCIAS ── -->
-  <button id="suggestionBtn" onclick="openSuggestionModal()"
-    style="position:fixed;bottom:24px;right:24px;z-index:1000;
-           width:48px;height:48px;border-radius:50%;
-           background:var(--surface2);border:1px solid var(--border2);
-           color:var(--accent);font-size:22px;cursor:pointer;
-           box-shadow:0 4px 20px rgba(0,0,0,0.4);
-           display:flex;align-items:center;justify-content:center;
-           transition:all .2s;" 
-    title="Sugerencias y soporte"
-    onmouseover="this.style.background='var(--accent)';this.style.color='#000';"
-    onmouseout="this.style.background='var(--surface2)';this.style.color='var(--accent)';">
-    💬
-  </button>
-
   <div id="suggestionModal" style="display:none;position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0.7);align-items:center;justify-content:center;" onclick="if(event.target===this)closeSuggestionModal()">
     <div style="background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:32px;max-width:460px;width:90%;position:relative;">
       <button onclick="closeSuggestionModal()" style="position:absolute;top:14px;right:16px;background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;width:auto;grid-column:auto;">✕</button>
