@@ -197,17 +197,19 @@ function initPanelCollapse() {
     const pid = panel.id ? ('panel_' + panel.id) : ('panel_idx_' + idx);
     panel.dataset.panelId = pid;
 
-    // Restore saved state
-    try {
-      const states = JSON.parse(localStorage.getItem('dygpro_collapsed') || '{}');
-      if (states[pid]) {
-        Array.from(panel.children).forEach(child => {
-          if (child !== h2) child.style.display = 'none';
-        });
-        panel.dataset.collapsed = '1';
-        btn.innerHTML = '+';
-      }
-    } catch(e) {}
+    // Restore saved state (skip on mobile — show all panels expanded)
+    if (window.innerWidth > 800) {
+      try {
+        const states = JSON.parse(localStorage.getItem('dygpro_collapsed') || '{}');
+        if (states[pid]) {
+          Array.from(panel.children).forEach(child => {
+            if (child !== h2) child.style.display = 'none';
+          });
+          panel.dataset.collapsed = '1';
+          btn.innerHTML = '+';
+        }
+      } catch(e) {}
+    }
   });
 }
 
