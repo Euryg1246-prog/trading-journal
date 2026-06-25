@@ -1980,7 +1980,7 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
 }
 
 .chart-panel .trader-manifesto {
-  margin-top: auto !important;
+  margin-top: 16px !important;
   padding: 8px 12px !important;
 }
 
@@ -1991,7 +1991,7 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
 }
 
 @media (max-width: 800px) {
-  .chart-panel { min-height: 500px !important; }
+  .chart-panel { min-height: auto !important; height: auto !important; }
   #equityChart { height: 280px !important; min-height: 280px !important; }
 }
 
