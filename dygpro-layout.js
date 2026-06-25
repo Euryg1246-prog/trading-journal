@@ -45,7 +45,6 @@
   }
 
   function applySavedSizes() {
-    if (window.innerWidth <= 800) return;
     var sizes = getSizes();
     document.querySelectorAll('.dyg-resizable').forEach(function (el) {
       var key = el.getAttribute('data-resize-id') || el.id;
@@ -57,7 +56,6 @@
 
   function setupResizeObservers() {
     if (typeof ResizeObserver === 'undefined') return;
-    if (window.innerWidth <= 800) return;
     var timers = {};
     var ro = new ResizeObserver(function (entries) {
       entries.forEach(function (entry) {

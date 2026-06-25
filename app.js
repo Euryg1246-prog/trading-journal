@@ -197,19 +197,17 @@ function initPanelCollapse() {
     const pid = panel.id ? ('panel_' + panel.id) : ('panel_idx_' + idx);
     panel.dataset.panelId = pid;
 
-    // Restore saved state (skip on mobile — show all panels expanded)
-    if (window.innerWidth > 800) {
-      try {
-        const states = JSON.parse(localStorage.getItem('dygpro_collapsed') || '{}');
-        if (states[pid]) {
-          Array.from(panel.children).forEach(child => {
-            if (child !== h2) child.style.display = 'none';
-          });
-          panel.dataset.collapsed = '1';
-          btn.innerHTML = '+';
-        }
-      } catch(e) {}
-    }
+    // Restore saved state
+    try {
+      const states = JSON.parse(localStorage.getItem('dygpro_collapsed') || '{}');
+      if (states[pid]) {
+        Array.from(panel.children).forEach(child => {
+          if (child !== h2) child.style.display = 'none';
+        });
+        panel.dataset.collapsed = '1';
+        btn.innerHTML = '+';
+      }
+    } catch(e) {}
   });
 }
 
@@ -505,7 +503,7 @@ function renderCustomMarkets() {
   }
 
   list.innerHTML = keys.map(name => `
-    <div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 14px">
+    <div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 14px">
       <span style="font-size:14px;color:var(--text);font-family:DM Mono,monospace">${name}</span>
       <span style="font-size:13px;color:var(--text2)">$${customs[name]} por punto</span>
       <button onclick="removeCustomMarket('${name}')" class="danger-btn" style="padding:4px 10px;font-size:12px;border-radius:6px;cursor:pointer;border:1px solid rgba(244,63,94,0.3);background:rgba(244,63,94,0.1);color:var(--red);font-family:DM Sans,sans-serif">Eliminar</button>
@@ -807,6 +805,10 @@ function checkTradeLimit() {
   return true;
 }
 
+function canAddTrade() {
+  return isPro() || trades.length < FREE_TRADE_LIMIT;
+}
+
 async function startCheckout() {
   if (!currentUser) { showToast('⚠️ Sesión requerida', 'Debes iniciar sesión primero.'); return; }
 
@@ -926,8 +928,13 @@ function expandSidebar() {
 
   if (sidebar) sidebar.style.display = 'flex';
   if (mainScroll) {
-    mainScroll.style.marginLeft = '220px';
-    mainScroll.style.width = 'calc(100vw - 220px)';
+    if (window.innerWidth > 768) {
+      mainScroll.style.marginLeft = '220px';
+      mainScroll.style.width = 'calc(100vw - 220px)';
+    } else {
+      mainScroll.style.marginLeft = '0';
+      mainScroll.style.width = '100%';
+    }
   }
   if (showBtn) showBtn.style.display = 'none';
 }
@@ -963,8 +970,13 @@ function setView(mode) {
     if (sidebar) { sidebar.style.display = 'flex'; sidebar.classList.remove('hidden'); }
     // Empujar contenido a la derecha del sidebar — usar padding no margin
     if (mainScroll) {
-      mainScroll.style.marginLeft = '220px';
-      mainScroll.style.width = 'calc(100vw - 220px)';
+      if (window.innerWidth > 768) {
+        mainScroll.style.marginLeft = '220px';
+        mainScroll.style.width = 'calc(100vw - 220px)';
+      } else {
+        mainScroll.style.marginLeft = '0';
+        mainScroll.style.width = '100%';
+      }
       mainScroll.style.minWidth = '0';
       mainScroll.style.overflowX = 'hidden';
     }
@@ -1031,7 +1043,7 @@ function showSidebarSection(sectionId) {
 
 // Restore saved view on load
 document.addEventListener('DOMContentLoaded', () => {
-  const saved = localStorage.getItem('dygpro_view') || 'scroll';
+  const saved = window.innerWidth <= 768 ? 'scroll' : (localStorage.getItem('dygpro_view') || 'scroll');
   setView(saved);
 });
 
@@ -1128,6 +1140,7 @@ function showApp() {
   if (av) av.textContent = initials;
   const saved = localStorage.getItem('dygpro_view') || 'scroll';
   setView(saved);
+  loadProfile();
   loadTradesFromSupabase();
   loadNotesFromSupabase();
   loadGalleryFromSupabase();
@@ -2130,6 +2143,8 @@ function importTradingViewRows(rows, filename) {
     const insideWindow = isInsidePlanWindow(date, time);
     const d = new Date(`${date}T${time}`);
 
+    if (!canAddTrade()) { skipped++; return; }
+
     trades.push({
       date, time, day: dayNames[d.getDay()], symbol, direction,
       entry, exit, contracts, points, pl,
@@ -2177,6 +2192,8 @@ function importGenericRows(rows) {
     const pl = points * pointValue[symbol] * contracts;
     const insideWindow = isInsidePlanWindow(date, time);
     const d = new Date(`${date}T${time}`);
+
+    if (!canAddTrade()) { skipped++; return; }
 
     trades.push({
       date, time, day: dayNames[d.getDay()], symbol, direction,
@@ -2288,6 +2305,8 @@ function importWebullRows(rows) {
       const dayName = dayNames[d.getDay()];
       const insideWindow = isInsidePlanWindow(date, time);
 
+      if (!canAddTrade()) { skipped++; continue; }
+
       trades.push({
         date, time, day: dayName, symbol: sym, direction,
         entry, exit, contracts, points, pl,
@@ -2361,6 +2380,8 @@ function importTradovateRows(rows) {
     const d = new Date(`${date}T${time}`);
     const dayName = dayNames[d.getDay()];
     const insideWindow = isInsidePlanWindow(date, time);
+
+    if (!canAddTrade()) { skipped++; return; }
 
     trades.push({
       date, time, day: dayName, symbol: sym, direction,
@@ -2476,6 +2497,8 @@ function importUniversalRows(rows, headers) {
     const d = new Date(`${date}T${time}`);
     const dayName = dayNames[d.getDay()];
     const insideWindow = isInsidePlanWindow(date, time);
+
+    if (!canAddTrade()) { skipped++; return; }
 
     trades.push({
       date, time, day: dayName,
@@ -2617,6 +2640,7 @@ function renderPerformanceRatios(activeTrades) {
   setTextColor("expectancy", money(expectancy), expectancy > 0 ? "var(--green)" : "var(--red)");
   setTextColor("realRR", realRR.toFixed(2) + "R", realRR >= 1.5 ? "var(--green)" : realRR >= 1 ? "var(--gold)" : "var(--red)");
 }
+
 
 
 // Borrar trades por fuente
@@ -2791,6 +2815,7 @@ function setList(id, items) {
 }
 
 
+
 function renderAccountSizeEngine(activeTrades) {
   const trades = Array.isArray(activeTrades) ? activeTrades : (Array.isArray(window.trades) ? window.trades : []);
   if (!document.getElementById("accountAggressive")) return;
@@ -2844,6 +2869,7 @@ function renderAccountSizeEngine(activeTrades) {
   setText("accountStatus", status);
   setText("accountAdvice", advice);
 }
+
 
 
 function renderRecoveryAnalytics(activeTrades) {
@@ -2971,6 +2997,7 @@ function calculateWorstLosingStreak(list) {
     loss: worstLoss
   };
 }
+
 
 
 // personalNotes se carga desde Supabase en loadNotesFromSupabase()
@@ -3303,7 +3330,10 @@ function renderMonteCarloPanel(activeTrades) {
 }
 
 function runMonteCarlo() {
-  const list = getSourceFilteredTrades(trades).length ? getSourceFilteredTrades(trades) : trades;
+  let list = getSourceFilteredTrades(trades);
+  if (equityFilterStart || equityFilterEnd) {
+    list = getEquityFilteredTrades();
+  }
   const pnls = list.map(t => Number(t.pl) || 0);
   const n = pnls.length;
   if (n < 10) return;
@@ -4529,7 +4559,7 @@ async function handleImageUpload(event) {
   if (!currentUser) { showToast('⚠️ Sesión requerida', 'Inicia sesión para subir imágenes.'); return; }
   if (viewingStudent) return;
 
-  const isPro = currentUser._plan === 'pro';
+  const isPro = userPlan === 'pro';
   const limit = isPro ? PRO_LIMIT : FREE_LIMIT;
   if (tradeImages.length >= limit) {
     showToast('⚠️ Límite alcanzado', `Plan ${isPro ? 'Pro' : 'gratuito'}: máximo ${limit} imágenes.`);
@@ -4729,25 +4759,23 @@ function loadProfile() {
         if (error || !data) return;
         isAdmin = !!data.is_admin;
         applyAdminUI();
-        if (data.trader_name || data.nickname || data.photo || data.system_config) {
-          traderProfile.name       = data.trader_name || traderProfile.name || '';
-          traderProfile.nickname   = data.nickname    || traderProfile.nickname || '';
-          traderProfile.capital    = data.capital     || traderProfile.capital || '';
-          traderProfile.broker     = data.broker      || traderProfile.broker || '';
-          traderProfile.instrument = data.instrument  || traderProfile.instrument || '';
-          traderProfile.motto      = data.motto       || traderProfile.motto || '';
-          if (data.photo) traderProfile.photo = data.photo;
-          try { localStorage.setItem('dygpro_profile', JSON.stringify(traderProfile)); } catch(e) {}
-          // Restaurar config del sistema desde Supabase
-          if (data.system_config) {
-            try {
-              const cloudConfig = JSON.parse(data.system_config);
-              systemConfig = { ...DEFAULT_CONFIG, ...cloudConfig };
-              localStorage.setItem('dygpro_system_config', JSON.stringify(systemConfig));
-            } catch(e) { console.log('Error parseando system_config:', e); }
-          }
-          applyProfileToUI();
-        }
+        traderProfile = {
+          name:       data.trader_name || '',
+          nickname:   data.nickname    || '',
+          capital:    data.capital     || '',
+          broker:     data.broker      || '',
+          instrument: data.instrument  || '',
+          motto:      data.motto       || '',
+          photo:      data.photo       || ''
+        };
+        try { localStorage.setItem('dygpro_profile', JSON.stringify(traderProfile)); } catch(e) {}
+        // Restaurar config del sistema desde Supabase (o por defecto si la cuenta es nueva)
+        try {
+          const cloudConfig = data.system_config ? JSON.parse(data.system_config) : {};
+          systemConfig = { ...DEFAULT_CONFIG, ...cloudConfig };
+          localStorage.setItem('dygpro_system_config', JSON.stringify(systemConfig));
+        } catch(e) { console.log('Error parseando system_config:', e); }
+        applyProfileToUI();
       });
   }
 }
