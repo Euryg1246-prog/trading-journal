@@ -950,7 +950,6 @@ const ALL_SECTIONS = [
 let activeSidebarSection = localStorage.getItem('dygpro_active_section') || 'section-dashboard';
 
 function setView(mode) {
-  if (mode === 'sidebar') mode = 'scroll'; // Vista por Secciones: próximamente
   currentView = mode;
   localStorage.setItem('dygpro_view', mode);
 
