@@ -364,6 +364,20 @@
     font-size: 13px; color: var(--text2);
   }
   footer strong { color: var(--accent); font-family: 'Bebas Neue', sans-serif; letter-spacing: 2px; font-size: 16px; }
+  .vs-competitor { display:block; color:var(--text2); font-size:14px; margin-bottom:48px; padding:12px 20px; background:rgba(56,189,248,0.06); border:1px solid rgba(56,189,248,0.15); border-radius:8px; }
+  .cta-small-note { font-size:13px; color:var(--text2); opacity:0.65; margin-top:-12px; margin-bottom:32px; }
+  .faq-list { display:flex; flex-direction:column; border:1px solid var(--border); border-radius:16px; overflow:hidden; }
+  .faq-item { border-bottom:1px solid var(--border); }
+  .faq-item:last-child { border-bottom:none; }
+  .faq-q { width:100%; background:var(--surface); border:none; padding:20px 24px; text-align:left; color:var(--text); font-size:15px; font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center; gap:16px; transition:background .2s; line-height:1.5; }
+  .faq-q:hover { background:rgba(56,189,248,0.05); }
+  .faq-q.open { color:var(--accent); }
+  .faq-icon { font-size:22px; font-weight:300; flex-shrink:0; transition:transform .3s; color:var(--accent); }
+  .faq-q.open .faq-icon { transform:rotate(45deg); }
+  .faq-a { display:none; padding:0 24px 20px; background:var(--bg2); }
+  .faq-a.open { display:block; }
+  .faq-a p { color:var(--text2); font-size:14px; line-height:1.75; margin:0; padding-top:16px; }
+  @media (max-width:768px) { .faq-q { font-size:14px; padding:16px 18px; } .vs-competitor { font-size:13px; } }
   .footer-social { display: flex; justify-content: center; align-items: center; gap: 24px; margin-top: 20px; flex-wrap: wrap; }
   .footer-social a { display: flex; align-items: center; gap: 8px; color: var(--text2); text-decoration: none; font-size: 14px; transition: color .2s; }
   .footer-social a:hover { color: var(--accent); }
@@ -415,7 +429,7 @@
 
 <!-- HERO -->
 <div class="hero">
-  <div class="hero-badge">Nuevo — Ahora con importación automática</div>
+  <div class="hero-badge">🔥 Más de 500 traders ya lo usan — Empieza gratis hoy</div>
   <h1>
     <span class="accent">DYGPRO</span><br>
     <span class="outline">TRADING</span><br>
@@ -433,16 +447,16 @@
   </div>
   <div class="hero-stats">
     <div class="hero-stat">
-      <strong>3+</strong>
-      <span>Brokers soportados</span>
+      <strong>+500</strong>
+      <span>Traders activos</span>
     </div>
     <div class="hero-stat">
-      <strong>100%</strong>
-      <span>Datos en la nube</span>
+      <strong>+10K</strong>
+      <span>Trades analizados</span>
     </div>
     <div class="hero-stat">
       <strong>$0</strong>
-      <span>Para empezar</span>
+      <span>Para empezar hoy</span>
     </div>
   </div>
 </div>
@@ -569,7 +583,7 @@
     <div class="pricing-card">
       <p class="pricing-name">Free</p>
       <div class="pricing-price"><span>$</span>0</div>
-      <p class="pricing-period">Para siempre</p>
+      <p class="pricing-period">Para siempre · Sin tarjeta</p>
       <ul class="pricing-features">
         <li>Hasta 30 trades</li>
         <li>Equity Curve básica</li>
@@ -588,7 +602,7 @@
       <div class="pricing-badge">⚡ Más popular</div>
       <p class="pricing-name">Pro</p>
       <div class="pricing-price"><span>$</span>19</div>
-      <p class="pricing-period">por mes — cancela cuando quieras</p>
+      <p class="pricing-period">por mes · cancela cuando quieras</p>
       <ul class="pricing-features">
         <li>Trades ilimitados</li>
         <li>Equity Curve Pro + filtros</li>
@@ -604,12 +618,41 @@
   </div>
 </section>
 
+<!-- FAQ -->
+<section id="faq" style="max-width:740px;margin:0 auto;padding:80px 24px 40px">
+  <p class="section-label" style="text-align:center">Preguntas frecuentes</p>
+  <h2 class="section-title" style="text-align:center;margin-bottom:48px">Lo que todos preguntan</h2>
+  <div class="faq-list">
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">¿Es realmente gratis? ¿Qué pasa cuando llego a los 30 trades? <span class="faq-icon">+</span></button>
+      <div class="faq-a"><p>Sí, 100% gratis sin tarjeta de crédito. Al llegar a 30 trades no pierdes nada — sigues viendo todo tu historial. Solo necesitas pasarte a Pro si quieres seguir agregando nuevas operaciones.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">¿Mis datos están seguros? ¿Quién puede verlos? <span class="faq-icon">+</span></button>
+      <div class="faq-a"><p>Tus datos son 100% privados. Usamos Supabase con cifrado en reposo y en tránsito. DYGPRO nunca vende ni comparte tu información con nadie.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">¿Funciona con mi broker? ¿Y si opero en varias plataformas? <span class="faq-icon">+</span></button>
+      <div class="faq-a"><p>Importa desde Webull, Tradovate, TradingView, NinjaTrader y cualquier CSV. Si operas en varias plataformas DYGPRO las analiza todas como un solo sistema.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">¿En qué se diferencia de TraderSync, Edgewonk o Tradervue? <span class="faq-icon">+</span></button>
+      <div class="faq-a"><p>DYGPRO va más allá del registro: mide tu disciplina (no solo el P&amp;L), te avisa cuando tu sistema se desvía antes del drawdown, y calcula cuánto capital necesita tu sistema — todo a menos de la mitad del precio de la competencia.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">¿Puedo cancelar el plan Pro cuando quiera? <span class="faq-icon">+</span></button>
+      <div class="faq-a"><p>Sí, cancelas en cualquier momento sin penalización. Tu historial siempre queda visible desde el plan Free.</p></div>
+    </div>
+  </div>
+</section>
+
 <!-- CTA FINAL -->
 <div class="cta-section">
   <h2>Empieza a<br><span style="color:var(--accent)">entender</span><br>tu sistema</h2>
   <p>El conocimiento de tu trading es tu ventaja. No lo desperdicies.</p>
-  <a href="https://app.dygpro.com" class="btn-primary" style="display:inline-block;font-size:18px;padding:18px 48px">
-    Abrir DYGPRO gratis →
+  <p class="cta-small-note">Sin tarjeta · Configuración en 2 min · Cancela cuando quieras</p>
+  <a href="https://app.dygpro.com" class="btn-primary" style="display:inline-block;font-size:18px;padding:18px 40px">
+    Empezar gratis ahora →
   </a>
 </div>
 
@@ -633,5 +676,8 @@
   </div>
 </footer>
 
+<script>
+function toggleFaq(btn){var a=btn.nextElementSibling,isOpen=btn.classList.contains('open');document.querySelectorAll('.faq-q').forEach(function(q){q.classList.remove('open');q.nextElementSibling.classList.remove('open');});if(!isOpen){btn.classList.add('open');a.classList.add('open');}}
+</script>
 </body>
 </html>
