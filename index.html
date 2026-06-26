@@ -81,6 +81,26 @@
     .account-grid { grid-template-columns: 1fr !important; }
     .setup-grid { grid-template-columns: repeat(2, 1fr) !important; }
   }
+  
+  /* ── FIX FONDO NEGRO MOVIL ── */
+  @media (max-width: 800px) {
+    .chart-panel {
+      min-height: 0 !important;
+      height: auto !important;
+      max-height: none !important;
+    }
+    #equityChart {
+      height: 220px !important;
+      min-height: 220px !important;
+      max-height: 220px !important;
+      width: 100% !important;
+    }
+    .chart-panel canvas {
+      height: 220px !important;
+      max-height: 220px !important;
+      width: 100% !important;
+    }
+  }
   </style>
 
   <style>
