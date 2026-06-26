@@ -364,11 +364,23 @@
     font-size: 13px; color: var(--text2);
   }
   footer strong { color: var(--accent); font-family: 'Bebas Neue', sans-serif; letter-spacing: 2px; font-size: 16px; }
+  .footer-social { display: flex; justify-content: center; align-items: center; gap: 24px; margin-top: 20px; flex-wrap: wrap; }
+  .footer-social a { display: flex; align-items: center; gap: 8px; color: var(--text2); text-decoration: none; font-size: 14px; transition: color .2s; }
+  .footer-social a:hover { color: var(--accent); }
 
   /* ── RESPONSIVE ── */
+  .nav-hamburger { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 4px; }
+  .nav-hamburger span { display: block; width: 24px; height: 2px; background: var(--text); border-radius: 2px; transition: all .3s; }
+  .nav-hamburger.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .nav-hamburger.active span:nth-child(2) { opacity: 0; }
+  .nav-hamburger.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
   @media (max-width: 768px) {
-    nav { padding: 16px 24px; }
-    .nav-links { display: none; }
+    nav { padding: 16px 20px; }
+    .nav-hamburger { display: flex; }
+    .nav-links { display: none; position: absolute; top: 60px; left: 0; right: 0; background: rgba(6,13,26,0.98); backdrop-filter: blur(20px); flex-direction: column; padding: 20px; gap: 16px; border-bottom: 1px solid var(--border); }
+    .nav-links.open { display: flex; }
+    .nav-links a { font-size: 16px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+    .nav-links .nav-cta { border: none; margin-top: 8px; }
     .pricing-grid { grid-template-columns: 1fr; }
     .hero-stats { gap: 32px; }
   }
@@ -379,13 +391,27 @@
 <!-- NAV -->
 <nav>
   <div class="nav-logo">DYGPRO <span>TRADING JOURNAL</span></div>
-  <div class="nav-links">
-    <a href="#features">Funciones</a>
-    <a href="#brokers">Brokers</a>
-    <a href="#pricing">Precios</a>
+  <button class="nav-hamburger" id="navToggle" aria-label="Menú">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="nav-links" id="navLinks">
+    <a href="#features" onclick="closeNav()">Funciones</a>
+    <a href="#brokers" onclick="closeNav()">Brokers</a>
+    <a href="#pricing" onclick="closeNav()">Precios</a>
     <a href="https://app.dygpro.com" class="nav-cta">Entrar al Journal →</a>
   </div>
 </nav>
+<script>
+  document.getElementById('navToggle').addEventListener('click', function() {
+    var links = document.getElementById('navLinks');
+    links.classList.toggle('open');
+    this.classList.toggle('active');
+  });
+  function closeNav() {
+    document.getElementById('navLinks').classList.remove('open');
+    document.getElementById('navToggle').classList.remove('active');
+  }
+</script>
 
 <!-- HERO -->
 <div class="hero">
@@ -520,15 +546,15 @@
   <div class="testimonials-grid">
     <div class="testimonial-card">
       <p class="testimonial-quote">"Entré sin esperar mucho, solo para llevar un registro. Pero cuando vi el análisis que hace DYGPRO de mi propio sistema, me sorprendió la precisión — te dice exactamente dónde estás rompiendo tu plan. Si quieres avanzar en serio como trader, tienes que probarlo."</p>
-      <p class="testimonial-author">— José Miguel</p>
+      <p class="testimonial-author">— José Miguel · TradingView · Plan Free</p>
     </div>
     <div class="testimonial-card">
       <p class="testimonial-quote">"No esperaba que una herramienta de journal me dijera tanto sobre mis propios errores. DYGPRO analiza tus trades con una precisión que no había visto antes. Cualquier trader que busque mejorar debería usarla."</p>
-      <p class="testimonial-author">— Sergio</p>
+      <p class="testimonial-author">— Sergio · NinjaTrader · Plan Pro</p>
     </div>
     <div class="testimonial-card">
       <p class="testimonial-quote">"Llevo más de 200 operaciones registradas en DYGPRO, y es la primera vez que un journal me muestra con datos reales en qué estoy fallando como trader. El Scorecard del sistema y el Drift Monitor me hicieron ver patrones que llevaba meses repitiendo sin darme cuenta. Si ya llevas tiempo operando y quieres ver tu sistema con números fríos, esta herramienta no tiene comparación."</p>
-      <p class="testimonial-author">— Glen</p>
+      <p class="testimonial-author">— Glen · Tradovate · +200 operaciones registradas</p>
     </div>
   </div>
 </section>
@@ -591,6 +617,20 @@
 <footer>
   <strong>DYGPRO</strong>
   <p style="margin-top:12px">Trading Journal Profesional · Hecho para traders serios</p>
+  <div class="footer-social">
+    <a href="https://www.youtube.com/@DYGPRO" target="_blank" rel="noopener" aria-label="YouTube">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1C24 15.9 24 12 24 12s0-3.9-.5-5.8zM9.5 15.6V8.4l6.3 3.6-6.3 3.6z"/></svg>
+      YouTube
+    </a>
+    <a href="https://www.instagram.com/dygpro/" target="_blank" rel="noopener" aria-label="Instagram">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 3.3.1 4.8 1.7 4.9 4.9.1 1.3.1 1.7.1 4.8 0 3.2 0 3.6-.1 4.8-.1 3.2-1.7 4.8-4.9 4.9-1.3.1-1.6.1-4.9.1-3.2 0-3.6 0-4.8-.1-3.3-.1-4.8-1.7-4.9-4.9C2.2 15.6 2.2 15.2 2.2 12c0-3.2 0-3.6.1-4.8C2.4 3.9 4 2.3 7.2 2.3 8.4 2.2 8.8 2.2 12 2.2zm0-2.2C8.7 0 8.3 0 7.1.1 2.7.3.3 2.7.1 7.1 0 8.3 0 8.7 0 12c0 3.3 0 3.7.1 4.9.2 4.4 2.6 6.8 7 7C8.3 24 8.7 24 12 24c3.3 0 3.7 0 4.9-.1 4.4-.2 6.8-2.6 7-7C24 15.7 24 15.3 24 12c0-3.3 0-3.7-.1-4.9-.2-4.4-2.6-6.8-7-7C15.7 0 15.3 0 12 0zm0 5.8a6.2 6.2 0 1 0 0 12.4A6.2 6.2 0 0 0 12 5.8zm0 10.2a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.4-11.8a1.4 1.4 0 1 0 0 2.8 1.4 1.4 0 0 0 0-2.8z"/></svg>
+      Instagram
+    </a>
+    <a href="https://www.tiktok.com/@dygprofdaytrading" target="_blank" rel="noopener" aria-label="TikTok">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M19.6 3.3A4.5 4.5 0 0 1 15 0h-3.4v16.4a2.7 2.7 0 0 1-2.7 2.3 2.7 2.7 0 0 1-2.7-2.7 2.7 2.7 0 0 1 2.7-2.7c.3 0 .5 0 .7.1V10a6.1 6.1 0 0 0-.7 0 6.2 6.2 0 0 0-6.2 6.2A6.2 6.2 0 0 0 8.9 22.4a6.2 6.2 0 0 0 6.2-6.2V8.1A8 8 0 0 0 19.6 9V5.7a4.5 4.5 0 0 1-2.5-.7 4.5 4.5 0 0 1-2.5-.7z"/></svg>
+      TikTok
+    </a>
+  </div>
 </footer>
 
 </body>
