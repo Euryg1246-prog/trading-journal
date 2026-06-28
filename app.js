@@ -1261,6 +1261,7 @@ function renderAdminStudents(students) {
           ? `<button type="button" class="tool-btn" onclick="viewStudentJournal('${s.student_id}','${s.student_email}')">Ver Journal</button>`
           : `<button type="button" class="tool-btn" disabled style="opacity:.5;cursor:not-allowed">Ver Journal</button>`
         }
+                  <button type="button" class="tool-btn" style="background:#c0392b;color:#fff;margin-top:4px" onclick="removeStudent('${s.student_email}')">✕ Eliminar</button>
       </div>`;
   }).join('');
 }
@@ -5306,6 +5307,17 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') closeSuggestionModal();
 });
 
+
+/* ==========================================================
+   ELIMINAR ESTUDIANTE
+      ========================================================== */
+async function removeStudent(email) {
+     if (!confirm(`¿Eliminar a ${email} de tu lista de estudiantes?`)) return;
+     const { error } = await _supabase.rpc('admin_remove_student', { p_email: email });
+     if (error) { showToast('⚠️ Error', error.message); return; }
+     showToast('✅ Estudiante eliminado', email);
+     loadAdminStudents();
+}
 
 /* ==========================================================
    BOTÓN TRADINGVIEW — Abre el símbolo principal del trader
