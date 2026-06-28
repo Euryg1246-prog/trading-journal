@@ -1752,7 +1752,7 @@ function renderChart() {
       }
     }
   });
-     addTradingViewButton();
+     setTimeout(addTradingViewButton, 300);
 }
 
 function renderResearchCenter(activeTrades) {
