@@ -1752,6 +1752,7 @@ function renderChart() {
       }
     }
   });
+     addTradingViewButton();
 }
 
 function renderResearchCenter(activeTrades) {
@@ -5303,3 +5304,38 @@ async function sendSuggestion() {
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') closeSuggestionModal();
 });
+
+
+/* ==========================================================
+   BOTÓN TRADINGVIEW — Abre el símbolo principal del trader
+   ========================================================== */
+function addTradingViewButton() {
+     if (document.getElementById('tv-open-btn')) return;
+     const profile = JSON.parse(localStorage.getItem('dygpro_profile') || '{}');
+     const instrument = profile.instrument || 'MNQ';
+     const symbolMap = {
+            'MNQ': 'CME_MINI:MNQ1!', 'NQ': 'CME_MINI:NQ1!',
+            'ES':  'CME_MINI:ES1!',  'MES': 'CME_MINI:MES1!',
+            'YM':  'CBOT_MINI:YM1!', 'MYM': 'CBOT_MINI:MYM1!',
+            'RTY': 'CME_MINI:RTY1!', 'M2K': 'CME_MINI:M2K1!',
+            'CL':  'NYMEX:CL1!',     'GC':  'COMEX:GC1!',
+     };
+     const tvSymbol = symbolMap[instrument] || instrument;
+     const tvUrl = `https://www.tradingview.com/chart/?symbol=${tvSymbol}`;
+     const btn = document.createElement('a');
+     btn.id = 'tv-open-btn';
+     btn.href = tvUrl;
+     btn.target = '_blank';
+     btn.title = `Abrir ${instrument} en TradingView`;
+     btn.style.cssText = [
+            'display:inline-flex','align-items:center','gap:6px','margin-left:14px',
+            'padding:4px 10px','background:#131722','border:1px solid #2a2d3e',
+            'border-radius:6px','text-decoration:none','vertical-align:middle',
+            'cursor:pointer','transition:border-color 0.2s,background 0.2s'
+          ].join(';');
+     btn.onmouseenter = () => { btn.style.borderColor = '#2962FF'; btn.style.background = '#1e2235'; };
+     btn.onmouseleave = () => { btn.style.borderColor = '#2a2d3e'; btn.style.background = '#131722'; };
+     btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 36 28" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 28H7L14 14H7L0 0H21L14 14H21L14 28Z" fill="#2962FF"/><path d="M28 0H36L28 28H20L28 0Z" fill="#2962FF"/></svg><span style="color:#2962FF;font-size:12px;font-weight:600;letter-spacing:0.3px;">${instrument}</span>`;
+     const h2 = document.querySelector('.chart-panel h2');
+     if (h2) h2.appendChild(btn);
+}
