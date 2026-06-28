@@ -1711,7 +1711,8 @@ function renderDashboard(activeTrades) {
 
   const days = bestGroupByDay();
   setText("bestDay", days.best);
-  setText("worstDay", days.worst);
+    setText("worstDay", days.worst);
+     addTradingViewButton();
 }
 
 function renderChart() {
