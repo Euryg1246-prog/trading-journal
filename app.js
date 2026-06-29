@@ -14,6 +14,13 @@ function toggleAdvancedFields() {
                         );
 }
 
+// Inicializar el botón del formulario al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+       const btn = document.getElementById('toggleAdvancedBtn');
+       if (btn) btn.innerHTML = '&#9654; Datos de sesión & reflexión — <small style="opacity:.55">(opcional, clic para expandir)</small>';
+});
+
+
 /* ============================================================
    AUTO-RECÁLCULO DE P/L
    Detecta trades con PL=0 que tienen entry+exit y los corrige
