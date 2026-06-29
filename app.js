@@ -1252,18 +1252,20 @@ function renderAdminStudents(students) {
   list.innerHTML = students.map(s => {
     const linked = !!s.student_id;
     return `
-      <div class="account-status-box" style="justify-content:space-between;margin-bottom:8px;">
-        <div>
-          <strong>${escapeHtml(s.student_email)}</strong>
-          <p>${linked ? '🟢 Registrado' : '🟡 Pendiente de registro'}</p>
-        </div>
-        ${linked
-          ? `<button type="button" class="tool-btn" onclick="viewStudentJournal('${s.student_id}','${s.student_email}')">Ver Journal</button>`
-          : `<button type="button" class="tool-btn" disabled style="opacity:.5;cursor:not-allowed">Ver Journal</button>`
-        }
-                  <button type="button" class="tool-btn" style="background:#c0392b;color:#fff;margin-top:4px" onclick="removeStudent('${s.student_email}')">✕ Eliminar</button>
-      </div>`;
-  }).join('');
+            <div class="account-status-box" style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;margin-bottom:4px;border-radius:6px;background:rgba(255,255,255,.03);">
+                    <div style="display:flex;flex-direction:column;min-width:0;">
+                              <strong style="font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(s.student_email)}</strong>
+                                        <span style="font-size:11px;color:#aaa">${linked ? '🟢 Registrado' : '🟡 Pendiente'}</span>
+                                                </div>
+                                                        <div style="display:flex;gap:6px;flex-shrink:0;">
+                                                                  ${linked
+                                                                                ? `<button type="button" class="tool-btn" style="padding:4px 10px;font-size:12px" onclick="viewStudentJournal('${s.student_id}','${s.student_email}')">Ver Journal</button>`
+                                                                                : `<button type="button" class="tool-btn" style="padding:4px 10px;font-size:12px;opacity:.4" disabled>Ver Journal</button>`}
+                                                                                          <button type="button" class="tool-btn" style="padding:4px 10px;font-size:12px;background:#c0392b;color:#fff;border-color:#c0392b" onclick="removeStudent('${s.student_email}')">✕</button>
+                                                                                                  </div>
+                                                                                                        </div>\`;
+                                                                                                            }).join('');
+
 }
 
 async function addStudent() {
