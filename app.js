@@ -1,5 +1,20 @@
 
 /* ============================================================
+FORMULARIO — Toggle campos avanzados (opcionales)
+============================================================ */
+function toggleAdvancedFields() {
+     const box = document.getElementById('advancedFields');
+     const btn = document.getElementById('toggleAdvancedBtn');
+     if (!box || !btn) return;
+     const open = box.style.display !== 'none';
+     box.style.display = open ? 'none' : 'block';
+     btn.innerHTML = (open
+                          ? '&#9654; Datos de sesión &amp; reflexión <span style="font-size:11px;margin-left:auto;opacity:.6">(opcional)</span>'
+                          : '&#9660; Datos de sesión &amp; reflexión <span style="font-size:11px;margin-left:auto;opacity:.6">(ocultar)</span>'
+                        );
+}
+
+/* ============================================================
    AUTO-RECÁLCULO DE P/L
    Detecta trades con PL=0 que tienen entry+exit y los corrige
    ============================================================ */
