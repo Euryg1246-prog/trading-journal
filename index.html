@@ -697,7 +697,8 @@
         <small>Instrumento operado.</small>
       </label>
       <label>Dirección <span class="tip" data-tip="Long si compraste esperando que suba el precio. Short si vendiste esperando que baje.">?</span><select id="direction"><option value="">Seleccionar dirección</option><option value="Long">Long</option><option value="Short">Short</option></select></label>
-      <div class="form-section-title">Datos de la Sesión</div>
+<button type="button" id="toggleAdvancedBtn" onclick="toggleAdvancedFields()" style="width:100%;margin:8px 0 2px;padding:10px 16px;background:rgba(56,189,248,0.06);border:1.5px dashed rgba(56,189,248,0.3);border-radius:10px;color:var(--text2);font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;text-align:left;display:flex;align-items:center;gap:8px;transition:all .2s">&#9654; Datos de sesión &amp; reflexión <span style="font-size:11px;margin-left:auto;opacity:.6">(opcional)</span>span></button>button><div id="advancedFields" style="display:none">
+  <div class="form-section-title">Datos de la Sesión</div>
       <label>Precio de Apertura de Sesión <span class="tip" data-tip="El precio de apertura de la sesión del día — generalmente el Open de las 9:30 AM ET o el Globex según tu estrategia.">?</span><input type="number" step="0.25" id="sessionOpen" placeholder="Precio apertura"></label>
       <label>Precio Más Bajo de la Sesión <span class="tip" data-tip="El low más bajo que alcanzó el instrumento durante toda la sesión del día, no solo durante tu trade. Sirve como contexto del rango del mercado.">?</span><input type="number" step="0.25" id="sessionLow" placeholder="Low sesión"></label>
       <label>Precio Más Alto de la Sesión <span class="tip" data-tip="El high más alto que alcanzó el instrumento durante toda la sesión del día. Sirve para entender qué tan cerca estuvo el precio del extremo superior.">?</span><input type="number" step="0.25" id="sessionHigh" placeholder="High sesión"></label>
@@ -718,6 +719,7 @@
       <label>Nota del Trade<textarea id="notes" placeholder="¿Qué ocurrió durante esta operación?"></textarea></label>
       <label>Estado Emocional <span class="tip" data-tip="¿Cómo te sentiste durante este trade? El estado emocional tiene un impacto enorme en la toma de decisiones. Documentarlo revela patrones.">?</span><select id="emotionalState"><option value="">Seleccionar estado</option><option value="Tranquilo">Tranquilo</option><option value="Confiado">Confiado</option><option value="Ansioso">Ansioso</option><option value="Impaciente">Impaciente</option><option value="Frustrado">Frustrado</option><option value="Eufórico">Eufórico</option></select></label>
       <label>Lección Aprendida <span class="tip" data-tip="¿Qué aprendiste con este trade? Aunque haya salido bien. Un trade ganador ejecutado mal también es una lección.">?</span><textarea id="lessonLearned" placeholder="¿Qué te enseñó este trade?"></textarea></label>
+</div>
       <button type="submit">Guardar Registro</button>
     </form>
   </section>
