@@ -1268,7 +1268,7 @@ function renderAdminStudents(students) {
                                                                                 : `<button type="button" class="tool-btn" style="padding:4px 10px;font-size:12px;opacity:.4" disabled>Ver Journal</button>`}
                                                                                           <button type="button" class="tool-btn" style="padding:4px 10px;font-size:12px;background:#c0392b;color:#fff;border-color:#c0392b" onclick="removeStudent('${s.student_email}')">✕</button>
                                                                                                   </div>
-                                                                                                        </div>\`;
+                                                                                                        </div>`;
                                                                                                             }).join('');
 
 }
