@@ -948,19 +948,19 @@ button[type="submit"]:hover { opacity: .88; }
 }
 
 .sidebar-nav {
-  flex: 1; padding: 14px 10px; overflow-y: auto;
+  flex: 1; min-height: 0; padding: 10px 10px; overflow-y: auto;
 }
 .nav-section {
   font-size: 10px; color: var(--text3);
   letter-spacing: 1.5px; text-transform: uppercase;
-  padding: 12px 8px 5px; font-weight: 600;
+  padding: 8px 8px 4px; font-weight: 600;
 }
 .nav-item {
   display: flex; align-items: center; gap: 9px;
-  padding: 9px 12px; border-radius: 8px;
+  padding: 7px 12px; border-radius: 8px;
   color: var(--text2); font-size: 13px;
   text-decoration: none; cursor: pointer;
-  transition: all .15s; margin-bottom: 2px;
+  transition: all .15s; margin-bottom: 1px;
   font-family: 'DM Sans', sans-serif;
 }
 .nav-item:hover { background: var(--surface); color: var(--text); }
