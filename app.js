@@ -5370,7 +5370,7 @@ function addTradingViewButton() {
    Lazy-init: los widgets se crean la primera vez que el
    usuario abre la sección (evita problemas con display:none)
    ============================================================ */
-let _chartSymbol   = 'CME_MINI:NQ1!';
+let _chartSymbol   = 'OANDA:NAS100USD';
 let _chartInterval = '5';
 let _chartsReady   = false;
 let _tvFallbackTimer = null;
@@ -5471,7 +5471,7 @@ function _buildTechnicalAnalysis() {
       interval: '1D',
       width: '100%',
       isTransparent: true,
-      height: 260,
+      height: 300,
       symbol: _chartSymbol,
       showIntervalTabs: false,
       displayMode: 'compact',
@@ -5489,7 +5489,7 @@ function _buildEconomicCalendar() {
       colorTheme: 'dark',
       isTransparent: true,
       width: '100%',
-      height: 260,
+      height: 160,
       locale: 'es',
       importanceFilter: '0,1',
       countryFilter: 'us'
