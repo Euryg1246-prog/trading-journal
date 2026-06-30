@@ -221,6 +221,7 @@
       <a class="nav-item" href="#" onclick="showSidebarSection('section-calendar');return false;"><i class="ti ti-calendar-stats"></i> Calendario P/L</a>
       <a class="nav-item" href="#" onclick="showSidebarSection('section-notes');return false;"><i class="ti ti-notes"></i> Notas</a>
       <a class="nav-item" href="#" onclick="showSidebarSection('section-research');return false;"><i class="ti ti-chart-bar"></i> Research</a>
+      <a class="nav-item" href="#" onclick="showSidebarSection('section-charts');return false;"><i class="ti ti-chart-candle"></i> Gráficas TV</a>
       <div class="nav-section">Análisis</div>
       <a class="nav-item" href="#" onclick="showSidebarSection('section-scorecard-wrapper');return false;"><i class="ti ti-award"></i> Scorecard</a>
       <a class="nav-item" href="#" onclick="showSidebarSection('section-drift');return false;"><i class="ti ti-activity"></i> Drift Monitor</a>
@@ -482,6 +483,82 @@
   <section class="grid-main" id="section-research">
     <div class="panel"><h2>Research Center</h2><div id="researchBox" class="research-box"></div></div>
     <div class="panel"><h2>Distribución Hora Pico</h2><div id="peakDistribution" class="distribution"></div></div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       SECCIÓN: GRÁFICAS & ANÁLISIS TÉCNICO (TradingView)
+  ════════════════════════════════════════════════════════ -->
+  <section class="panel" id="section-charts">
+    <h2>📊 Gráficas & Análisis Técnico</h2>
+    <p>Analiza el mercado en tiempo real. Cambia el símbolo o el intervalo para revisar cualquier instrumento.</p>
+
+    <!-- Barra de símbolo + intervalo -->
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px;">
+      <div style="display:flex;gap:6px;flex-wrap:wrap;" id="chartSymbolPills">
+        <button class="chart-sym-btn active" onclick="setChartSymbol('CME_MINI:NQ1!',this)">NQ</button>
+        <button class="chart-sym-btn" onclick="setChartSymbol('CME_MINI:MNQ1!',this)">MNQ</button>
+        <button class="chart-sym-btn" onclick="setChartSymbol('CME_MINI:ES1!',this)">ES</button>
+        <button class="chart-sym-btn" onclick="setChartSymbol('CME_MINI:MES1!',this)">MES</button>
+        <button class="chart-sym-btn" onclick="setChartSymbol('CME_MINI:YM1!',this)">YM</button>
+        <button class="chart-sym-btn" onclick="setChartSymbol('CME_MINI:MYM1!',this)">MYM</button>
+        <button class="chart-sym-btn" onclick="setChartSymbol('COMEX:GC1!',this)">GC</button>
+        <button class="chart-sym-btn" onclick="setChartSymbol('COMEX:MGC1!',this)">MGC</button>
+        <button class="chart-sym-btn" onclick="setChartSymbol('NYMEX:CL1!',this)">CL</button>
+        <button class="chart-sym-btn" onclick="setChartSymbol('BINANCE:BTCUSDT',this)">BTC</button>
+        <button class="chart-sym-btn" onclick="setChartSymbol('BINANCE:ETHUSDT',this)">ETH</button>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;margin-left:auto;">
+        <span style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;">Intervalo:</span>
+        <select id="chartInterval" onchange="setChartInterval(this.value)"
+          style="font-size:12px;padding:6px 10px;background:var(--surface2);border:1px solid var(--border2);color:var(--text);border-radius:8px;cursor:pointer;outline:none;">
+          <option value="1">1 min</option>
+          <option value="3">3 min</option>
+          <option value="5" selected>5 min</option>
+          <option value="15">15 min</option>
+          <option value="30">30 min</option>
+          <option value="60">1 hora</option>
+          <option value="D">Diario</option>
+          <option value="W">Semanal</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Gráfica avanzada -->
+    <div id="tv-advanced-chart"
+      style="height:520px;border-radius:12px;overflow:hidden;margin-bottom:20px;border:1px solid var(--border2);background:var(--bg);">
+    </div>
+
+    <!-- Análisis técnico + Calendario económico -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:14px;padding:16px;">
+        <div style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;">
+          <i class="ti ti-pulse"></i> Análisis Técnico
+        </div>
+        <div id="tv-technical-analysis" style="min-height:400px;"></div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:14px;padding:16px;">
+        <div style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;">
+          <i class="ti ti-calendar-event"></i> Calendario Económico (USD)
+        </div>
+        <div id="tv-economic-calendar" style="min-height:400px;"></div>
+      </div>
+    </div>
+
+    <!-- Mobile: stack columns -->
+    <style>
+      .chart-sym-btn {
+        padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border2);
+        background: var(--surface2); color: var(--text2); cursor: pointer;
+        font-size: 12px; font-weight: 600; font-family: 'DM Sans', sans-serif;
+        transition: all .15s;
+      }
+      .chart-sym-btn:hover { border-color: var(--accent); color: var(--accent); }
+      .chart-sym-btn.active { background: var(--accent); color: #000; border-color: var(--accent); }
+      @media (max-width: 800px) {
+        #section-charts > div:last-child { grid-template-columns: 1fr !important; }
+        #tv-advanced-chart { height: 320px !important; }
+      }
+    </style>
   </section>
 
   <div id="section-scorecard-wrapper">

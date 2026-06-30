@@ -946,7 +946,7 @@ let currentView = localStorage.getItem('dygpro_view') || 'scroll';
 
 // All section IDs for sidebar mode
 const ALL_SECTIONS = [
-  'section-dashboard','section-calendar','section-notes','section-research',
+  'section-dashboard','section-calendar','section-notes','section-research','section-charts',
   'section-scorecard-wrapper','section-drift','section-recovery','section-setup','section-montecarlo','section-account',
   'section-config','section-data','section-entry','section-history','section-sessions',
   'section-profile','section-gallery',
@@ -1014,10 +1014,10 @@ function showSidebarSection(sectionId) {
   if (currentView !== 'sidebar') {
     const target = document.getElementById(sectionId);
     if (target) {
-      // Asegurarse que la sección esté visible
       target.style.display = '';
       setTimeout(() => target.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
     }
+    if (sectionId === 'section-charts') initChartsWidgets();
     return;
   }
 
@@ -1028,6 +1028,7 @@ function showSidebarSection(sectionId) {
   });
   const target = document.getElementById(sectionId);
   if (target) target.style.display = '';
+  if (sectionId === 'section-charts') initChartsWidgets();
   // Marcar nav activo
   document.querySelectorAll('#sidebar .nav-item').forEach(item => {
     const oc = item.getAttribute('onclick') || '';
@@ -5352,4 +5353,114 @@ function addTradingViewButton() {
      btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 36 28" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 28H7L14 14H7L0 0H21L14 14H21L14 28Z" fill="#2962FF"/><path d="M28 0H36L28 28H20L28 0Z" fill="#2962FF"/></svg><span style="color:#2962FF;font-size:12px;font-weight:600;letter-spacing:0.3px;">${instrument}</span>`;
      const h2 = document.querySelector('.chart-panel h2');
      if (h2) h2.appendChild(btn);
+}
+
+
+/* ============================================================
+   SECCIÓN DE GRÁFICAS — TradingView Widgets
+   Lazy-init: los widgets se crean la primera vez que el
+   usuario abre la sección (evita problemas con display:none)
+   ============================================================ */
+let _chartSymbol   = 'CME_MINI:NQ1!';
+let _chartInterval = '5';
+let _chartsReady   = false;
+
+function _tvWidget(containerId, scriptSrc, config) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  el.innerHTML = '';
+  const wrap = document.createElement('div');
+  wrap.className = 'tradingview-widget-container';
+  wrap.style.height = '100%';
+  const inner = document.createElement('div');
+  inner.className = 'tradingview-widget-container__widget';
+  inner.style.height = '100%';
+  wrap.appendChild(inner);
+  const s = document.createElement('script');
+  s.type = 'text/javascript';
+  s.async = true;
+  s.src = scriptSrc;
+  s.textContent = JSON.stringify(config);
+  wrap.appendChild(s);
+  el.appendChild(wrap);
+}
+
+function initChartsWidgets() {
+  if (_chartsReady) return;
+  _chartsReady = true;
+  _buildAdvancedChart();
+  _buildTechnicalAnalysis();
+  _buildEconomicCalendar();
+}
+
+function _buildAdvancedChart() {
+  _tvWidget(
+    'tv-advanced-chart',
+    'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js',
+    {
+      autosize: true,
+      symbol: _chartSymbol,
+      interval: _chartInterval,
+      timezone: 'America/New_York',
+      theme: 'dark',
+      style: '1',
+      locale: 'es',
+      withdateranges: true,
+      hide_side_toolbar: false,
+      allow_symbol_change: true,
+      calendar: false,
+      support_host: 'https://www.tradingview.com'
+    }
+  );
+}
+
+function _buildTechnicalAnalysis() {
+  _tvWidget(
+    'tv-technical-analysis',
+    'https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js',
+    {
+      interval: '1D',
+      width: '100%',
+      isTransparent: true,
+      height: 420,
+      symbol: _chartSymbol,
+      showIntervalTabs: true,
+      displayMode: 'single',
+      locale: 'es',
+      colorTheme: 'dark'
+    }
+  );
+}
+
+function _buildEconomicCalendar() {
+  _tvWidget(
+    'tv-economic-calendar',
+    'https://s3.tradingview.com/external-embedding/embed-widget-events.js',
+    {
+      colorTheme: 'dark',
+      isTransparent: true,
+      width: '100%',
+      height: 420,
+      locale: 'es',
+      importanceFilter: '-1,0,1',
+      countryFilter: 'us'
+    }
+  );
+}
+
+function setChartSymbol(sym, btn) {
+  _chartSymbol = sym;
+  _chartsReady = false;
+  document.querySelectorAll('.chart-sym-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  _buildAdvancedChart();
+  _buildTechnicalAnalysis();
+  _chartsReady = true;
+}
+
+function setChartInterval(val) {
+  _chartInterval = val;
+  _chartsReady = false;
+  _buildAdvancedChart();
+  _chartsReady = true;
 }
