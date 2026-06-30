@@ -755,14 +755,19 @@ let userPlan = 'free'; // 'free' o 'pro'
 async function checkUserPlan() {
   if (!currentUser) return;
 
-  // Check plan in Supabase profiles table
-  const { data } = await _supabase
+  const { data, error } = await _supabase
     .from('profiles')
     .select('plan, stripe_customer_id')
     .eq('id', currentUser.id)
     .single();
 
-  userPlan = data?.plan || 'free';
+  // Si hay error de red, no revertir a free — reintentar en 5s
+  if (error || !data) {
+    setTimeout(checkUserPlan, 5000);
+    return;
+  }
+
+  userPlan = data.plan || 'free';
   updatePlanUI();
 }
 
@@ -1330,7 +1335,11 @@ async function loadTradesFromSupabase() {
     .eq("user_id", activeUserId())
     .order("date", { ascending: true });
 
-  if (error) { console.error("Error cargando trades:", error); return; }
+  if (error) {
+    console.error("Error cargando trades:", error);
+    showToast('⚠️ Error de conexión', 'No se pudieron cargar los trades. Recarga la página.');
+    return;
+  }
 
   trades = (data || []).map(dbRowToTrade);
   try { localStorage.setItem("dygpro_trades_cache", JSON.stringify(trades)); } catch(e) {}
