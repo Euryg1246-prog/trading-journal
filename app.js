@@ -5373,6 +5373,45 @@ function addTradingViewButton() {
 let _chartSymbol   = 'CME_MINI:NQ1!';
 let _chartInterval = '5';
 let _chartsReady   = false;
+let _tvFallbackTimer = null;
+
+const _TV_FALLBACK = {
+  'CME_MINI:NQ1!':  'OANDA:NAS100USD',
+  'CME_MINI:MNQ1!': 'OANDA:NAS100USD',
+  'CME_MINI:ES1!':  'OANDA:SPX500USD',
+  'CME_MINI:MES1!': 'OANDA:SPX500USD',
+  'CME_MINI:YM1!':  'OANDA:US30USD',
+  'CME_MINI:MYM1!': 'OANDA:US30USD',
+  'COMEX:GC1!':     'OANDA:XAUUSD',
+  'COMEX:MGC1!':    'OANDA:XAUUSD',
+  'NYMEX:CL1!':     'OANDA:BCOUSD',
+};
+
+function _armTVFallback() {
+  if (_tvFallbackTimer) clearTimeout(_tvFallbackTimer);
+  const originalSymbol = _chartSymbol;
+
+  const handler = (e) => {
+    if (!e.origin.includes('tradingview')) return;
+    if (e.data && e.data.name === 'tv-widget-no-data') {
+      window.removeEventListener('message', handler);
+      clearTimeout(_tvFallbackTimer);
+      const fallback = _TV_FALLBACK[originalSymbol];
+      if (fallback) {
+        _chartSymbol = fallback;
+        _buildAdvancedChart();
+        const notice = document.getElementById('tv-session-notice');
+        if (notice) {
+          notice.textContent = `⚠️ ${originalSymbol} requiere sesión de TradingView activa en este navegador. Mostrando datos equivalentes de OANDA.`;
+          notice.style.display = 'block';
+        }
+      }
+    }
+  };
+
+  window.addEventListener('message', handler);
+  _tvFallbackTimer = setTimeout(() => window.removeEventListener('message', handler), 6000);
+}
 
 function _tvWidget(containerId, scriptSrc, config) {
   const el = document.getElementById(containerId);
@@ -5397,6 +5436,7 @@ function _tvWidget(containerId, scriptSrc, config) {
 function initChartsWidgets() {
   if (_chartsReady) return;
   _chartsReady = true;
+  _armTVFallback();
   _buildAdvancedChart();
   _buildTechnicalAnalysis();
   _buildEconomicCalendar();
@@ -5431,10 +5471,10 @@ function _buildTechnicalAnalysis() {
       interval: '1D',
       width: '100%',
       isTransparent: true,
-      height: 420,
+      height: 260,
       symbol: _chartSymbol,
-      showIntervalTabs: true,
-      displayMode: 'single',
+      showIntervalTabs: false,
+      displayMode: 'compact',
       locale: 'es',
       colorTheme: 'dark'
     }
@@ -5449,9 +5489,9 @@ function _buildEconomicCalendar() {
       colorTheme: 'dark',
       isTransparent: true,
       width: '100%',
-      height: 420,
+      height: 260,
       locale: 'es',
-      importanceFilter: '-1,0,1',
+      importanceFilter: '0,1',
       countryFilter: 'us'
     }
   );
@@ -5462,6 +5502,9 @@ function setChartSymbol(sym, btn) {
   _chartsReady = false;
   document.querySelectorAll('.chart-sym-btn').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
+  const notice = document.getElementById('tv-session-notice');
+  if (notice) notice.style.display = 'none';
+  _armTVFallback();
   _buildAdvancedChart();
   _buildTechnicalAnalysis();
   _chartsReady = true;
