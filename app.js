@@ -3704,7 +3704,7 @@ renderChart = function() {
             mode: 'x'
           },
           zoom: {
-            wheel: { enabled: true, modifierKey: 'ctrl' },
+            wheel: { enabled: false },
             pinch: { enabled: false },
             mode: 'x'
           }

@@ -373,8 +373,12 @@
       </div>
       <canvas id="equityChart"></canvas>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;">
-        <span style="font-size:10px;color:var(--text3);">Ctrl + Scroll para zoom · Arrastra para mover</span>
-        <button class="tool-btn" onclick="if(equityChart)equityChart.resetZoom()" style="font-size:11px;padding:4px 10px;">↺ Reset Zoom</button>
+        <span style="font-size:10px;color:var(--text3);">Clic y arrastra para mover · Usa los botones para zoom</span>
+        <div style="display:flex;gap:4px;">
+          <button class="tool-btn" onclick="if(equityChart)equityChart.zoom(1.25)" style="font-size:13px;padding:3px 10px;" title="Acercar">+</button>
+          <button class="tool-btn" onclick="if(equityChart)equityChart.zoom(0.8)" style="font-size:13px;padding:3px 10px;" title="Alejar">−</button>
+          <button class="tool-btn" onclick="if(equityChart)equityChart.resetZoom()" style="font-size:11px;padding:4px 10px;">↺ Reset</button>
+        </div>
       </div>
       <div class="trader-manifesto">
         <p>Mi trabajo no es ganar hoy.<br>Mi trabajo es ejecutar el plan.</p>
